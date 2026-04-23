@@ -1,13 +1,6 @@
 {
   "version": 2,
-  "builds": [
-    { "src": "api/proxy.js", "use": "@vercel/node" },
-    { "src": "*.html", "use": "@vercel/static" },
-    { "src": "*.js", "use": "@vercel/static" }
-  ],
-  "routes": [
-    { "src": "/asaas/(.*)", "dest": "/api/proxy.js" },
-    { "src": "/", "dest": "/prosed-admin.html" },
-    { "src": "/(.*)", "dest": "/$1" }
+  "rewrites": [
+    { "source": "/asaas/:path*", "destination": "/api/proxy" }
   ]
 }
