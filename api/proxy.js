@@ -191,4 +191,7 @@ function todayISO(daysAhead = 0) {
 }
 
 // ── Exporta para o Vercel ──────────────────────────────────────
-module.exports = app;
+module.exports = (req, res) => {
+  req.url = req.url.replace(/^\/asaas/, "") || "/";
+  return app(req, res);
+};
