@@ -504,7 +504,7 @@ function saveContest(forceStatus){
   const status=forceStatus||document.getElementById('nc-status').value;
   const editingId=document.getElementById('editing-id').value;
   const id=editingId||('C'+Date.now());
-  const base=window.location.href.replace(/[^/]*$','').replace('admin.html','');
+  const base=window.location.href.replace(/[^/]*$/, '').replace('admin.html','');
   const contest={id,nome,orgao,
     prazo:document.getElementById('nc-prazo').value,
     status,maxParcelas:parseInt(document.getElementById('nc-parcelas').value)||1,
