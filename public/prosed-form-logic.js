@@ -1,5 +1,5 @@
 // prosed-form-logic.js — Firebase edition
-import { db, collection, doc, getDoc, getDocs, addDoc, updateDoc, query, where, orderBy }
+import { db, collection, doc, getDoc, getDocs, addDoc, updateDoc, setDoc, query, where, orderBy }
   from './firebase-config.js';
 
 // ── LOAD CONTEST ──────────────────────────────────────────────
