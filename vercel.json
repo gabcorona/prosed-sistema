@@ -1,7 +1,13 @@
 {
   "version": 2,
-  "rewrites": [
-    { "source": "/asaas/:path*", "destination": "/api/proxy" },
-    { "source": "/asaas", "destination": "/api/proxy" }
+  "builds": [
+    { "src": "api/proxy.js", "use": "@vercel/node" }
+  ],
+  "routes": [
+    { "src": "/asaas(.*)", "dest": "/api/proxy" },
+    { "src": "/prosed-form-logic.js", "dest": "/prosed-form-logic.js" },
+    { "src": "/prosed-admin.html", "dest": "/prosed-admin.html" },
+    { "src": "/prosed-formulario.html", "dest": "/prosed-formulario.html" },
+    { "src": "/", "dest": "/prosed-admin.html" }
   ]
 }
