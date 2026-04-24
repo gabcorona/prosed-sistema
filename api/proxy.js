@@ -84,6 +84,7 @@ app.post('/pay/credit', async (req, res) => {
       dueDate:          todayISO(),
       description,
       installmentCount: installmentCount || 1,
+      installmentValue: Math.round((value / (installmentCount || 1)) * 100) / 100,
       creditCard: {
         holderName:  card.holderName,
         number:      card.number.replace(/\s/g, ''),
@@ -180,6 +181,9 @@ app.post('/pay/pix', async (req, res) => {
 // ── 5. Verificar status de pagamento ──────────────────────────
 app.get('/pay/:paymentId/status', async (req, res) => {
   try {
+    res.set('Cache-Control', 'no-store, no-cache, must-revalidate');
+    res.set('Pragma', 'no-cache');
+    res.set('Expires', '0');
     const { data } = await asaas('GET', `/payments/${req.params.paymentId}`);
     res.json({ status: data.status, value: data.value, paymentId: data.id });
   } catch (e) {
