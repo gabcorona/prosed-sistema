@@ -413,7 +413,11 @@ function startPoll(pid) {
   if (pixPollTimer) clearInterval(pixPollTimer);
   pixPollTimer = setInterval(async () => {
     try {
-      const r = await fetch(`${PROXY()}/asaas/pay/${pid}/status`);
+      const r = await fetch(PROXY() + '/asaas/pay/status', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ paymentId: pid })
+      });
       const d = await r.json();
       if (d.status === 'RECEIVED' || d.status === 'CONFIRMED') { clearInterval(pixPollTimer); await finalize(pid, 'paid'); }
     } catch(e) {}
