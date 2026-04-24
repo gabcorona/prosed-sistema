@@ -1,5 +1,11 @@
 {
   "outputDirectory": "public",
+  "functions": {
+    "api/proxy.js": {
+      "memory": 256,
+      "maxDuration": 10
+    }
+  },
   "rewrites": [
     { "source": "/asaas/:path*", "destination": "/api/proxy" }
   ]
