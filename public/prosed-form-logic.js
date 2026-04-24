@@ -419,7 +419,7 @@ function startPoll(pid) {
         body: JSON.stringify({ paymentId: pid })
       });
       const d = await r.json();
-      if (['RECEIVED','CONFIRMED','RECEIVED_IN_CASH'].includes(d.status)) { clearInterval(pixPollTimer); await finalize(pid, 'paid'); }
+      if (['RECEIVED','CONFIRMED','RECEIVED_IN_CASH','PAYMENT_APPROVED','APPROVED'].includes(d.status)) { clearInterval(pixPollTimer); await finalize(pid, 'paid'); }
     } catch(e) {}
   }, 4000);
 }
@@ -619,6 +619,7 @@ window.sPay = sPay; window.sInst = sInst; window.subCard = subCard; window.gPIX 
 window.prtComp = prtComp;
 window.mCPF = mCPF; window.mPhone = mPhone; window.mDate = mDate; window.mCard = mCard; window.mExp = mExp; window.mCEP = mCEP;
 window.sR = sR; window.tMed = tMed;
+window.finalize = finalize; window.getPixPaymentId = () => pixPaymentId;
 
 // ── INIT ──────────────────────────────────────────────────────
 loadData();
