@@ -1,7 +1,6 @@
 {
   "name": "prosed-sistema",
   "version": "1.0.0",
-  "main": "api/proxy.js",
   "scripts": {
     "start": "node api/proxy.js"
   },
