@@ -33,6 +33,7 @@ let selSlotId = null, selCity = null, selDate = null;
 let selExames = [], appliedCoupon = null;
 let payMethod = 'credit', installments = 1;
 let lastReg = null, pixPollTimer = null;
+window._pixPaymentId = null;
 
 // ── RENDER ────────────────────────────────────────────────────
 function render() {
@@ -619,7 +620,7 @@ window.sPay = sPay; window.sInst = sInst; window.subCard = subCard; window.gPIX 
 window.prtComp = prtComp;
 window.mCPF = mCPF; window.mPhone = mPhone; window.mDate = mDate; window.mCard = mCard; window.mExp = mExp; window.mCEP = mCEP;
 window.sR = sR; window.tMed = tMed;
-window.finalize = finalize; window.getPixPaymentId = () => pixPaymentId;
+window.finalize = finalize; window.getPixPaymentId = () => window._pixPaymentId;
 
 // ── INIT ──────────────────────────────────────────────────────
 loadData();
