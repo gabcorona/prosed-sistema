@@ -127,7 +127,7 @@ async function analisarEdital() {
     document.getElementById('ai-obs').textContent = parsed.observacoes || 'Nenhuma';
     document.getElementById('nc-resumo').value = parsed.resumo || '';
     document.getElementById('ai-result').style.display = 'block';
-    if (parsed.exames?.length) { newExames = parsed.exames.map(n => ({ id: uid(), nome: n, preco: '' })); renderExamesTable(); }
+    if (parsed.exames?.length) { newExames = parsed.exames.map(n => ({ id: uid(), nome: n, preco: '', orientacoes: '' })); renderExamesTable(); }
     showToast('Edital analisado!', 'ok');
   } catch(e) { showToast('Erro: ' + e.message, 'err'); }
   btn.innerHTML = '✨ Analisar com IA'; btn.disabled = false;
@@ -147,13 +147,14 @@ function renderPacotesTable() {
   </tr>`).join('');
 }
 
-function addExame(n = '', p = '') { newExames.push({ id: uid(), nome: n, preco: p }); renderExamesTable(); }
+function addExame(n = '', p = '', o = '') { newExames.push({ id: uid(), nome: n, preco: p, orientacoes: o }); renderExamesTable(); }
 function removeExame(id) { newExames = newExames.filter(x => x.id !== id); renderExamesTable(); }
 function renderExamesTable() {
   const b = document.getElementById('exames-body');
-  if (!newExames.length) { b.innerHTML = `<tr><td colspan="3" style="padding:14px;text-align:center;color:var(--white-dim);font-size:.82rem">Nenhum exame.</td></tr>`; return; }
+  if (!newExames.length) { b.innerHTML = `<tr><td colspan="4" style="padding:14px;text-align:center;color:var(--white-dim);font-size:.82rem">Nenhum exame.</td></tr>`; return; }
   b.innerHTML = newExames.map(e => `<tr>
     <td><input class="name-inp" value="${escH(e.nome)}" placeholder="Nome do exame" data-id="${e.id}" data-field="nome"/></td>
+    <td><input class="desc-inp" value="${escH(e.orientacoes||'')}" placeholder="Ex: Jejum de 8h, trazer exames anteriores..." data-id="${e.id}" data-field="orientacoes" style="color:var(--amber)"/></td>
     <td style="text-align:right"><input class="price-inp" value="${escH(e.preco)}" placeholder="0,00" data-id="${e.id}" data-field="preco"/></td>
     <td><button class="btn-red btn-sm rm-exa" data-id="${e.id}">✕</button></td>
   </tr>`).join('');
