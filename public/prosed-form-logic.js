@@ -419,7 +419,7 @@ function startPoll(pid) {
         body: JSON.stringify({ paymentId: pid })
       });
       const d = await r.json();
-      if (d.status === 'RECEIVED' || d.status === 'CONFIRMED') { clearInterval(pixPollTimer); await finalize(pid, 'paid'); }
+      if (['RECEIVED','CONFIRMED','RECEIVED_IN_CASH'].includes(d.status)) { clearInterval(pixPollTimer); await finalize(pid, 'paid'); }
     } catch(e) {}
   }, 4000);
 }
