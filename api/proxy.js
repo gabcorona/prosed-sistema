@@ -179,12 +179,10 @@ app.post('/pay/pix', async (req, res) => {
 });
 
 // ── 5. Verificar status de pagamento ──────────────────────────
-app.get('/pay/:paymentId/status', async (req, res) => {
+app.post('/pay/status', async (req, res) => {
   try {
-    res.set('Cache-Control', 'no-store, no-cache, must-revalidate');
-    res.set('Pragma', 'no-cache');
-    res.set('Expires', '0');
-    const { data } = await asaas('GET', `/payments/${req.params.paymentId}`);
+    const { paymentId } = req.body;
+    const { data } = await asaas('GET', `/payments/${paymentId}`);
     res.json({ status: data.status, value: data.value, paymentId: data.id });
   } catch (e) {
     res.status(500).json({ error: e.message });
