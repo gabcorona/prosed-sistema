@@ -156,7 +156,12 @@ function rPacote() {
       <label class="fl" style="display:block;margin:14px 0 8px">Selecione os exames</label>
       <div class="exam-check-list">
         ${exs.map(e => `<div class="exam-check ${selExames.includes(e.id) ? 'sel' : ''}" onclick="tEx('${e.id}',this)">
-          <div class="exam-check-left"><div class="chk">${selExames.includes(e.id) ? '✓' : ''}</div><span>${e.nome}</span></div>
+          <div class="exam-check-left"><div class="chk">${selExames.includes(e.id) ? '✓' : ''}</div>
+            <div>
+              <div style="font-size:.86rem;font-weight:500">${e.nome}</div>
+              ${e.orientacoes ? `<div style="font-size:.72rem;color:var(--amber);margin-top:2px">⚠ ${e.orientacoes}</div>` : ''}
+            </div>
+          </div>
           <span class="exam-price">${e.preco ? 'R$ ' + brl(parseFloat(e.preco)) : '—'}</span></div>`).join('')}
       </div>
       <div style="font-size:.78rem;color:var(--teal-light);margin-top:10px">Subtotal: <strong id="av-sub">R$ 0,00</strong></div>
@@ -278,6 +283,7 @@ function rCheckout() {
   const { base, disc, total } = calcT();
   const slot = (contest.slots || []).find(s => s.id === selSlotId);
   const exNoms = selExames.map(id => (contest.exames || []).find(x => x.id === id)?.nome || id);
+  const exOrientacoes = selExames.map(id => (contest.exames || []).find(x => x.id === id)?.orientacoes || '').filter(Boolean);
   const maxP = contest.maxParcelas || 1;
   const instOpts = maxP > 1 && total > 0 ? `<div class="field" style="margin-top:14px"><label class="fl">Parcelamento</label>
     <div class="installment-opts" id="inst-opts">
@@ -296,6 +302,7 @@ function rCheckout() {
         <tr><td>Data · Hora</td><td style="text-align:right">${slot?.date || '–'} · ${slot?.time || '–'}</td></tr>
         <tr><td>Pacote</td><td style="text-align:right">${fd.pacoteLabel || '–'}</td></tr>
         ${exNoms.length ? `<tr><td style="vertical-align:top">Exames</td><td style="text-align:right;font-size:.78rem">${exNoms.join('<br>')}</td></tr>` : ''}
+        ${exOrientacoes.length ? `<tr><td style="vertical-align:top;color:var(--amber)">⚠ Orientações</td><td style="text-align:right;font-size:.74rem;color:var(--amber)">${exOrientacoes.join('<br>')}</td></tr>` : ''}
         <tr><td>Subtotal</td><td style="text-align:right">R$ ${brl(base)}</td></tr>
         ${disc > 0 ? `<tr class="order-discount"><td>Desconto (${appliedCoupon.code})</td><td style="text-align:right">– R$ ${brl(disc)}</td></tr>` : ''}
         <tr class="order-total"><td>Total</td><td style="text-align:right">R$ ${brl(total)}</td></tr>
@@ -456,6 +463,8 @@ async function finalize(asaasId, payStatus) {
 
   const { total, disc } = calcT();
   const exNoms = selExames.map(id => (contest.exames || []).find(x => x.id === id)?.nome || id);
+  const exOrientacoesArr = selExames.map(id => (contest.exames || []).find(x => x.id === id)?.orientacoes || '').filter(Boolean);
+  const exOrientacoes = selExames.map(id => (contest.exames || []).find(x => x.id === id)?.orientacoes || '').filter(Boolean);
   const recId = 'PRSD-' + Date.now().toString(36).toUpperCase() + '-' + Math.random().toString(36).slice(2, 6).toUpperCase();
 
   const rec = {
@@ -467,7 +476,7 @@ async function finalize(asaasId, payStatus) {
     trat: fd.trat, psico: fd.psico, med: fd.med || '', coleta: fd.coleta,
     grupo: fd.grupo === 'furlani' ? 'Grupo Furlani + Geral' : 'Grupo Geral',
     pacoteLabel: fd.pacoteLabel, pacoteId: fd.pacoteId,
-    examesSel: exNoms, slotId: selSlotId,
+    examesSel: exNoms, orientacoes: exOrientacoesArr.join(' | '), slotId: selSlotId,
     slotCity: slot?.city || '', slotDate: slot?.date || '', slotTime: slot?.time || '',
     obs: fd.obs || '', fileName: selFile?.name || '',
     total, discount: disc, cupom: appliedCoupon?.code || '',
@@ -495,6 +504,7 @@ function rSuccess(rec) {
       <div class="ds-row"><span class="ds-key">Data</span><span class="ds-val">${rec.slotDate}</span></div>
       <div class="ds-row"><span class="ds-key">Horário</span><span class="ds-val">${rec.slotTime}</span></div>
       <div class="ds-row"><span class="ds-key">Pacote</span><span class="ds-val">${rec.pacoteLabel}</span></div>
+      ${(rec.examesSel||[]).length ? `<div class="ds-row"><span class="ds-key">Exames</span><span class="ds-val" style="font-size:.78rem">${rec.examesSel.join(', ')}</span></div>` : ''}
       <div class="ds-row"><span class="ds-key">Total Pago</span><span class="ds-val" style="color:var(--teal-light)">R$ ${brl(rec.total)}</span></div>
       ${rec.installments > 1 ? `<div class="ds-row"><span class="ds-key">Parcelamento</span><span class="ds-val">${rec.installments}x R$ ${brl(rec.total / rec.installments)}</span></div>` : ''}
     </div>
@@ -524,6 +534,7 @@ function bldPrint(r) {
     <div class="pr"><span class="pk">Horário:</span><span>${r.slotTime}</span></div>
     <div class="pr"><span class="pk">Pacote:</span><span>${r.pacoteLabel}</span></div>
     ${(r.examesSel || []).length ? `<div class="pr"><span class="pk">Exames:</span><span>${r.examesSel.join(', ')}</span></div>` : ''}</div>
+  ${r.orientacoes ? `<div class="ps"><div class="ps-title">⚠ Orientações Importantes</div><div style="font-size:12px;color:#B8860B;line-height:1.6">${r.orientacoes}</div></div>` : ''}
   <div class="ps"><div class="ps-title">Pagamento</div>
     <div class="pr"><span class="pk">Total Pago:</span><span style="font-weight:800;color:#1E6FFF">R$ ${brl(r.total || 0)}</span></div>
     ${r.installments > 1 ? `<div class="pr"><span class="pk">Parcelamento:</span><span>${r.installments}x R$ ${brl((r.total || 0) / r.installments)}</span></div>` : ''}
