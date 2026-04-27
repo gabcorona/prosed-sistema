@@ -346,7 +346,7 @@ function rCheckout() {
         <div id="pix-gen" style="display:none">
           <div class="pix-box">
             <div style="font-size:.84rem;color:var(--white-dim)">Escaneie o QR Code ou copie a chave PIX</div>
-            <div class="pix-qr-wrap" id="pix-qr"><div style="font-size:4rem">🟦</div></div>
+            <div class="pix-qr-wrap" id="pix-qr" style="min-height:260px;display:flex;align-items:center;justify-content:center"><div style="font-size:4rem">🟦</div></div>
             <div style="font-size:.75rem;color:var(--white-dim);margin-bottom:4px">Valor: <strong style="color:var(--teal-light)">R$ ${brl(total)}</strong></div>
             <div class="pix-copiae" id="pix-ce"></div>
             <div style="margin-top:10px"><button class="btn-ghost btn-sm" onclick="cpPix()">📋 Copiar chave PIX</button></div>
@@ -412,7 +412,7 @@ async function gPIX() {
     if (pr.error) throw new Error(pr.error);
     set('pix-pend', '<div style="color:var(--teal-light);font-weight:600">✓ PIX gerado!</div>');
     document.getElementById('pix-gen').style.display = '';
-    if (pr.encodedImage) set('pix-qr', `<img src="data:image/png;base64,${pr.encodedImage}" style="width:200px;height:200px"/>`);
+    if (pr.encodedImage) set('pix-qr', `<img src="data:image/png;base64,${pr.encodedImage}" style="width:250px;height:250px;image-rendering:pixelated;display:block;margin:0 auto"/>`);
     set('pix-ce', pr.pixCopiaECola || '');
     startPoll(pr.paymentId);
   } catch(e) {
