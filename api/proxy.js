@@ -205,9 +205,22 @@ app.get('/asaas/pay/:paymentId/qrcode', async (req, res) => {
   }
 });
 
+
+// ── 7. Verificar status via POST (polling) ─────────────────────
+app.post('/asaas/pay/status', async (req, res) => {
+  try {
+    const { paymentId } = req.body;
+    const { data } = await asaas('GET', `/payments/${paymentId}`);
+    res.set('Cache-Control', 'no-store');
+    res.json({ status: data.status, value: data.value, paymentId: data.id });
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
+});
+
 // ── Exporta para o Vercel ──────────────────────────────────────
 module.exports = (req, res) => {
-  // Normaliza URL: /asaas/xxx -> /asaas/xxx (mantém prefixo)
+  // Vercel passa /asaas/xxx, Express espera /asaas/xxx
   if (!req.url.startsWith('/')) req.url = '/' + req.url;
   return app(req, res);
 };
