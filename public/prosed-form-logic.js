@@ -346,7 +346,7 @@ function rCheckout() {
         <div id="pix-gen" style="display:none">
           <div class="pix-box">
             <div style="font-size:.84rem;color:var(--white-dim)">Escaneie o QR Code ou copie a chave PIX</div>
-            <div class="pix-qr-wrap" id="pix-qr" style="min-height:260px;display:flex;align-items:center;justify-content:center"><div style="font-size:4rem">🟦</div></div>
+            <div class="pix-qr-wrap" id="pix-qr" style="display:flex;align-items:center;justify-content:center;padding:10px 0"><div style="font-size:4rem">🟦</div></div>
             <div style="font-size:.75rem;color:var(--white-dim);margin-bottom:4px">Valor: <strong style="color:var(--teal-light)">R$ ${brl(total)}</strong></div>
             <div class="pix-copiae" id="pix-ce"></div>
             <div style="margin-top:10px"><button class="btn-ghost btn-sm" onclick="cpPix()">📋 Copiar chave PIX</button></div>
@@ -414,13 +414,13 @@ async function gPIX() {
     document.getElementById('pix-gen').style.display = '';
     // Tenta exibir QR Code - se não vier, busca novamente após 2s
     if (pr.encodedImage) {
-      set('pix-qr', `<img src="data:image/png;base64,${pr.encodedImage}" style="width:260px;height:260px;display:block;margin:0 auto"/>`);
+      set('pix-qr', `<img src="data:image/png;base64,${pr.encodedImage}" style="width:100%;max-width:280px;height:auto;display:block;margin:0 auto"/>`);
     } else {
       set('pix-qr', '<div style="padding:20px;color:var(--white-dim)">⏳ Aguardando QR Code...</div>');
       setTimeout(async () => {
         try {
           const qr = await (await fetch(PROXY() + '/asaas/pay/' + pr.paymentId + '/qrcode')).json();
-          if (qr.encodedImage) set('pix-qr', `<img src="data:image/png;base64,${qr.encodedImage}" style="width:260px;height:260px;display:block;margin:0 auto"/>`);
+          if (qr.encodedImage) set('pix-qr', `<img src="data:image/png;base64,${qr.encodedImage}" style="width:100%;max-width:280px;height:auto;display:block;margin:0 auto"/>`);
           if (qr.pixCopiaECola) set('pix-ce', qr.pixCopiaECola);
         } catch(e) {}
       }, 2500);
