@@ -412,7 +412,19 @@ async function gPIX() {
     if (pr.error) throw new Error(pr.error);
     set('pix-pend', '<div style="color:var(--teal-light);font-weight:600">✓ PIX gerado!</div>');
     document.getElementById('pix-gen').style.display = '';
-    if (pr.encodedImage) set('pix-qr', `<img src="data:image/png;base64,${pr.encodedImage}" style="width:250px;height:250px;image-rendering:pixelated;display:block;margin:0 auto"/>`);
+    // Tenta exibir QR Code - se não vier, busca novamente após 2s
+    if (pr.encodedImage) {
+      set('pix-qr', `<img src="data:image/png;base64,${pr.encodedImage}" style="width:260px;height:260px;display:block;margin:0 auto"/>`);
+    } else {
+      set('pix-qr', '<div style="padding:20px;color:var(--white-dim)">⏳ Aguardando QR Code...</div>');
+      setTimeout(async () => {
+        try {
+          const qr = await (await fetch(PROXY() + '/asaas/pay/' + pr.paymentId + '/qrcode')).json();
+          if (qr.encodedImage) set('pix-qr', `<img src="data:image/png;base64,${qr.encodedImage}" style="width:260px;height:260px;display:block;margin:0 auto"/>`);
+          if (qr.pixCopiaECola) set('pix-ce', qr.pixCopiaECola);
+        } catch(e) {}
+      }, 2500);
+    }
     set('pix-ce', pr.pixCopiaECola || '');
     startPoll(pr.paymentId);
   } catch(e) {
