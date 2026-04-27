@@ -41,7 +41,7 @@ app.get('/health', (_, res) => {
 });
 
 // ── 1. Criar / buscar cliente ──────────────────────────────────
-app.post('/asaas/customer', async (req, res) => {
+app.post('/customer', async (req, res) => {
   try {
     const { name, cpfCnpj, email, mobilePhone } = req.body;
     const cpf = cpfCnpj.replace(/\D/g, '');
@@ -69,7 +69,7 @@ app.post('/asaas/customer', async (req, res) => {
 });
 
 // ── 2. Pagamento com cartão de crédito ─────────────────────────
-app.post('/asaas/pay/credit', async (req, res) => {
+app.post('/pay/credit', async (req, res) => {
   try {
     const { customerId, value, description, installmentCount, card, holderInfo } = req.body;
 
@@ -107,7 +107,7 @@ app.post('/asaas/pay/credit', async (req, res) => {
 });
 
 // ── 3. Pagamento com cartão de débito ──────────────────────────
-app.post('/asaas/pay/debit', async (req, res) => {
+app.post('/pay/debit', async (req, res) => {
   try {
     const { customerId, value, description, card, holderInfo } = req.body;
 
@@ -144,7 +144,7 @@ app.post('/asaas/pay/debit', async (req, res) => {
 });
 
 // ── 4. Gerar cobrança PIX ──────────────────────────────────────
-app.post('/asaas/pay/pix', async (req, res) => {
+app.post('/pay/pix', async (req, res) => {
   try {
     const { customerId, value, description } = req.body;
 
@@ -174,7 +174,7 @@ app.post('/asaas/pay/pix', async (req, res) => {
 });
 
 // ── 5. Verificar status de pagamento ──────────────────────────
-app.get('/asaas/pay/:paymentId/status', async (req, res) => {
+app.get('/pay/:paymentId/status', async (req, res) => {
   try {
     const { data } = await asaas('GET', `/payments/${req.params.paymentId}`);
     res.json({ status: data.status, value: data.value, paymentId: data.id });
@@ -192,7 +192,7 @@ function todayISO(daysAhead = 0) {
 
 
 // ── 6. Buscar QR Code PIX por paymentId ──────────────────────
-app.get('/asaas/pay/:paymentId/qrcode', async (req, res) => {
+app.get('/pay/:paymentId/qrcode', async (req, res) => {
   try {
     const qr = await asaas('GET', `/payments/${req.params.paymentId}/pixQrCode`);
     res.json({
