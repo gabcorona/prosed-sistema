@@ -381,10 +381,10 @@ async function subCard() {
   const btn = document.getElementById('pay-btn'); if (btn) btn.disabled = true;
   set('pay-txt', '<span class="spin"></span> Processando…');
   try {
-    const cr = await pp('/asaas/customer', { name: fd.nome, cpfCnpj: fd.cpf, email: fd.email, mobilePhone: fd.cel });
+    const cr = await pp('/customer', { name: fd.nome, cpfCnpj: fd.cpf, email: fd.email, mobilePhone: fd.cel });
     if (cr.error) throw new Error(cr.error);
     const { total } = calcT();
-    const ep = payMethod === 'credit' ? '/asaas/pay/credit' : '/asaas/pay/debit';
+    const ep = payMethod === 'credit' ? '/pay/credit' : '/pay/debit';
     const pr = await pp(ep, {
       customerId: cr.customerId, value: total,
       description: `PROSED – ${contest.nome} – ${fd.nome}`,
@@ -405,10 +405,10 @@ async function subCard() {
 async function gPIX() {
   const btn = document.getElementById('btn-pix'); if (btn) { btn.disabled = true; btn.innerHTML = '<span class="spin"></span> Gerando…'; }
   try {
-    const cr = await pp('/asaas/customer', { name: fd.nome, cpfCnpj: fd.cpf, email: fd.email, mobilePhone: fd.cel });
+    const cr = await pp('/customer', { name: fd.nome, cpfCnpj: fd.cpf, email: fd.email, mobilePhone: fd.cel });
     if (cr.error) throw new Error(cr.error);
     const { total } = calcT();
-    const pr = await pp('/asaas/pay/pix', { customerId: cr.customerId, value: total, description: `PROSED – ${contest.nome} – ${fd.nome}` });
+    const pr = await pp('/pay/pix', { customerId: cr.customerId, value: total, description: `PROSED – ${contest.nome} – ${fd.nome}` });
     if (pr.error) throw new Error(pr.error);
     set('pix-pend', '<div style="color:var(--teal-light);font-weight:600">✓ PIX gerado!</div>');
     document.getElementById('pix-gen').style.display = '';
@@ -419,7 +419,7 @@ async function gPIX() {
       set('pix-qr', '<div style="padding:20px;color:var(--white-dim)">⏳ Aguardando QR Code...</div>');
       setTimeout(async () => {
         try {
-          const qr = await (await fetch(PROXY() + '/asaas/pay/' + pr.paymentId + '/qrcode')).json();
+          const qr = await (await fetch(PROXY() + '/pay/' + pr.paymentId + '/qrcode')).json();
           if (qr.encodedImage) set('pix-qr', `<img src="data:image/png;base64,${qr.encodedImage}" style="width:100%;max-width:280px;height:auto;display:block;margin:0 auto"/>`);
           if (qr.pixCopiaECola) set('pix-ce', qr.pixCopiaECola);
         } catch(e) {}
@@ -436,7 +436,7 @@ function startPoll(pid) {
   if (pixPollTimer) clearInterval(pixPollTimer);
   pixPollTimer = setInterval(async () => {
     try {
-      const r = await fetch(PROXY() + '/asaas/pay/status', {
+      const r = await fetch(PROXY() + '/pay/status', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ paymentId: pid })
