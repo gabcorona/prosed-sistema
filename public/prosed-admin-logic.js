@@ -9,20 +9,33 @@ let contests = [], registrations = [], coupons = [];
 let newSlots = [], newExames = [], newPacotes = [];
 let editalB64 = null, currentCadId = null, currentTab = 'concursos';
 let cfg = { asaasEnv: 'sandbox', proxyUrl: 'https://prosed-sistema.vercel.app', apiKey: '' };
+// Campos configuráveis do formulário (true = visível/obrigatório)
+let fieldsConfig = {
+  matricula: true,   // Nº de Inscrição/Matrícula
+  rg: true,          // RG
+  orgaoExpedidor: true, // Órgão Expedidor + UF
+  dataNasc: true,    // Data de Nascimento
+  sexo: true,        // Sexo
+  toxicologico: true, // Passo 2: Toxicológico
+  obsAdicionais: true, // Observações adicionais
+};
 
 // ── CONFIG LOCAL ──────────────────────────────────────────────
 function loadLocalCfg() {
   try {
     const c = localStorage.getItem('p_cfg');
     const p = localStorage.getItem('p_pwd');
+    const fc = localStorage.getItem('p_fields');
     if (c) cfg = Object.assign(cfg, JSON.parse(c));
     if (p) adminPwd = p;
+    if (fc) fieldsConfig = Object.assign(fieldsConfig, JSON.parse(fc));
   } catch(e) {}
 }
 function saveLocalCfg() {
   try {
     localStorage.setItem('p_cfg', JSON.stringify(cfg));
     localStorage.setItem('p_pwd', adminPwd);
+    localStorage.setItem('p_fields', JSON.stringify(fieldsConfig));
   } catch(e) {}
 }
 
@@ -71,7 +84,7 @@ function switchTab(t) {
   if (t === 'novo') initForm();
   if (t === 'cadastros') renderCadastros();
   if (t === 'cupons') renderCoupons();
-  if (t === 'config') loadConfigUI();
+  if (t === 'config') { loadConfigUI(); renderFieldsConfig(); }
 }
 
 // ── MASKS ─────────────────────────────────────────────────────
@@ -215,6 +228,7 @@ async function saveContest(status) {
       pacotes: [...newPacotes],
       exames: [...newExames],
       slots: [...newSlots],
+      fieldsConfig: { ...fieldsConfig },
       createdAt: serverTimestamp(),
     };
     let id = editingId;
@@ -423,10 +437,34 @@ function loadConfigUI() {
   document.getElementById('proxy-url').value = cfg.proxyUrl || '';
   document.getElementById('api-key-inp').value = cfg.apiKey || '';
 }
+function renderFieldsConfig() {
+  const div = document.getElementById('fields-config-list');
+  if (!div) return;
+  const labels = {
+    matricula: 'Nº de Inscrição / Matrícula',
+    rg: 'RG',
+    orgaoExpedidor: 'Órgão Expedidor + UF',
+    dataNasc: 'Data de Nascimento',
+    sexo: 'Sexo',
+    toxicologico: 'Passo 2: Toxicológico',
+    obsAdicionais: 'Observações Adicionais',
+  };
+  div.innerHTML = Object.entries(labels).map(([key, label]) => `
+    <label style="display:flex;align-items:center;gap:10px;padding:10px 14px;background:var(--white-faint);border:1px solid var(--border);border-radius:8px;cursor:pointer;user-select:none;margin-bottom:8px">
+      <input type="checkbox" id="fc-${key}" ${fieldsConfig[key] !== false ? 'checked' : ''}
+        onchange="fieldsConfig['${key}'] = this.checked"
+        style="width:16px;height:16px;accent-color:var(--blue);cursor:pointer"/>
+      <span style="font-size:.86rem;font-weight:500">${label}</span>
+    </label>`).join('');
+}
+
 function saveConfig() {
   cfg.asaasEnv = document.getElementById('asaas-env').value;
   cfg.proxyUrl = document.getElementById('proxy-url').value;
   cfg.apiKey = document.getElementById('api-key-inp').value;
+  // Salvar fieldsConfig dos checkboxes
+  const labels = ['matricula','rg','orgaoExpedidor','dataNasc','sexo','toxicologico','obsAdicionais'];
+  labels.forEach(k => { const el = document.getElementById('fc-' + k); if (el) fieldsConfig[k] = el.checked; });
   saveLocalCfg();
   showToast('Configurações salvas!', 'ok');
 }
@@ -549,7 +587,9 @@ document.getElementById('contest-list').addEventListener('click', async e => {
     newSlots = JSON.parse(JSON.stringify(c.slots || []));
     newPacotes = JSON.parse(JSON.stringify(c.pacotes || []));
     newExames = JSON.parse(JSON.stringify(c.exames || []));
+    if (c.fieldsConfig) fieldsConfig = Object.assign({ ...fieldsConfig }, c.fieldsConfig);
     renderSlotsList(); renderPacotesTable(); renderExamesTable();
+    renderFieldsConfig();
     switchTab('novo');
   }
   if (e.target.classList.contains('toggle-status')) {
