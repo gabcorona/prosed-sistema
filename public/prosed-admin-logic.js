@@ -9,15 +9,15 @@ let contests = [], registrations = [], coupons = [];
 let newSlots = [], newExames = [], newPacotes = [];
 let editalB64 = null, currentCadId = null, currentTab = 'concursos';
 let cfg = { asaasEnv: 'sandbox', proxyUrl: 'https://prosed-sistema.vercel.app', apiKey: '' };
-// Campos configuráveis do formulário (false = oculto por padrão, admin seleciona)
+// Campos configuráveis do formulário (true = visível/obrigatório)
 let fieldsConfig = {
-  matricula: false,
-  rg: false,
-  orgaoExpedidor: false,
-  dataNasc: false,
-  sexo: false,
-  toxicologico: false,
-  obsAdicionais: false,
+  matricula: true,   // Nº de Inscrição/Matrícula
+  rg: true,          // RG
+  orgaoExpedidor: true, // Órgão Expedidor + UF
+  dataNasc: true,    // Data de Nascimento
+  sexo: true,        // Sexo
+  toxicologico: true, // Passo 2: Toxicológico
+  obsAdicionais: true, // Observações adicionais
 };
 
 // ── CONFIG LOCAL ──────────────────────────────────────────────
@@ -28,7 +28,7 @@ function loadLocalCfg() {
     const fc = localStorage.getItem('p_fields');
     if (c) cfg = Object.assign(cfg, JSON.parse(c));
     if (p) adminPwd = p;
-    if (fc) fieldsConfig = JSON.parse(fc);
+    if (fc) fieldsConfig = Object.assign(fieldsConfig, JSON.parse(fc));
   } catch(e) {}
 }
 function saveLocalCfg() {
@@ -454,22 +454,19 @@ function renderFieldsConfig() {
   div.innerHTML = Object.entries(labels).map(([key, label]) => `
     <label style="display:flex;align-items:center;gap:10px;padding:10px 14px;background:var(--white-faint);border:1px solid var(--border);border-radius:8px;cursor:pointer;user-select:none;margin-bottom:8px">
       <input type="checkbox" id="fc-${key}" ${fieldsConfig[key] !== false ? 'checked' : ''}
+        onchange="fieldsConfig['${key}'] = this.checked"
         style="width:16px;height:16px;accent-color:var(--blue);cursor:pointer"/>
       <span style="font-size:.86rem;font-weight:500">${label}</span>
     </label>`).join('');
-
-  // addEventListener após render — onchange inline não funciona em ES Module (sem acesso ao escopo do módulo)
-  Object.keys(labels).forEach(key => {
-    const el = document.getElementById('fc-' + key);
-    if (el) el.addEventListener('change', () => { fieldsConfig[key] = el.checked; });
-  });
 }
 
 function saveConfig() {
   cfg.asaasEnv = document.getElementById('asaas-env').value;
   cfg.proxyUrl = document.getElementById('proxy-url').value;
   cfg.apiKey = document.getElementById('api-key-inp').value;
-  // fieldsConfig já está atualizado em tempo real pelos listeners do renderFieldsConfig
+  // Salvar fieldsConfig dos checkboxes
+  const labels = ['matricula','rg','orgaoExpedidor','dataNasc','sexo','toxicologico','obsAdicionais'];
+  labels.forEach(k => { const el = document.getElementById('fc-' + k); if (el) fieldsConfig[k] = el.checked; });
   saveLocalCfg();
   showToast('Configurações salvas!', 'ok');
 }
