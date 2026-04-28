@@ -454,10 +454,15 @@ function renderFieldsConfig() {
   div.innerHTML = Object.entries(labels).map(([key, label]) => `
     <label style="display:flex;align-items:center;gap:10px;padding:10px 14px;background:var(--white-faint);border:1px solid var(--border);border-radius:8px;cursor:pointer;user-select:none;margin-bottom:8px">
       <input type="checkbox" id="fc-${key}" ${fieldsConfig[key] !== false ? 'checked' : ''}
-        onchange="fieldsConfig['${key}'] = this.checked"
         style="width:16px;height:16px;accent-color:var(--blue);cursor:pointer"/>
       <span style="font-size:.86rem;font-weight:500">${label}</span>
     </label>`).join('');
+
+  // Adiciona listeners APÓS renderizar (necessário em ES Module — onchange inline não acessa escopo do módulo)
+  Object.keys(labels).forEach(key => {
+    const el = document.getElementById('fc-' + key);
+    if (el) el.addEventListener('change', () => { fieldsConfig[key] = el.checked; });
+  });
 }
 
 function saveConfig() {
