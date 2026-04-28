@@ -51,18 +51,12 @@
     .logo {
       display: flex;
       align-items: center;
-      gap: 12px;
+      gap: 0;
       text-decoration: none;
     }
 
     /* Escudo SVG inline */
-    .logo-shield {
-      width: 38px;
-      height: 42px;
-      flex-shrink: 0;
-    }
-
-    .logo-text { line-height: 1.15; }
+.logo-text { line-height: 1.15; }
     .logo-name {
       font-family: 'Montserrat', sans-serif;
       font-weight: 800;
@@ -475,16 +469,8 @@
 <!-- HEADER -->
 <header>
   <a href="https://www.prosed.com.br" class="logo" target="_blank">
-    <!-- Escudo PROSED inspirado na logo original -->
-    <svg class="logo-shield" viewBox="0 0 38 44" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <path d="M19 2L4 8V22C4 31.5 10.5 40 19 43C27.5 40 34 31.5 34 22V8L19 2Z" fill="#e8a020" opacity=".9"/>
-      <path d="M19 6L7 11V22C7 29.8 12.2 37 19 39.5C25.8 37 31 29.8 31 22V11L19 6Z" fill="none" stroke="rgba(255,255,255,0.4)" stroke-width="1.5"/>
-      <text x="19" y="28" font-family="Montserrat,sans-serif" font-size="12" font-weight="900" fill="white" text-anchor="middle" letter-spacing="0">PR</text>
-    </svg>
-    <div class="logo-text">
-      <div class="logo-name">PROSED</div>
-      <div class="logo-sub">Medicina do Trabalho</div>
-    </div>
+    <img src="./prosed-logo.png" alt="PROSED Especialidades Médicas" style="height:44px;width:auto;display:block">
+
   </a>
   <nav>
     <a href="https://www.prosed.com.br" target="_blank">Site Prosed</a>
@@ -556,7 +542,7 @@
 
 <!-- FOOTER -->
 <footer>
-  <div class="footer-logo">PROSED CONCURSOS</div>
+  <img src="./prosed-logo.png" alt="PROSED" style="height:32px;width:auto;filter:brightness(0) invert(1);opacity:.85">
   <p>© 2025 Prosed Saúde e Segurança do Trabalho. Todos os direitos reservados.</p>
   <a href="https://wa.me/+5527995115527" target="_blank">📲 Fale conosco no WhatsApp</a>
 </footer>
