@@ -187,36 +187,8 @@ function uAvSub() {
 }
 
 // ── STEP 4: AGENDA ────────────────────────────────────────────
-function getAddressMap() {
-  // Monta um mapa cidade → endereço a partir dos slots
-  const map = {};
-  (contest.slots || []).forEach(s => {
-    if (s.city && s.address) map[s.city] = s.address;
-  });
-  return map;
-}
-function rAddressPanel() {
-  const addrMap = getAddressMap();
-  const cities = Object.keys(addrMap);
-  if (!cities.length) return '';
-  return `<div style="background:rgba(0,201,167,.06);border:1.5px solid rgba(0,201,167,.25);border-radius:12px;padding:14px 16px;margin-bottom:16px">
-    <div style="font-size:.68rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--teal-light);margin-bottom:10px">📍 Endereços das Unidades</div>
-    ${cities.map(city => `<div style="margin-bottom:8px;padding-bottom:8px;border-bottom:1px solid var(--border);last-child:border:0">
-      <div style="font-size:.84rem;font-weight:700;margin-bottom:2px">${city}</div>
-      <div style="font-size:.78rem;color:var(--white-dim);margin-bottom:4px">${addrMap[city]}</div>
-      <div style="display:flex;gap:8px">
-        <a href="https://maps.google.com/?q=${encodeURIComponent(addrMap[city])}" target="_blank"
-           style="font-size:.7rem;color:var(--blue-light);text-decoration:none;display:inline-flex;align-items:center;gap:3px">📍 Google Maps</a>
-        <a href="maps://?q=${encodeURIComponent(addrMap[city])}" target="_blank"
-           style="font-size:.7rem;color:var(--white-dim);text-decoration:none;display:inline-flex;align-items:center;gap:3px">🍎 Apple Maps</a>
-      </div>
-    </div>`).join('')}
-  </div>`;
-}
 function rAgenda() {
-  const addrPanel = rAddressPanel();
   set('main', `<div class="s-card fade"><div class="s-title"><span class="s-num">4</span> Agendamento</div>
-    ${addrPanel}
     <div class="sched-steps">
       <div class="sched-step" id="sc-city"><div class="sched-step-title"><span class="ss-num">A</span> Escolha a unidade</div><div class="city-grid" id="city-grid"></div></div>
       <div class="sched-step ${selCity ? '' : 'locked'}" id="sc-date"><div class="sched-step-title"><span class="ss-num">B</span> Escolha a data</div><div class="date-grid" id="date-grid"></div></div>
@@ -516,7 +488,6 @@ async function finalize(asaasId, payStatus) {
     pacoteLabel: fd.pacoteLabel, pacoteId: fd.pacoteId,
     examesSel: exNoms, orientacoes: exOrientacoesArr.join(' | '), slotId: selSlotId,
     slotCity: slot?.city || '', slotDate: slot?.date || '', slotTime: slot?.time || '',
-    slotAddress: slot?.address || '',
     obs: fd.obs || '', fileName: selFile?.name || '',
     total, discount: disc, cupom: appliedCoupon?.code || '',
     payMethod, installments, asaasPaymentId: asaasId, payStatus, status: 'ativo',
