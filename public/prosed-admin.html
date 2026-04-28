@@ -212,6 +212,7 @@ tr:hover td{background:var(--white-faint)}tr:last-child td{border-bottom:none}
         <div class="g4">
           <div class="field" style="margin-bottom:0"><label class="fl">Unidade</label>
             <select id="cfg-city"><option value="">Selecione</option><option>Vila Velha</option><option>Vitória</option><option>Serra</option><option>Cariacica</option><option>Cachoeiro</option></select></div>
+          <div class="field" style="margin-bottom:0;grid-column:span 2"><label class="fl">Endereço da unidade</label><input type="text" id="cfg-address" placeholder="Rua, número, bairro, cidade"/></div>
           <div class="field" style="margin-bottom:0"><label class="fl">Data</label><input type="tel" id="cfg-date" class="mono" placeholder="DD/MM/AAAA" maxlength="10"/></div>
           <div class="field" style="margin-bottom:0"><label class="fl">Horário</label><input type="tel" id="cfg-time" class="mono" placeholder="HH:MM" maxlength="5"/></div>
           <div class="field" style="margin-bottom:0"><label class="fl">Vagas</label><input type="number" id="cfg-max" placeholder="30" min="1"/></div>
@@ -285,6 +286,11 @@ tr:hover td{background:var(--white-faint)}tr:last-child td{border-bottom:none}
         <button class="btn-red" id="btn-change-pwd">Alterar senha</button>
         <div id="pwd-msg" style="font-size:.78rem;margin-top:8px;min-height:16px"></div>
       </div>
+    </div>
+    <div style="margin-top:20px">
+      <div class="s-title" style="margin-bottom:12px">🔧 Campos do Formulário</div>
+      <div style="font-size:.75rem;color:var(--white-dim);margin-bottom:12px">Selecione quais campos serão exibidos no formulário de inscrição do candidato.</div>
+      <div id="fields-config-list"></div>
     </div>
     <div class="btn-row"><button class="btn-primary" id="btn-save-config">💾 Salvar Configurações</button></div>
   </div>
