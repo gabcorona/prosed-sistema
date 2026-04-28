@@ -186,13 +186,14 @@ function cloneTable() {
 // ── SLOTS ─────────────────────────────────────────────────────
 function addSlot() {
   const city = document.getElementById('cfg-city').value;
+  const address = document.getElementById('cfg-address').value.trim();
   const date = document.getElementById('cfg-date').value;
   const time = document.getElementById('cfg-time').value;
   const max = parseInt(document.getElementById('cfg-max').value);
   if (!city || !date || date.length < 10 || !time || time.length < 5 || !max || max < 1) { showToast('Preencha todos os campos.', 'err'); return; }
-  newSlots.push({ id: 's' + Date.now(), city, date, time, max, booked: 0 });
+  newSlots.push({ id: 's' + Date.now(), city, address: address || '', date, time, max, booked: 0 });
   renderSlotsList();
-  ['cfg-city', 'cfg-date', 'cfg-time', 'cfg-max'].forEach(id => document.getElementById(id).value = '');
+  ['cfg-city', 'cfg-address', 'cfg-date', 'cfg-time', 'cfg-max'].forEach(id => document.getElementById(id).value = '');
 }
 function removeSlot(id) { newSlots = newSlots.filter(s => s.id !== id); renderSlotsList(); }
 function renderSlotsList() {
@@ -200,6 +201,7 @@ function renderSlotsList() {
   if (!newSlots.length) { div.innerHTML = '<div style="font-size:.82rem;color:var(--white-dim);padding:8px 0">Nenhum horário adicionado.</div>'; return; }
   div.innerHTML = newSlots.map(s => `<div class="slot-row">
     <span class="sbadge sb-city">📍 ${s.city}</span>
+    ${s.address ? `<span class="sbadge" style="background:rgba(0,201,167,.1);color:var(--teal-light);font-size:.68rem">🏠 ${s.address}</span>` : ''}
     <span class="sbadge sb-date">📅 ${s.date}</span>
     <span class="sbadge sb-time">🕐 ${s.time}</span>
     <span style="font-size:.78rem;color:var(--white-dim);flex:1">${s.max} vagas</span>
