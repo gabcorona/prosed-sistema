@@ -174,6 +174,13 @@ tr:hover td{background:var(--white-faint)}tr:last-child td{border-bottom:none}
       </div>
       <div style="margin-top:14px"><label class="fl" style="display:block;margin-bottom:6px">Resumo para o candidato</label>
         <textarea id="nc-resumo" rows="4" placeholder="Resumo do edital, datas importantes..."></textarea></div>
+      <div style="margin-top:14px"><label class="fl" style="display:block;margin-bottom:6px">🖼️ URL da Imagem de Capa (banner do concurso)</label>
+        <input type="url" id="nc-imageUrl" placeholder="https://exemplo.com/imagem.jpg" style="margin-bottom:6px"/>
+        <div id="nc-imageUrl-preview" style="display:none;margin-top:8px">
+          <img id="nc-imageUrl-img" src="" alt="Preview" style="max-height:140px;max-width:100%;border-radius:10px;object-fit:cover;border:1.5px solid var(--border)"/>
+        </div>
+        <div style="font-size:.72rem;color:var(--white-dim);margin-top:4px">Cole a URL pública de uma imagem (JPG, PNG, WebP). Será exibida no card do concurso na página pública.</div>
+      </div>
     </div>
     <div class="s-card fade">
       <div class="s-title"><span class="s-num">2</span> Tabela de Preços e Exames</div>
