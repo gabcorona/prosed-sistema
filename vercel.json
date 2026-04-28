@@ -2,5 +2,8 @@
   "outputDirectory": "public",
   "rewrites": [
     { "source": "/asaas/:path*", "destination": "/api/proxy" }
+  ],
+  "redirects": [
+    { "source": "/", "destination": "/prosed-admin.html", "permanent": false }
   ]
 }
