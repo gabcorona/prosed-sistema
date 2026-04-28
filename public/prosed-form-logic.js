@@ -5,6 +5,12 @@ import { db, collection, doc, getDoc, getDocs, addDoc, updateDoc, setDoc, query,
 // ── LOAD CONTEST ──────────────────────────────────────────────
 const CID = new URLSearchParams(window.location.search).get('c');
 let contest = null, coupons = [], cfg = {};
+// Verificar se campo está habilitado para este concurso
+function fieldOn(key) {
+  const fc = contest?.fieldsConfig;
+  if (!fc) return true; // se não configurado, mostrar tudo
+  return fc[key] !== false;
+}
 
 async function loadData() {
   try {
@@ -60,7 +66,7 @@ function banner() {
   return `<div class="contest-banner fade">
     <div class="contest-banner-name">📋 ${contest.nome}</div>
     <div class="contest-banner-meta">${contest.orgao}${contest.prazo ? ' · Prazo: ' + contest.prazo : ''}</div>
-    ${contest.resumo ? `<div class="contest-resumo">${contest.resumo}</div>` : ''}
+    ${contest.resumo ? `<div class="contest-resumo" style="color:var(--red);font-weight:600">${contest.resumo}</div>` : ''}
   </div>`;
 }
 
@@ -74,30 +80,31 @@ function rDados() {
     <div class="field" id="f-cpf"><label class="fl">CPF <span class="req">*</span></label>
         <input id="cpf" type="tel" class="mono" placeholder="000.000.000-00" maxlength="14" value="${h(fd.cpf)}" oninput="mCPF(this)"/></div>
     </div>
-    <div class="g2">
+    ${fieldOn('rg') ? `<div class="g2">
       <div class="field" id="f-rg"><label class="fl">RG <span class="req">*</span></label>
-        <input id="rg" type="tel" class="mono" placeholder="0000000" oninput="this.value=this.value.replace(/\D/g,'')" value="${h(fd.rg)}" oninput="this.value=this.value.replace(/\\D/g,'')"/></div>
-      <div class="field" id="f-orgao"><label class="fl">Órgão Expedidor <span class="req">*</span></label>
+        <input id="rg" type="tel" class="mono" placeholder="0000000" value="${h(fd.rg)}" oninput="this.value=this.value.replace(/\\D/g,'')"/></div>
+      ${fieldOn('orgaoExpedidor') ? `<div class="field" id="f-orgao"><label class="fl">Órgão Expedidor <span class="req">*</span></label>
         <select id="orgao" onchange="tglOrgaoOutros(this)">
           <option value="">Selecione</option>
-          ${['SSP','DETRAN','PC','IFP','SJS','SDS','IIP','CGP','MJ','PF'].map(o=>`<option value="${o}" ${fd.orgao===o?'selected':''}>${o}</option>`).join('')}
+          ${['SSP','DETRAN','PC','IFP','SJS','SDS','IIP','CGP','MJ','PF'].map(o=>'<option value="'+o+'" '+(fd.orgao===o?'selected':'')+'>'+o+'</option>').join('')}
           <option value="outros" ${fd.orgao&&!['SSP','DETRAN','PC','IFP','SJS','SDS','IIP','CGP','MJ','PF'].includes(fd.orgao)?'selected':''}>Outros</option>
         </select>
         <input id="orgao-outros" type="text" placeholder="Digite o órgão expedidor" value="${h(!['SSP','DETRAN','PC','IFP','SJS','SDS','IIP','CGP','MJ','PF','','outros'].includes(fd.orgao)?fd.orgao:'')}" style="display:${fd.orgao&&!['SSP','DETRAN','PC','IFP','SJS','SDS','IIP','CGP','MJ','PF',''].includes(fd.orgao)?'':'none'};margin-top:8px" oninput="this.value=this.value.toUpperCase()"/>
-      </div>
-    </div>
-    <div class="g2">
+      </div>` : ''}
+    </div>` : ''}
+    ${fieldOn('orgaoExpedidor') ? `<div class="g2">
       <div class="field" id="f-uf"><label class="fl">UF do RG <span class="req">*</span></label>
-        <select id="uf"><option value="">Selecione</option>${ufs.map(u => `<option ${fd.uf === u ? 'selected' : ''}>${u}</option>`).join('')}</select></div>
-      <div class="field" id="f-nasc"><label class="fl">Nascimento <span class="req">*</span></label>
-        <input id="nasc" type="tel" class="mono" placeholder="DD/MM/AAAA" maxlength="10" value="${h(fd.nasc)}" oninput="mDate(this)"/></div>
-    </div>
+        <select id="uf"><option value="">Selecione</option>${ufs.map(u => '<option '+(fd.uf === u ? 'selected' : '')+'>'+u+'</option>').join('')}</select></div>
+      ${fieldOn('dataNasc') ? `<div class="field" id="f-nasc"><label class="fl">Nascimento <span class="req">*</span></label>
+        <input id="nasc" type="tel" class="mono" placeholder="DD/MM/AAAA" maxlength="10" value="${h(fd.nasc)}" oninput="mDate(this)"/></div>` : ''}
+    </div>` : `${fieldOn('dataNasc') ? `<div class="g2"><div class="field" id="f-nasc"><label class="fl">Nascimento <span class="req">*</span></label>
+        <input id="nasc" type="tel" class="mono" placeholder="DD/MM/AAAA" maxlength="10" value="${h(fd.nasc)}" oninput="mDate(this)"/></div></div>` : ''}`}
     <div class="g2">
-      <div class="field" id="f-sexo"><label class="fl">Sexo <span class="req">*</span></label>
+      ${fieldOn('sexo') ? `<div class="field" id="f-sexo"><label class="fl">Sexo <span class="req">*</span></label>
         <select id="sexo"><option value="">Selecione</option>
           <option ${fd.sexo === 'Masculino' ? 'selected' : ''}>Masculino</option>
           <option ${fd.sexo === 'Feminino' ? 'selected' : ''}>Feminino</option>
-          <option ${fd.sexo === 'Outro' ? 'selected' : ''}>Outro</option></select></div>
+          <option ${fd.sexo === 'Outro' ? 'selected' : ''}>Outro</option></select></div>` : ''}
       <div class="field" id="f-cel"><label class="fl">Celular <span class="req">*</span></label>
         <input id="cel" type="tel" class="mono" placeholder="(00) 00000-0000" maxlength="16" value="${h(fd.cel)}" oninput="mPhone(this)"/></div>
     </div>
@@ -109,6 +116,7 @@ function rDados() {
 
 // ── STEP 2: TÓXICO ────────────────────────────────────────────
 function rToxico() {
+  if (!fieldOn('toxicologico')) { step++; render(); return; }
   set('main', `<div class="s-card fade"><div class="s-title"><span class="s-num">2</span> Questionário Toxicológico</div>
     <div class="field" id="f-trat"><label class="fl">Tratamento Químico Capilar <span class="req">*</span></label>
       <div class="radio-group">
@@ -140,11 +148,7 @@ function rPacote() {
   const avH = exs.length ? `<div class="pkg-card ${fd.pacoteId === 'avulsos' ? 'sel' : ''}" onclick="sPac('avulsos','Exames Complementares Avulsos',0,this)">
     <div><div class="pkg-name">Exames Complementares Avulsos</div><div class="pkg-desc">Selecione individualmente os exames desejados</div></div>
     <div class="pkg-price" style="color:var(--amber)">Variável</div></div>` : '';
-  set('main', `<div class="s-card fade"><div class="s-title"><span class="s-num">3</span> Grupo de Indicação e Pacote</div>
-    <div class="field" id="f-grupo"><label class="fl">Grupo de Indicação <span class="req">*</span></label>
-      <select id="grupo"><option value="">Selecione</option>
-        <option value="geral" ${fd.grupo === 'geral' ? 'selected' : ''}>Grupo Geral de Exames</option>
-        <option value="furlani" ${fd.grupo === 'furlani' ? 'selected' : ''}>Grupo Furlani + Grupo Geral</option></select></div>
+  set('main', `<div class="s-card fade"><div class="s-title"><span class="s-num">3</span> Pacote</div>
     <div class="field" id="f-pacote"><label class="fl">Tipo de Pacote <span class="req">*</span></label>
       ${pkgH}${avH}</div>
     <div id="av-sec" style="display:${fd.pacoteId === 'avulsos' ? '' : 'none'}">
@@ -481,7 +485,6 @@ async function finalize(asaasId, payStatus) {
     rg: fd.rg, orgao: fd.orgao, uf: fd.uf, nasc: fd.nasc,
     sexo: fd.sexo, cel: fd.cel, email: fd.email,
     trat: fd.trat, psico: fd.psico, med: fd.med || '', coleta: fd.coleta,
-    grupo: fd.grupo === 'furlani' ? 'Grupo Furlani + Geral' : 'Grupo Geral',
     pacoteLabel: fd.pacoteLabel, pacoteId: fd.pacoteId,
     examesSel: exNoms, orientacoes: exOrientacoesArr.join(' | '), slotId: selSlotId,
     slotCity: slot?.city || '', slotDate: slot?.date || '', slotTime: slot?.time || '',
@@ -508,6 +511,11 @@ function rSuccess(rec) {
     <div class="detail-summary">
       <div class="ds-row"><span class="ds-key">Concurso</span><span class="ds-val">${contest.nome}</span></div>
       <div class="ds-row"><span class="ds-key">Unidade</span><span class="ds-val">${rec.slotCity}</span></div>
+      ${rec.slotAddress ? `<div class="ds-row"><span class="ds-key">Endereço</span><span class="ds-val" style="font-size:.78rem">${rec.slotAddress}</span></div>
+      <div class="ds-row"><span class="ds-key">Localização</span><span class="ds-val">
+        <a href="https://maps.google.com/?q=${encodeURIComponent(rec.slotAddress)}" target="_blank" style="color:var(--blue-light);margin-right:8px">📍 Google Maps</a>
+        <a href="maps://?q=${encodeURIComponent(rec.slotAddress)}" target="_blank" style="color:var(--blue-light)">🍎 Apple Maps</a>
+      </span></div>` : ''}
       <div class="ds-row"><span class="ds-key">Data</span><span class="ds-val">${rec.slotDate}</span></div>
       <div class="ds-row"><span class="ds-key">Horário</span><span class="ds-val">${rec.slotTime}</span></div>
       <div class="ds-row"><span class="ds-key">Pacote</span><span class="ds-val">${rec.pacoteLabel}</span></div>
@@ -537,6 +545,11 @@ function bldPrint(r) {
   <div class="ps"><div class="ps-title">Agendamento</div>
     <div class="pr"><span class="pk">Concurso:</span><span>${contest.nome}</span></div>
     <div class="pr"><span class="pk">Unidade:</span><span>${r.slotCity}</span></div>
+    ${r.slotAddress ? `<div class="pr"><span class="pk">Endereço:</span><span>${r.slotAddress}</span></div>
+    <div class="pr"><span class="pk">Localização:</span><span>
+      <a href="https://maps.google.com/?q=${encodeURIComponent(r.slotAddress || r.slotCity)}" target="_blank" style="color:#1E6FFF;font-weight:700;text-decoration:none;margin-right:10px">📍 Google Maps</a>
+      <a href="maps://?q=${encodeURIComponent(r.slotAddress || r.slotCity)}" target="_blank" style="color:#1E6FFF;font-weight:700;text-decoration:none">🍎 Apple Maps</a>
+    </span></div>` : ''}
     <div class="pr"><span class="pk">Data:</span><span>${r.slotDate}</span></div>
     <div class="pr"><span class="pk">Horário:</span><span>${r.slotTime}</span></div>
     <div class="pr"><span class="pk">Pacote:</span><span>${r.pacoteLabel}</span></div>
@@ -568,7 +581,7 @@ function save(s) {
     Object.assign(fd, { nome: g('nome'), cpf: g('cpf'), matricula: '', rg: g('rg'), orgao: orgaoVal, uf: g('uf'), nasc: g('nasc'), sexo: g('sexo'), cel: g('cel'), email: g('email') });
   }
   if (s === 1) Object.assign(fd, { trat: g('trat'), psico: g('psico'), med: g('med'), coleta: g('coleta') });
-  if (s === 2) Object.assign(fd, { grupo: g('grupo') });
+  if (s === 2) Object.assign(fd, {});
   // docs step removed
 }
 function val(s) {
@@ -604,7 +617,6 @@ function val(s) {
   if (s === 2) {
     if (!fd.pacoteId) { showE('f-pacote', 'Selecione um pacote'); return false; }
     if (fd.pacoteId === 'avulsos' && selExames.length === 0) { showToast('Selecione pelo menos 1 exame avulso.', 'err'); return false; }
-    if (!document.getElementById('grupo')?.value) { showE('f-grupo', 'Selecione o grupo'); return false; }
     return true;
   }
   if (s === 3) { if (!selSlotId) { showE('f-slot', 'Selecione unidade → data → horário'); return false; } return true; }
