@@ -3,464 +3,348 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>PROSED — Agendamento de Exames</title>
-  <link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet" />
+  <title>PROSED Concursos — Agendamento de Exames</title>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800;900&family=Open+Sans:wght@300;400;500;600&display=swap" rel="stylesheet" />
   <style>
     :root {
-      --navy: #0a1628;
-      --blue: #1a3a6b;
-      --accent: #1e6fd9;
-      --orange: #f47b20;
-      --orange-light: #ff9a45;
-      --white: #ffffff;
-      --gray-light: #f0f4fa;
-      --gray-text: #6b7a99;
-      --card-radius: 20px;
+      --dark:       #0b1120;
+      --dark2:      #111827;
+      --dark3:      #1a2438;
+      --teal:       #00c4a0;
+      --teal-dark:  #00a688;
+      --blue-mid:   #1e3a5f;
+      --white:      #ffffff;
+      --gray:       #8fa3bc;
+      --gray-light: #d1dce8;
+      --card-bg:    #14213d;
+      --card-border:#1e3356;
     }
 
-    * { margin: 0; padding: 0; box-sizing: border-box; }
+    *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+    html { scroll-behavior: smooth; }
 
     body {
-      font-family: 'DM Sans', sans-serif;
-      background: var(--gray-light);
-      color: var(--navy);
+      font-family: 'Open Sans', sans-serif;
+      background: var(--dark);
+      color: var(--white);
       min-height: 100vh;
+      overflow-x: hidden;
     }
 
-    /* ── HEADER ── */
+    /* ─── HEADER ─── */
     header {
-      background: var(--navy);
-      padding: 0 40px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      height: 72px;
-      position: sticky;
-      top: 0;
-      z-index: 100;
-      box-shadow: 0 2px 20px rgba(0,0,0,0.3);
+      position: sticky; top: 0; z-index: 200;
+      background: rgba(11,17,32,0.94);
+      backdrop-filter: blur(16px);
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+      padding: 0 48px; height: 72px;
+      display: flex; align-items: center; justify-content: space-between;
     }
 
-    .logo {
-      display: flex;
-      align-items: center;
-      gap: 12px;
+    .logo { display: flex; align-items: center; gap: 10px; text-decoration: none; }
+    .logo-mark {
+      width: 38px; height: 38px;
+      background: linear-gradient(135deg, var(--teal), #00e5c3);
+      border-radius: 8px;
+      display: flex; align-items: center; justify-content: center;
+      font-family: 'Montserrat', sans-serif;
+      font-weight: 900; font-size: 13px; color: var(--dark);
     }
-
-    .logo-icon {
-      width: 40px;
-      height: 40px;
-      background: linear-gradient(135deg, var(--accent), var(--orange));
-      border-radius: 10px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-family: 'Sora', sans-serif;
-      font-weight: 800;
-      font-size: 14px;
-      color: white;
-      letter-spacing: -0.5px;
+    .logo-name {
+      font-family: 'Montserrat', sans-serif;
+      font-weight: 800; font-size: 20px; color: var(--white); letter-spacing: 1px;
     }
+    .logo-name span { color: var(--teal); }
 
-    .logo-text {
-      font-family: 'Sora', sans-serif;
-      font-weight: 700;
-      font-size: 18px;
-      color: white;
-      letter-spacing: 0.5px;
+    nav { display: flex; align-items: center; gap: 32px; }
+    nav a {
+      color: var(--gray-light); font-size: 13px; font-weight: 500;
+      text-decoration: none; letter-spacing: 0.3px; transition: color 0.2s;
     }
-
-    .logo-sub {
-      font-size: 11px;
-      color: rgba(255,255,255,0.5);
-      font-weight: 300;
-      letter-spacing: 1px;
-      text-transform: uppercase;
+    nav a:hover { color: var(--teal); }
+    .nav-cta {
+      background: var(--teal) !important; color: var(--dark) !important;
+      font-weight: 700 !important; padding: 9px 20px; border-radius: 8px;
+      transition: background 0.2s, transform 0.2s !important;
     }
+    .nav-cta:hover { background: var(--teal-dark) !important; transform: translateY(-1px); }
 
-    .header-contact {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      color: rgba(255,255,255,0.7);
-      font-size: 13px;
-    }
-
-    .header-contact svg { opacity: 0.6; }
-
-    /* ── HERO ── */
+    /* ─── HERO ─── */
     .hero {
-      background: linear-gradient(135deg, var(--navy) 0%, var(--blue) 60%, #1a4d8f 100%);
-      padding: 70px 40px 80px;
-      text-align: center;
-      position: relative;
-      overflow: hidden;
+      position: relative; min-height: 500px;
+      display: flex; align-items: center;
+      overflow: hidden; padding: 80px 48px;
     }
-
-    .hero::before {
-      content: '';
-      position: absolute;
-      top: -80px; right: -80px;
-      width: 400px; height: 400px;
-      background: radial-gradient(circle, rgba(30,111,217,0.25) 0%, transparent 70%);
-      border-radius: 50%;
+    .hero-bg {
+      position: absolute; inset: 0;
+      background:
+        radial-gradient(ellipse 60% 80% at 70% 50%, rgba(0,196,160,0.08) 0%, transparent 60%),
+        radial-gradient(ellipse 50% 60% at 10% 80%, rgba(30,58,95,0.6) 0%, transparent 60%),
+        linear-gradient(135deg, #0b1120 0%, #0f1e38 50%, #0b1120 100%);
     }
-
-    .hero::after {
-      content: '';
-      position: absolute;
-      bottom: -60px; left: -60px;
-      width: 300px; height: 300px;
-      background: radial-gradient(circle, rgba(244,123,32,0.15) 0%, transparent 70%);
-      border-radius: 50%;
+    .hero-grid {
+      position: absolute; inset: 0;
+      background-image:
+        linear-gradient(rgba(0,196,160,0.04) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(0,196,160,0.04) 1px, transparent 1px);
+      background-size: 60px 60px;
     }
+    .hero-content { position: relative; z-index: 2; max-width: 620px; }
 
-    .hero-badge {
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      background: rgba(244,123,32,0.15);
-      border: 1px solid rgba(244,123,32,0.35);
-      color: var(--orange-light);
-      font-size: 12px;
-      font-weight: 600;
-      letter-spacing: 1.5px;
-      text-transform: uppercase;
-      padding: 6px 16px;
-      border-radius: 100px;
-      margin-bottom: 24px;
-      position: relative;
-      z-index: 1;
+    .hero-eyebrow {
+      display: inline-flex; align-items: center; gap: 8px;
+      font-size: 11px; font-weight: 700; letter-spacing: 2px;
+      text-transform: uppercase; color: var(--teal); margin-bottom: 24px;
+    }
+    .eyebrow-dot {
+      width: 8px; height: 8px; border-radius: 50%; background: var(--teal);
+      animation: pulse 2s infinite;
+    }
+    @keyframes pulse {
+      0%,100% { opacity:1; transform:scale(1); }
+      50%      { opacity:0.4; transform:scale(0.75); }
     }
 
     .hero h1 {
-      font-family: 'Sora', sans-serif;
-      font-size: clamp(28px, 4vw, 48px);
-      font-weight: 800;
-      color: white;
-      line-height: 1.15;
-      margin-bottom: 16px;
-      position: relative;
-      z-index: 1;
+      font-family: 'Montserrat', sans-serif;
+      font-size: clamp(30px, 4.5vw, 54px);
+      font-weight: 900; line-height: 1.1;
+      color: var(--white); margin-bottom: 20px; letter-spacing: -1px;
     }
-
-    .hero h1 span {
-      background: linear-gradient(90deg, var(--orange), var(--orange-light));
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-    }
+    .hero h1 em { font-style: normal; color: var(--teal); }
 
     .hero p {
-      color: rgba(255,255,255,0.65);
-      font-size: 16px;
-      max-width: 520px;
-      margin: 0 auto;
-      line-height: 1.7;
-      position: relative;
-      z-index: 1;
+      font-size: 15.5px; color: var(--gray);
+      line-height: 1.75; max-width: 480px; margin-bottom: 40px;
     }
 
-    /* ── MAIN ── */
-    main {
-      max-width: 1200px;
-      margin: 0 auto;
-      padding: 56px 24px 80px;
+    .btn-primary {
+      display: inline-flex; align-items: center; gap: 8px;
+      background: var(--teal); color: var(--dark);
+      font-family: 'Montserrat', sans-serif; font-weight: 700;
+      font-size: 14px; letter-spacing: 0.3px;
+      padding: 14px 28px; border-radius: 10px; text-decoration: none;
+      transition: background 0.2s, transform 0.2s, box-shadow 0.2s;
+      box-shadow: 0 4px 20px rgba(0,196,160,0.3);
     }
+    .btn-primary:hover {
+      background: var(--teal-dark); transform: translateY(-2px);
+      box-shadow: 0 8px 32px rgba(0,196,160,0.4);
+    }
+
+    .hero-stats {
+      position: absolute; right: 48px; bottom: 56px;
+      display: flex; gap: 40px; z-index: 2;
+    }
+    .stat { text-align: center; }
+    .stat-value {
+      font-family: 'Montserrat', sans-serif;
+      font-size: 30px; font-weight: 900; color: var(--teal); line-height: 1;
+    }
+    .stat-label {
+      font-size: 11px; color: var(--gray); margin-top: 4px;
+      text-transform: uppercase; letter-spacing: 0.8px;
+    }
+
+    /* ─── STRIP ─── */
+    .info-strip {
+      background: var(--dark3);
+      border-top: 1px solid var(--card-border);
+      border-bottom: 1px solid var(--card-border);
+      padding: 20px 48px;
+      display: flex; align-items: center; justify-content: center;
+      gap: 48px; flex-wrap: wrap;
+    }
+    .strip-item {
+      display: flex; align-items: center; gap: 10px;
+      font-size: 13px; color: var(--gray-light);
+    }
+    .strip-item svg { color: var(--teal); }
+
+    /* ─── SECTION ─── */
+    .section { padding: 72px 48px; }
 
     .section-header {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      margin-bottom: 32px;
-      flex-wrap: wrap;
-      gap: 12px;
+      display: flex; align-items: flex-end; justify-content: space-between;
+      margin-bottom: 48px; gap: 20px; flex-wrap: wrap;
     }
-
+    .section-label {
+      font-size: 11px; font-weight: 700; letter-spacing: 2.5px;
+      text-transform: uppercase; color: var(--teal); margin-bottom: 8px;
+    }
     .section-title {
-      font-family: 'Sora', sans-serif;
-      font-size: 22px;
-      font-weight: 700;
-      color: var(--navy);
+      font-family: 'Montserrat', sans-serif;
+      font-size: clamp(20px, 3vw, 30px); font-weight: 800;
+      color: var(--white); line-height: 1.2;
     }
-
     .section-count {
-      font-size: 13px;
-      color: var(--gray-text);
-      background: white;
-      padding: 6px 14px;
-      border-radius: 100px;
-      border: 1px solid #dde3ef;
+      font-size: 13px; color: var(--gray);
+      background: var(--card-bg); border: 1px solid var(--card-border);
+      padding: 7px 16px; border-radius: 100px; white-space: nowrap;
     }
 
-    /* ── GRID ── */
+    /* ─── GRID ─── */
     .contests-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-      gap: 28px;
+      grid-template-columns: repeat(auto-fill, minmax(310px, 1fr));
+      gap: 24px;
     }
 
-    /* ── CARD ── */
+    /* ─── CARD ─── */
     .contest-card {
-      background: white;
-      border-radius: var(--card-radius);
-      overflow: hidden;
-      box-shadow: 0 4px 24px rgba(10,22,40,0.08);
-      transition: transform 0.28s ease, box-shadow 0.28s ease;
-      display: flex;
-      flex-direction: column;
+      background: var(--card-bg); border: 1px solid var(--card-border);
+      border-radius: 16px; overflow: hidden;
+      display: flex; flex-direction: column;
+      transition: transform 0.3s, box-shadow 0.3s, border-color 0.3s;
       animation: fadeUp 0.5s ease both;
     }
-
     .contest-card:hover {
       transform: translateY(-6px);
-      box-shadow: 0 16px 48px rgba(10,22,40,0.16);
+      box-shadow: 0 20px 60px rgba(0,0,0,0.4), 0 0 0 1px rgba(0,196,160,0.2);
+      border-color: rgba(0,196,160,0.3);
     }
-
     @keyframes fadeUp {
-      from { opacity: 0; transform: translateY(24px); }
-      to   { opacity: 1; transform: translateY(0); }
+      from { opacity:0; transform:translateY(20px); }
+      to   { opacity:1; transform:translateY(0); }
     }
 
     .card-image {
-      height: 200px;
-      position: relative;
-      overflow: hidden;
-      background: linear-gradient(135deg, var(--navy), var(--blue));
+      height: 190px; position: relative; overflow: hidden; background: var(--dark3);
     }
-
     .card-image img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-      transition: transform 0.4s ease;
+      width: 100%; height: 100%; object-fit: cover;
+      filter: brightness(0.8); transition: transform 0.4s;
     }
+    .contest-card:hover .card-image img { transform: scale(1.06); }
 
-    .contest-card:hover .card-image img {
-      transform: scale(1.05);
+    .card-placeholder {
+      width: 100%; height: 100%;
+      display: flex; align-items: center; justify-content: center;
+      background: linear-gradient(135deg, var(--dark3), var(--blue-mid));
+      position: relative;
     }
-
-    .card-image-placeholder {
-      width: 100%;
-      height: 100%;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      background: linear-gradient(135deg, var(--navy) 0%, var(--blue) 100%);
-      gap: 12px;
-    }
-
-    .placeholder-initials {
-      font-family: 'Sora', sans-serif;
-      font-size: 48px;
-      font-weight: 800;
-      color: rgba(255,255,255,0.15);
-      letter-spacing: -2px;
-      line-height: 1;
+    .placeholder-text {
+      font-family: 'Montserrat', sans-serif; font-weight: 900;
+      font-size: 56px; color: var(--teal); opacity: 0.15;
+      letter-spacing: -3px; user-select: none;
     }
 
     .card-overlay {
-      position: absolute;
-      inset: 0;
-      background: linear-gradient(to top, rgba(10,22,40,0.75) 0%, transparent 50%);
+      position: absolute; inset: 0;
+      background: linear-gradient(to top, rgba(20,33,61,0.9) 0%, transparent 55%);
     }
 
-    .card-badge-status {
-      position: absolute;
-      top: 14px;
-      right: 14px;
-      font-size: 11px;
-      font-weight: 700;
-      letter-spacing: 1px;
-      text-transform: uppercase;
-      padding: 5px 12px;
-      border-radius: 100px;
+    .card-status {
+      position: absolute; top: 14px; right: 14px;
+      font-family: 'Montserrat', sans-serif; font-size: 10px;
+      font-weight: 700; letter-spacing: 1.2px; text-transform: uppercase;
+      padding: 5px 12px; border-radius: 100px;
     }
-
-    .badge-active {
-      background: rgba(16,185,129,0.9);
-      color: white;
-    }
-
-    .badge-soon {
-      background: rgba(244,123,32,0.9);
-      color: white;
-    }
-
-    .badge-closed {
-      background: rgba(100,116,139,0.85);
-      color: white;
-    }
+    .status-active { background:rgba(0,196,160,0.2); color:#00e5c3; border:1px solid rgba(0,196,160,0.4); }
+    .status-soon   { background:rgba(244,123,32,0.2); color:#ffab5e; border:1px solid rgba(244,123,32,0.4); }
+    .status-closed { background:rgba(100,116,139,0.2);color:#94a3b8; border:1px solid rgba(100,116,139,0.4); }
 
     .card-orgao {
-      position: absolute;
-      bottom: 14px;
-      left: 16px;
-      font-size: 11px;
-      font-weight: 600;
-      letter-spacing: 1.5px;
-      text-transform: uppercase;
-      color: rgba(255,255,255,0.8);
-      background: rgba(0,0,0,0.3);
-      padding: 4px 10px;
-      border-radius: 6px;
-      backdrop-filter: blur(4px);
+      position: absolute; bottom: 14px; left: 14px;
+      font-size: 10px; font-weight: 700; letter-spacing: 1.5px;
+      text-transform: uppercase; color: rgba(255,255,255,0.75);
+      background: rgba(0,0,0,0.35); backdrop-filter: blur(6px);
+      padding: 4px 10px; border-radius: 6px;
     }
 
-    .card-body {
-      padding: 22px 22px 0;
-      flex: 1;
-    }
-
+    .card-body { padding: 22px 22px 4px; flex: 1; }
     .card-name {
-      font-family: 'Sora', sans-serif;
-      font-size: 18px;
-      font-weight: 700;
-      color: var(--navy);
-      margin-bottom: 8px;
-      line-height: 1.3;
+      font-family: 'Montserrat', sans-serif; font-size: 17px;
+      font-weight: 800; color: var(--white); margin-bottom: 8px; line-height: 1.3;
+    }
+    .card-desc {
+      font-size: 13px; color: var(--gray); line-height: 1.65;
+      display: -webkit-box; -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical; overflow: hidden;
     }
 
-    .card-description {
-      font-size: 13.5px;
-      color: var(--gray-text);
-      line-height: 1.6;
-      margin-bottom: 16px;
-      display: -webkit-box;
-      -webkit-line-clamp: 2;
-      -webkit-box-orient: vertical;
-      overflow: hidden;
-    }
+    .card-divider { height:1px; background:var(--card-border); margin: 14px 22px; }
 
     .card-meta {
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      font-size: 13px;
-      color: var(--gray-text);
-      padding: 12px 0;
-      border-top: 1px solid #f0f4fa;
+      padding: 0 22px 4px;
+      display: flex; align-items: center; gap: 7px;
+      font-size: 12.5px; color: var(--gray);
     }
+    .card-meta svg { color: var(--teal); flex-shrink: 0; }
+    .meta-date { font-weight: 600; color: var(--gray-light); }
+    .meta-date.urgent { color: #fc8181; }
 
-    .card-meta svg { flex-shrink: 0; color: var(--accent); }
-
-    .meta-deadline {
-      font-weight: 500;
-      color: var(--navy);
-    }
-
-    .meta-deadline.urgent { color: #e53e3e; }
-
-    .card-footer {
-      padding: 16px 22px 22px;
-    }
+    .card-footer { padding: 16px 22px 22px; }
 
     .btn-inscricao {
-      display: block;
-      width: 100%;
-      padding: 14px;
-      background: linear-gradient(135deg, var(--orange), var(--orange-light));
-      color: white;
-      font-family: 'Sora', sans-serif;
-      font-size: 14px;
-      font-weight: 700;
-      letter-spacing: 0.3px;
-      text-align: center;
-      text-decoration: none;
-      border-radius: 12px;
-      border: none;
+      display: flex; align-items: center; justify-content: center; gap: 8px;
+      width: 100%; padding: 13px;
+      background: var(--teal); color: var(--dark);
+      font-family: 'Montserrat', sans-serif; font-size: 13px;
+      font-weight: 700; letter-spacing: 0.5px;
+      text-decoration: none; border: none; border-radius: 10px;
       cursor: pointer;
-      transition: opacity 0.2s, transform 0.2s, box-shadow 0.2s;
-      box-shadow: 0 4px 16px rgba(244,123,32,0.35);
+      transition: background 0.2s, transform 0.2s, box-shadow 0.2s;
+      box-shadow: 0 4px 16px rgba(0,196,160,0.25);
     }
-
     .btn-inscricao:hover {
-      opacity: 0.92;
-      transform: translateY(-1px);
-      box-shadow: 0 8px 24px rgba(244,123,32,0.45);
+      background: var(--teal-dark); transform: translateY(-1px);
+      box-shadow: 0 8px 24px rgba(0,196,160,0.35);
     }
-
-    .btn-inscricao:active { transform: translateY(0); }
-
     .btn-inscricao.disabled {
-      background: linear-gradient(135deg, #94a3b8, #b0bec5);
-      box-shadow: none;
-      cursor: not-allowed;
-      opacity: 0.7;
+      background: var(--card-border); color: var(--gray);
+      box-shadow: none; cursor: not-allowed;
     }
+    .btn-inscricao.disabled:hover { transform: none; }
 
-    /* ── LOADING ── */
-    .loading-state {
+    /* ─── STATES ─── */
+    .loading-state, .empty-state {
       grid-column: 1/-1;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      padding: 80px 20px;
-      gap: 20px;
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      padding: 80px 20px; gap: 16px; text-align: center;
     }
-
     .spinner {
-      width: 44px;
-      height: 44px;
-      border: 3px solid #dde3ef;
-      border-top-color: var(--accent);
-      border-radius: 50%;
-      animation: spin 0.8s linear infinite;
+      width: 40px; height: 40px;
+      border: 3px solid rgba(0,196,160,0.15);
+      border-top-color: var(--teal); border-radius: 50%;
+      animation: spin 0.75s linear infinite;
     }
-
     @keyframes spin { to { transform: rotate(360deg); } }
-
-    .loading-text {
-      color: var(--gray-text);
-      font-size: 14px;
-    }
-
-    /* ── EMPTY / ERROR ── */
-    .empty-state {
-      grid-column: 1/-1;
-      text-align: center;
-      padding: 80px 20px;
-    }
-
-    .empty-icon {
-      font-size: 48px;
-      margin-bottom: 16px;
-      opacity: 0.4;
-    }
-
+    .loading-text { color: var(--gray); font-size: 14px; }
+    .empty-icon { font-size: 44px; opacity: 0.35; }
     .empty-title {
-      font-family: 'Sora', sans-serif;
-      font-size: 20px;
-      font-weight: 700;
-      color: var(--navy);
-      margin-bottom: 8px;
+      font-family: 'Montserrat', sans-serif; font-size: 18px;
+      font-weight: 700; color: var(--gray-light);
     }
+    .empty-text { color: var(--gray); font-size: 13.5px; }
 
-    .empty-text {
-      color: var(--gray-text);
-      font-size: 14px;
-    }
-
-    /* ── FOOTER ── */
+    /* ─── FOOTER ─── */
     footer {
-      background: var(--navy);
-      color: rgba(255,255,255,0.45);
-      text-align: center;
-      font-size: 12.5px;
-      padding: 28px 24px;
-      letter-spacing: 0.3px;
+      background: var(--dark2); border-top: 1px solid var(--card-border);
+      padding: 32px 48px;
+      display: flex; align-items: center; justify-content: space-between;
+      flex-wrap: wrap; gap: 16px;
     }
+    .footer-logo {
+      font-family: 'Montserrat', sans-serif; font-weight: 800;
+      font-size: 16px; color: var(--white); letter-spacing: 0.5px;
+    }
+    .footer-logo span { color: var(--teal); }
+    footer p { font-size: 12px; color: var(--gray); }
+    footer a { color: var(--teal); text-decoration: none; font-size: 12px; }
 
-    footer strong { color: rgba(255,255,255,0.7); }
-
-    /* ── RESPONSIVE ── */
-    @media (max-width: 640px) {
+    /* ─── RESPONSIVE ─── */
+    @media (max-width: 768px) {
       header { padding: 0 20px; }
-      .header-contact { display: none; }
-      .hero { padding: 50px 24px 60px; }
-      main { padding: 40px 16px 60px; }
-      .contests-grid { grid-template-columns: 1fr; gap: 20px; }
+      nav { display: none; }
+      .hero { padding: 56px 20px 120px; }
+      .hero-stats { right: 20px; bottom: 28px; gap: 24px; }
+      .stat-value { font-size: 24px; }
+      .section { padding: 48px 20px; }
+      .info-strip { padding: 20px; gap: 24px; }
+      footer { padding: 24px 20px; flex-direction: column; align-items: flex-start; }
+      .contests-grid { grid-template-columns: 1fr; }
     }
   </style>
 </head>
@@ -468,185 +352,210 @@
 
 <!-- HEADER -->
 <header>
-  <div class="logo">
-    <div class="logo-icon">PR</div>
-    <div>
-      <div class="logo-text">PROSED</div>
-      <div class="logo-sub">Concursos</div>
-    </div>
-  </div>
-  <div class="header-contact">
-    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 9.81 19.79 19.79 0 01.01 1.23 2 2 0 012 .01h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L6.09 7.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 16.92z"/></svg>
-    Dúvidas? Fale conosco
-  </div>
+  <a href="https://www.prosed.com.br" class="logo" target="_blank">
+    <div class="logo-mark">PR</div>
+    <div class="logo-name">PRO<span>SED</span></div>
+  </a>
+  <nav>
+    <a href="https://www.prosed.com.br" target="_blank">Site Prosed</a>
+    <a href="https://wa.me/+5527995115527" target="_blank">Contato</a>
+    <a href="#concursos" class="nav-cta">Ver concursos</a>
+  </nav>
 </header>
 
 <!-- HERO -->
 <section class="hero">
-  <div class="hero-badge">
-    <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="12" r="10"/></svg>
-    Inscrições abertas
+  <div class="hero-bg"></div>
+  <div class="hero-grid"></div>
+  <div class="hero-content">
+    <div class="hero-eyebrow">
+      <span class="eyebrow-dot"></span>
+      Inscrições abertas
+    </div>
+    <h1>Exames admissionais<br>para <em>concursos públicos</em></h1>
+    <p>Selecione o concurso de interesse e realize o agendamento dos seus exames com rapidez, segurança e comodidade.</p>
+    <a href="#concursos" class="btn-primary">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M9 18l6-6-6-6"/></svg>
+      Ver concursos disponíveis
+    </a>
   </div>
-  <h1>Agende seus exames<br>para o <span>concurso público</span></h1>
-  <p>Selecione o concurso de interesse e realize seu agendamento de exames de forma rápida e segura.</p>
+  <div class="hero-stats">
+    <div class="stat">
+      <div class="stat-value" id="statConcursos">—</div>
+      <div class="stat-label">Concursos</div>
+    </div>
+    <div class="stat">
+      <div class="stat-value">ES</div>
+      <div class="stat-label">Estado</div>
+    </div>
+  </div>
 </section>
 
-<!-- MAIN -->
-<main>
-  <div class="section-header">
-    <h2 class="section-title">Concursos disponíveis</h2>
-    <span class="section-count" id="contestCount">Carregando...</span>
+<!-- STRIP -->
+<div class="info-strip">
+  <div class="strip-item">
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+    Resultado em até 24h
   </div>
+  <div class="strip-item">
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
+    Pagamento 100% seguro
+  </div>
+  <div class="strip-item">
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17.657 16.657L13.414 20.9a2 2 0 01-2.828 0l-4.243-4.243a8 8 0 1111.314 0z"/><circle cx="12" cy="11" r="3"/></svg>
+    Vila Velha / ES
+  </div>
+  <div class="strip-item">
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+    Agendamento online
+  </div>
+</div>
 
+<!-- CONCURSOS -->
+<section class="section" id="concursos">
+  <div class="section-header">
+    <div>
+      <div class="section-label">Concursos</div>
+      <h2 class="section-title">Selecione seu concurso</h2>
+    </div>
+    <span class="section-count" id="contestCount">Carregando…</span>
+  </div>
   <div class="contests-grid" id="contestsGrid">
     <div class="loading-state">
       <div class="spinner"></div>
       <span class="loading-text">Buscando concursos disponíveis…</span>
     </div>
   </div>
-</main>
+</section>
 
 <!-- FOOTER -->
 <footer>
-  <strong>PROSED Concursos</strong> — Todos os direitos reservados &copy; 2025
+  <div class="footer-logo">PRO<span>SED</span> Concursos</div>
+  <p>© 2025 Prosed Saúde e Segurança do Trabalho. Todos os direitos reservados.</p>
+  <a href="https://wa.me/+5527995115527" target="_blank">Fale conosco →</a>
 </footer>
 
 <!-- FIREBASE -->
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-  import { getFirestore, collection, getDocs, query, where, orderBy } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+  import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
-  const firebaseConfig = {
+  const app = initializeApp({
     apiKey: "AIzaSyA2Xee7E8r2YfGEsMunsjw7qk8GEH0p1DQ",
     authDomain: "prosed-concurso.firebaseapp.com",
     projectId: "prosed-concurso",
-  };
-
-  const app = initializeApp(firebaseConfig);
+  });
   const db = getFirestore(app);
 
-  const grid = document.getElementById('contestsGrid');
+  const grid    = document.getElementById('contestsGrid');
   const countEl = document.getElementById('contestCount');
+  const statEl  = document.getElementById('statConcursos');
 
-  function getInitials(name = '') {
-    return name.split(' ').slice(0, 2).map(w => w[0]).join('').toUpperCase() || 'PR';
-  }
+  const getInitials = n => (n||'').split(' ').slice(0,2).map(w=>w[0]).join('').toUpperCase()||'PR';
 
-  function formatDeadline(prazo) {
-    if (!prazo) return null;
-    // prazo pode ser string "DD/MM/YYYY" ou Timestamp Firebase
-    if (typeof prazo === 'string') return prazo;
-    if (prazo.toDate) {
-      const d = prazo.toDate();
-      return d.toLocaleDateString('pt-BR');
-    }
+  function formatDeadline(p) {
+    if (!p) return null;
+    if (typeof p === 'string') return p;
+    if (p.toDate) return p.toDate().toLocaleDateString('pt-BR');
     return null;
   }
 
-  function isUrgent(prazo) {
-    if (!prazo) return false;
-    let date;
-    if (typeof prazo === 'string') {
-      const [d, m, y] = prazo.split('/');
-      date = new Date(`${y}-${m}-${d}`);
-    } else if (prazo.toDate) {
-      date = prazo.toDate();
-    }
-    if (!date) return false;
-    const diff = (date - new Date()) / (1000 * 60 * 60 * 24);
-    return diff <= 7 && diff >= 0;
+  function isUrgent(p) {
+    if (!p) return false;
+    let d;
+    if (typeof p === 'string') { const [dd,mm,yy]=p.split('/'); d=new Date(`${yy}-${mm}-${dd}`); }
+    else if (p.toDate) d=p.toDate();
+    if (!d) return false;
+    const diff=(d-Date.now())/86400000;
+    return diff<=7 && diff>=0;
   }
 
-  function getStatusInfo(contest) {
-    const s = contest.status || 'active';
-    if (s === 'active') return { label: 'Aberto', cls: 'badge-active' };
-    if (s === 'soon')   return { label: 'Em breve', cls: 'badge-soon' };
-    return { label: 'Encerrado', cls: 'badge-closed' };
-  }
+  const statusInfo = s => {
+    if (!s||s==='active') return {label:'Inscrições abertas',cls:'status-active'};
+    if (s==='soon')       return {label:'Em breve',           cls:'status-soon'};
+    return                       {label:'Encerrado',          cls:'status-closed'};
+  };
 
-  function buildCard(id, data, index) {
-    const deadline = formatDeadline(data.prazo);
-    const urgent = isUrgent(data.prazo);
-    const status = getStatusInfo(data);
-    const isActive = data.status === 'active' || !data.status;
-    const formUrl = data.url || `prosed-formulario.html?c=${id}`;
-    const initials = getInitials(data.nome);
-    const examesCount = Array.isArray(data.exames) ? data.exames.length : 0;
+  function buildCard(id, d, idx) {
+    const deadline = formatDeadline(d.prazo);
+    const urgent   = isUrgent(d.prazo);
+    const st       = statusInfo(d.status);
+    const active   = !d.status || d.status==='active';
+    const url      = d.url || `prosed-formulario.html?c=${id}`;
 
-    const imageHtml = data.imageUrl
-      ? `<img src="${data.imageUrl}" alt="${data.nome}" loading="lazy" />`
-      : `<div class="card-image-placeholder"><div class="placeholder-initials">${initials}</div></div>`;
+    const imgHtml = d.imageUrl
+      ? `<img src="${d.imageUrl}" alt="${d.nome}" loading="lazy">`
+      : `<div class="card-placeholder"><span class="placeholder-text">${getInitials(d.nome)}</span></div>`;
 
-    const metaDeadline = deadline
-      ? `<div class="card-meta">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
-          Prazo: <span class="meta-deadline ${urgent ? 'urgent' : ''}">${deadline}${urgent ? ' ⚠️' : ''}</span>
-        </div>`
-      : '';
+    const deadlineHtml = deadline ? `
+      <div class="card-divider"></div>
+      <div class="card-meta">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+        Prazo: <strong class="meta-date ${urgent?'urgent':''}">${deadline}${urgent?' ⚠️':''}</strong>
+      </div>` : '';
 
-    const btn = isActive
-      ? `<a href="${formUrl}" class="btn-inscricao">Fazer inscrição →</a>`
+    const btnHtml = active
+      ? `<a href="${url}" class="btn-inscricao">
+           <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M9 18l6-6-6-6"/></svg>
+           Fazer inscrição
+         </a>`
       : `<button class="btn-inscricao disabled" disabled>Inscrições encerradas</button>`;
 
     const card = document.createElement('div');
     card.className = 'contest-card';
-    card.style.animationDelay = `${index * 0.08}s`;
+    card.style.animationDelay = `${idx*0.07}s`;
     card.innerHTML = `
       <div class="card-image">
-        ${imageHtml}
+        ${imgHtml}
         <div class="card-overlay"></div>
-        <span class="card-badge-status ${status.cls}">${status.label}</span>
-        ${data.orgao ? `<span class="card-orgao">${data.orgao}</span>` : ''}
+        <span class="card-status ${st.cls}">${st.label}</span>
+        ${d.orgao?`<span class="card-orgao">${d.orgao}</span>`:''}
       </div>
       <div class="card-body">
-        <div class="card-name">${data.nome || 'Concurso'}</div>
-        ${data.resumo ? `<div class="card-description">${data.resumo}</div>` : ''}
-        ${metaDeadline}
+        <div class="card-name">${d.nome||'Concurso'}</div>
+        ${d.resumo?`<div class="card-desc">${d.resumo}</div>`:''}
+        ${deadlineHtml}
       </div>
-      <div class="card-footer">${btn}</div>
-    `;
+      <div class="card-footer">${btnHtml}</div>`;
     return card;
   }
 
-  async function loadContests() {
+  async function load() {
     try {
-      const snap = await getDocs(collection(db, 'contests'));
-      const contests = [];
-      snap.forEach(doc => contests.push({ id: doc.id, ...doc.data() }));
+      const snap = await getDocs(collection(db,'contests'));
+      const list = [];
+      snap.forEach(doc => list.push({id:doc.id,...doc.data()}));
 
-      // Ordenar: ativos primeiro, depois em breve, depois fechados
-      const order = { active: 0, soon: 1, closed: 2 };
-      contests.sort((a, b) => (order[a.status] ?? 0) - (order[b.status] ?? 0));
+      const order = {active:0,soon:1,closed:2};
+      list.sort((a,b)=>(order[a.status]??0)-(order[b.status]??0));
 
       grid.innerHTML = '';
+      statEl.textContent = list.length;
+      countEl.textContent = `${list.length} concurso${list.length!==1?'s':''} encontrado${list.length!==1?'s':''}`;
 
-      if (contests.length === 0) {
-        grid.innerHTML = `
-          <div class="empty-state">
-            <div class="empty-icon">📋</div>
-            <div class="empty-title">Nenhum concurso disponível</div>
-            <div class="empty-text">Em breve novos concursos serão divulgados. Volte em breve!</div>
-          </div>`;
-        countEl.textContent = '0 concursos';
+      if (!list.length) {
+        grid.innerHTML = `<div class="empty-state">
+          <div class="empty-icon">📋</div>
+          <div class="empty-title">Nenhum concurso disponível</div>
+          <div class="empty-text">Em breve novos concursos serão divulgados.</div>
+        </div>`;
         return;
       }
 
-      contests.forEach((c, i) => grid.appendChild(buildCard(c.id, c, i)));
-      countEl.textContent = `${contests.length} concurso${contests.length !== 1 ? 's' : ''}`;
-
-    } catch (err) {
-      console.error(err);
-      grid.innerHTML = `
-        <div class="empty-state">
-          <div class="empty-icon">⚠️</div>
-          <div class="empty-title">Erro ao carregar</div>
-          <div class="empty-text">Não foi possível buscar os concursos. Tente novamente em instantes.</div>
-        </div>`;
+      list.forEach((c,i) => grid.appendChild(buildCard(c.id,c,i)));
+    } catch(e) {
+      console.error(e);
+      statEl.textContent = '—';
       countEl.textContent = 'Erro';
+      grid.innerHTML = `<div class="empty-state">
+        <div class="empty-icon">⚠️</div>
+        <div class="empty-title">Erro ao carregar</div>
+        <div class="empty-text">Não foi possível buscar os concursos. Tente novamente.</div>
+      </div>`;
     }
   }
 
-  loadContests();
+  load();
 </script>
 </body>
 </html>
