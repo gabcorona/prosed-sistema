@@ -458,7 +458,7 @@ function renderFieldsConfig() {
       <span style="font-size:.86rem;font-weight:500">${label}</span>
     </label>`).join('');
 
-  // Adiciona listeners APÓS renderizar (necessário em ES Module — onchange inline não acessa escopo do módulo)
+  // addEventListener após render — onchange inline não funciona em ES Module (sem acesso ao escopo do módulo)
   Object.keys(labels).forEach(key => {
     const el = document.getElementById('fc-' + key);
     if (el) el.addEventListener('change', () => { fieldsConfig[key] = el.checked; });
@@ -469,9 +469,7 @@ function saveConfig() {
   cfg.asaasEnv = document.getElementById('asaas-env').value;
   cfg.proxyUrl = document.getElementById('proxy-url').value;
   cfg.apiKey = document.getElementById('api-key-inp').value;
-  // Salvar fieldsConfig dos checkboxes
-  const labels = ['matricula','rg','orgaoExpedidor','dataNasc','sexo','toxicologico','obsAdicionais'];
-  labels.forEach(k => { const el = document.getElementById('fc-' + k); if (el) fieldsConfig[k] = el.checked; });
+  // fieldsConfig já está atualizado em tempo real pelos listeners do renderFieldsConfig
   saveLocalCfg();
   showToast('Configurações salvas!', 'ok');
 }
