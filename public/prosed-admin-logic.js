@@ -204,12 +204,14 @@ async function saveContest(status) {
   try {
     const editingId = document.getElementById('editing-id').value;
     const formUrl = window.location.href.replace('prosed-admin.html', 'prosed-formulario.html');
+    const imageUrl = document.getElementById('nc-imageUrl').value.trim();
     const data = {
       nome, orgao,
       prazo: document.getElementById('nc-prazo').value,
       status,
       maxParcelas: parseInt(document.getElementById('nc-parcelas').value) || 1,
       resumo: document.getElementById('nc-resumo').value,
+      imageUrl: imageUrl || '',
       pacotes: [...newPacotes],
       exames: [...newExames],
       slots: [...newSlots],
@@ -230,7 +232,8 @@ async function saveContest(status) {
 }
 
 function clearForm() {
-  ['nc-nome', 'nc-orgao', 'nc-prazo', 'nc-resumo', 'editing-id'].forEach(id => { const el = document.getElementById(id); if (el) el.value = ''; });
+  ['nc-nome', 'nc-orgao', 'nc-prazo', 'nc-resumo', 'nc-imageUrl', 'editing-id'].forEach(id => { const el = document.getElementById(id); if (el) el.value = ''; });
+  document.getElementById('nc-imageUrl-preview').style.display = 'none';
   document.getElementById('nc-status').value = 'draft';
   document.getElementById('nc-parcelas').value = '1';
   newSlots = []; newExames = []; newPacotes = [];
@@ -491,6 +494,20 @@ document.getElementById('nc-prazo').addEventListener('input', e => maskDate(e.ta
 document.getElementById('cp-val').addEventListener('input', e => maskDate(e.target));
 document.getElementById('cp-code').addEventListener('input', e => e.target.value = e.target.value.toUpperCase());
 
+// Preview da imagem ao digitar URL
+document.getElementById('nc-imageUrl').addEventListener('input', e => {
+  const url = e.target.value.trim();
+  const prev = document.getElementById('nc-imageUrl-preview');
+  const img = document.getElementById('nc-imageUrl-img');
+  if (url) {
+    img.src = url;
+    img.onload = () => prev.style.display = 'block';
+    img.onerror = () => prev.style.display = 'none';
+  } else {
+    prev.style.display = 'none';
+  }
+});
+
 // Delegated events for dynamic elements
 document.getElementById('pacotes-body').addEventListener('input', e => {
   const el = e.target; const id = el.dataset.id; const field = el.dataset.field;
@@ -524,6 +541,10 @@ document.getElementById('contest-list').addEventListener('click', async e => {
     document.getElementById('nc-status').value = c.status;
     document.getElementById('nc-parcelas').value = c.maxParcelas || 1;
     document.getElementById('nc-resumo').value = c.resumo || '';
+    document.getElementById('nc-imageUrl').value = c.imageUrl || '';
+    const prev = document.getElementById('nc-imageUrl-preview');
+    const img = document.getElementById('nc-imageUrl-img');
+    if (c.imageUrl) { img.src = c.imageUrl; prev.style.display = 'block'; } else { prev.style.display = 'none'; }
     document.getElementById('editing-id').value = c.id;
     newSlots = JSON.parse(JSON.stringify(c.slots || []));
     newPacotes = JSON.parse(JSON.stringify(c.pacotes || []));
