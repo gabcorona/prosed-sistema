@@ -1,9 +1,7 @@
 {
   "outputDirectory": "public",
   "rewrites": [
-    { "source": "/asaas/:path*", "destination": "/api/proxy" }
-  ],
-  "redirects": [
-    { "source": "/", "destination": "/prosed-admin.html", "permanent": false }
+    { "source": "/asaas/:path*", "destination": "/api/proxy" },
+    { "source": "/", "destination": "/prosed-admin.html" }
   ]
 }
