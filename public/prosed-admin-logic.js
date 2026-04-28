@@ -9,15 +9,15 @@ let contests = [], registrations = [], coupons = [];
 let newSlots = [], newExames = [], newPacotes = [];
 let editalB64 = null, currentCadId = null, currentTab = 'concursos';
 let cfg = { asaasEnv: 'sandbox', proxyUrl: 'https://prosed-sistema.vercel.app', apiKey: '' };
-// Campos configuráveis do formulário (true = visível/obrigatório)
+// Campos configuráveis do formulário (false = oculto por padrão, admin seleciona)
 let fieldsConfig = {
-  matricula: true,   // Nº de Inscrição/Matrícula
-  rg: true,          // RG
-  orgaoExpedidor: true, // Órgão Expedidor + UF
-  dataNasc: true,    // Data de Nascimento
-  sexo: true,        // Sexo
-  toxicologico: true, // Passo 2: Toxicológico
-  obsAdicionais: true, // Observações adicionais
+  matricula: false,
+  rg: false,
+  orgaoExpedidor: false,
+  dataNasc: false,
+  sexo: false,
+  toxicologico: false,
+  obsAdicionais: false,
 };
 
 // ── CONFIG LOCAL ──────────────────────────────────────────────
@@ -28,7 +28,7 @@ function loadLocalCfg() {
     const fc = localStorage.getItem('p_fields');
     if (c) cfg = Object.assign(cfg, JSON.parse(c));
     if (p) adminPwd = p;
-    if (fc) fieldsConfig = Object.assign(fieldsConfig, JSON.parse(fc));
+    if (fc) fieldsConfig = JSON.parse(fc);
   } catch(e) {}
 }
 function saveLocalCfg() {
