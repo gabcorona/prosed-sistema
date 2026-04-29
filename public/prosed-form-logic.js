@@ -93,7 +93,18 @@ function updateNav() {
   }).join('');
 }
 function banner() {
-  return `<div class="contest-banner fade">
+  return `
+  <style>
+    .field { display:flex; flex-direction:column; gap:5px; margin-bottom:14px; }
+    .field:last-child { margin-bottom:0; }
+    @media(max-width:480px){
+      .s-card { padding:16px 14px !important; }
+      .field { margin-bottom:12px; }
+      input, select { font-size:16px !important; } /* evita zoom no iOS */
+      .btn-row { padding:12px 0 !important; }
+    }
+  </style>
+  <div class="contest-banner fade">
     <div class="contest-banner-name">📋 ${contest.nome}</div>
     <div class="contest-banner-meta">${contest.orgao}${contest.prazo ? ' · Prazo: ' + contest.prazo : ''}</div>
     ${contest.resumo ? `<div class="contest-resumo" style="color:var(--red);font-weight:600">${contest.resumo}</div>` : ''}
@@ -137,11 +148,11 @@ function rDados() {
         <option ${fd.sexo==='Outro'?'selected':''}>Outro</option></select></div>` : '';
 
   // Monta grupos de 2 colunas só com os campos habilitados
-  const rgOrgaoRow = (fRg || fOrgao) ? `<div class="g2">${fRg}${fOrgao}</div>` : '';
-  const ufRow      = fUf ? `<div class="g2">${fUf}</div>` : '';
+  const G2 = `display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px`;
 
-  // Sexo e Nascimento: lado a lado (apenas os que estiverem ativos)
-  const sexoNascRow = (fSexo || fNasc) ? `<div class="g2">${fSexo}${fNasc}</div>` : '';
+  const rgOrgaoRow = (fRg || fOrgao) ? `<div style="${G2}">${fRg}${fOrgao}</div>` : '';
+  const ufRow      = fUf ? fUf : '';
+  const sexoNascRow = (fSexo || fNasc) ? `<div style="${G2}">${fSexo}${fNasc}</div>` : '';
 
   set('main', banner() + `
   <div class="s-card fade"><div class="s-title"><span class="s-num">1</span> Dados Pessoais</div>
