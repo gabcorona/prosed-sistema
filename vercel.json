@@ -1,14 +1,3 @@
 {
-  "outputDirectory": "public",
-  "functions": {
-    "api/proxy.js": {
-      "memory": 256,
-      "maxDuration": 30
-    }
-  },
-  "rewrites": [
-    { "source": "/asaas/:path*", "destination": "/api/proxy" },
-    { "source": "/health",       "destination": "/api/proxy" },
-    { "source": "/",             "destination": "/prosed-index.html" }
-  ]
+  "outputDirectory": "public"
 }
