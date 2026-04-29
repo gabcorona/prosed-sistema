@@ -484,7 +484,7 @@ async function gPIX() {
       set('pix-qr', '<div style="padding:20px;color:var(--white-dim)">⏳ Aguardando QR Code...</div>');
       setTimeout(async () => {
         try {
-          const qr = await (await fetch(PROXY() + '/asaas/pay/' + pr.paymentId + '/qrcode')).json();
+          const qr = await (await fetch(PROXY() + '/api/proxy?action=/asaas/pay/' + pr.paymentId + '/qrcode')).json();
           if (qr.encodedImage) set('pix-qr', `<img src="data:image/png;base64,${qr.encodedImage}" style="width:100%;max-width:280px;height:auto;display:block;margin:0 auto"/>`);
           if (qr.pixCopiaECola) set('pix-ce', qr.pixCopiaECola);
         } catch(e) {}
@@ -501,7 +501,7 @@ function startPoll(pid) {
   if (pixPollTimer) clearInterval(pixPollTimer);
   pixPollTimer = setInterval(async () => {
     try {
-      const r = await fetch(PROXY() + '/asaas/pay/status', {
+      const r = await fetch(PROXY() + '/api/proxy?action=/asaas/pay/status', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ paymentId: pid })
@@ -512,7 +512,7 @@ function startPoll(pid) {
   }, 4000);
 }
 function cpPix() { const t = document.getElementById('pix-ce')?.textContent || ''; navigator.clipboard.writeText(t).then(() => showToast('Chave PIX copiada!', 'ok')); }
-async function pp(path, body) { const r = await fetch(PROXY() + path, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) }); return r.json(); }
+async function pp(path, body) { const r = await fetch(PROXY() + '/api/proxy?action=' + encodeURIComponent(path), { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) }); return r.json(); }
 
 // ── FINALIZE ──────────────────────────────────────────────────
 async function finZero() { await finalize('', 'paid'); }
