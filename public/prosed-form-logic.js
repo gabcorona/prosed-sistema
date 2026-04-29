@@ -11,7 +11,7 @@ const UNIT_ADDRESSES = {
 };
 
 function getAddress(city) {
-  return UNIT_ADDRESSES[city] || city || '';
+  return UNIT_ADDRESS_FULL[city] || UNIT_ADDRESSES[city] || city || '';
 }
 
 // ── LOAD CONTEST ──────────────────────────────────────────────
@@ -244,6 +244,18 @@ const UNIT_ADDRESS_SHORT = {
   'Prosed - Unidade Serra':      'R. Humberto de Campos, 25 - Parque Res. Laranjeiras',
 };
 
+// Endereços completos para os links de mapa
+const UNIT_ADDRESS_FULL = {
+  'Vila Velha':                  'Av. Profa. Francelina Carneiro Setúbal, 168, Divino Espírito Santo, Vila Velha, ES',
+  'Vitória':                     'R. Neves Armond, 535, Bento Ferreira, Vitória, ES',
+  'Cariacica':                   'R. José Barros da Silva, 17, Campo Grande, Cariacica, ES',
+  'Serra':                       'R. Humberto de Campos, 25, Parque Residencial Laranjeiras, Serra, ES',
+  'Prosed - Unidade Vila Velha': 'Av. Profa. Francelina Carneiro Setúbal, 168, Divino Espírito Santo, Vila Velha, ES',
+  'Prosed - Unidade Vitória':    'R. Neves Armond, 535, Bento Ferreira, Vitória, ES',
+  'Prosed - Unidade Cariacica':  'R. José Barros da Silva, 17, Campo Grande, Cariacica, ES',
+  'Prosed - Unidade Serra':      'R. Humberto de Campos, 25, Parque Residencial Laranjeiras, Serra, ES',
+};
+
 function getCityShort(city) {
   return city.replace('Prosed - Unidade ', '');
 }
@@ -256,7 +268,7 @@ function rAddressPanel() {
     ${cities.map(city => {
       const short = getCityShort(city);
       const addrShort = UNIT_ADDRESS_SHORT[city] || '';
-      const addrFull = getAddress(city);
+      const addrFull = UNIT_ADDRESS_FULL[city] || getAddress(city);
       const label = `Prosed ${short} - ${addrShort}`;
       return `<div style="margin-bottom:8px;padding-bottom:8px;border-bottom:1px solid var(--border)">
         <div style="font-size:.84rem;font-weight:600;color:var(--white);margin-bottom:4px">${label}</div>
