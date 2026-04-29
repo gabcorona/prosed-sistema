@@ -211,6 +211,14 @@ function cloneTable() {
   showToast('Tabela copiada!', 'ok');
 }
 
+// ── ENDEREÇOS FIXOS POR UNIDADE ───────────────────────────────
+const UNIT_ADDRESSES = {
+  'Prosed - Unidade Vila Velha': 'Av. Profa. Francelina Carneiro Setúbal, 168 - Divino Espírito Santo, Vila Velha - ES',
+  'Prosed - Unidade Vitória':    'R. Neves Armond, 535 - Bento Ferreira, Vitória - ES',
+  'Prosed - Unidade Cariacica':  'R. José Barros da Silva, 17 - Campo Grande, Cariacica - ES',
+  'Prosed - Unidade Serra':      'R. Humberto de Campos, 25 - Parque Res. Laranjeiras, Serra - ES',
+};
+
 // ── SLOTS ─────────────────────────────────────────────────────
 function addSlot() {
   const city = document.getElementById('cfg-city').value;
@@ -218,7 +226,8 @@ function addSlot() {
   const time = document.getElementById('cfg-time').value;
   const max = parseInt(document.getElementById('cfg-max').value);
   if (!city || !date || date.length < 10 || !time || time.length < 5 || !max || max < 1) { showToast('Preencha todos os campos.', 'err'); return; }
-  newSlots.push({ id: 's' + Date.now(), city, date, time, max, booked: 0 });
+  const address = UNIT_ADDRESSES[city] || '';
+  newSlots.push({ id: 's' + Date.now(), city, date, time, max, booked: 0, address });
   renderSlotsList();
   ['cfg-city', 'cfg-date', 'cfg-time', 'cfg-max'].forEach(id => document.getElementById(id).value = '');
 }
@@ -230,7 +239,7 @@ function renderSlotsList() {
     <span class="sbadge sb-city">📍 ${s.city}</span>
     <span class="sbadge sb-date">📅 ${s.date}</span>
     <span class="sbadge sb-time">🕐 ${s.time}</span>
-    <span style="font-size:.78rem;color:var(--white-dim);flex:1">${s.max} vagas</span>
+    <span style="font-size:.78rem;color:var(--white-dim);flex:1">${s.max} vagas${s.address ? ' · ' + s.address : ''}</span>
     <button class="btn-red btn-sm rm-slot" data-id="${s.id}">✕</button>
   </div>`).join('');
 }
