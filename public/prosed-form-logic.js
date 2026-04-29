@@ -73,41 +73,61 @@ function banner() {
 // ── STEP 1: DADOS ─────────────────────────────────────────────
 function rDados() {
   const ufs = ['AC','AL','AP','AM','BA','CE','DF','ES','GO','MA','MT','MS','MG','PA','PB','PR','PE','PI','RJ','RN','RS','RO','RR','SC','SP','SE','TO'];
+  const orgaos = ['SSP','DETRAN','PC','IFP','SJS','SDS','IIP','CGP','MJ','PF'];
+  const isOtherOrgao = fd.orgao && !orgaos.includes(fd.orgao);
+
+  const fMatricula = fieldOn('matricula') ? `
+    <div class="field" id="f-matricula"><label class="fl">Nº de Matrícula / Inscrição <span class="req">*</span></label>
+      <input id="matricula" type="text" class="mono" placeholder="Número de matrícula" value="${h(fd.matricula)}"/></div>` : '';
+
+  const fRg = fieldOn('rg') ? `
+    <div class="field" id="f-rg"><label class="fl">RG <span class="req">*</span></label>
+      <input id="rg" type="tel" class="mono" placeholder="0000000" value="${h(fd.rg)}" oninput="this.value=this.value.replace(/\\D/g,'')"/></div>` : '';
+
+  const fOrgao = fieldOn('orgaoExpedidor') ? `
+    <div class="field" id="f-orgao"><label class="fl">Órgão Expedidor <span class="req">*</span></label>
+      <select id="orgao" onchange="tglOrgaoOutros(this)">
+        <option value="">Selecione</option>
+        ${orgaos.map(o=>`<option value="${o}" ${fd.orgao===o?'selected':''}>${o}</option>`).join('')}
+        <option value="outros" ${isOtherOrgao?'selected':''}>Outros</option>
+      </select>
+      <input id="orgao-outros" type="text" placeholder="Digite o órgão expedidor" value="${h(isOtherOrgao?fd.orgao:'')}"
+        style="display:${isOtherOrgao?'':'none'};margin-top:8px" oninput="this.value=this.value.toUpperCase()"/>
+    </div>` : '';
+
+  const fUf = fieldOn('ufRg') ? `
+    <div class="field" id="f-uf"><label class="fl">UF do RG <span class="req">*</span></label>
+      <select id="uf"><option value="">Selecione</option>${ufs.map(u=>`<option ${fd.uf===u?'selected':''}>${u}</option>`).join('')}</select></div>` : '';
+
+  const fNasc = fieldOn('dataNasc') ? `
+    <div class="field" id="f-nasc"><label class="fl">Nascimento <span class="req">*</span></label>
+      <input id="nasc" type="tel" class="mono" placeholder="DD/MM/AAAA" maxlength="10" value="${h(fd.nasc)}" oninput="mDate(this)"/></div>` : '';
+
+  const fSexo = fieldOn('sexo') ? `
+    <div class="field" id="f-sexo"><label class="fl">Sexo <span class="req">*</span></label>
+      <select id="sexo"><option value="">Selecione</option>
+        <option ${fd.sexo==='Masculino'?'selected':''}>Masculino</option>
+        <option ${fd.sexo==='Feminino'?'selected':''}>Feminino</option>
+        <option ${fd.sexo==='Outro'?'selected':''}>Outro</option></select></div>` : '';
+
+  // Monta grupos de 2 colunas só com os campos habilitados
+  const rgOrgaoRow = (fRg || fOrgao) ? `<div class="g2">${fRg}${fOrgao}</div>` : '';
+  const ufNascRow  = (fUf || fNasc)  ? `<div class="g2">${fUf}${fNasc}</div>` : '';
+  const sexoCelRow = `<div class="g2">${fSexo}
+    <div class="field" id="f-cel"><label class="fl">Celular <span class="req">*</span></label>
+      <input id="cel" type="tel" class="mono" placeholder="(00) 00000-0000" maxlength="16" value="${h(fd.cel)}" oninput="mPhone(this)"/></div>
+  </div>`;
+
   set('main', banner() + `
   <div class="s-card fade"><div class="s-title"><span class="s-num">1</span> Dados Pessoais</div>
     <div class="field" id="f-nome"><label class="fl">Nome Completo <span class="req">*</span></label>
       <input id="nome" type="text" placeholder="Nome e sobrenome" value="${h(fd.nome)}" oninput="this.value=this.value.toUpperCase()"/></div>
     <div class="field" id="f-cpf"><label class="fl">CPF <span class="req">*</span></label>
-        <input id="cpf" type="tel" class="mono" placeholder="000.000.000-00" maxlength="14" value="${h(fd.cpf)}" oninput="mCPF(this)"/></div>
-    </div>
-    ${fieldOn('rg') ? `<div class="g2">
-      <div class="field" id="f-rg"><label class="fl">RG <span class="req">*</span></label>
-        <input id="rg" type="tel" class="mono" placeholder="0000000" value="${h(fd.rg)}" oninput="this.value=this.value.replace(/\\D/g,'')"/></div>
-      ${fieldOn('orgaoExpedidor') ? `<div class="field" id="f-orgao"><label class="fl">Órgão Expedidor <span class="req">*</span></label>
-        <select id="orgao" onchange="tglOrgaoOutros(this)">
-          <option value="">Selecione</option>
-          ${['SSP','DETRAN','PC','IFP','SJS','SDS','IIP','CGP','MJ','PF'].map(o=>'<option value="'+o+'" '+(fd.orgao===o?'selected':'')+'>'+o+'</option>').join('')}
-          <option value="outros" ${fd.orgao&&!['SSP','DETRAN','PC','IFP','SJS','SDS','IIP','CGP','MJ','PF'].includes(fd.orgao)?'selected':''}>Outros</option>
-        </select>
-        <input id="orgao-outros" type="text" placeholder="Digite o órgão expedidor" value="${h(!['SSP','DETRAN','PC','IFP','SJS','SDS','IIP','CGP','MJ','PF','','outros'].includes(fd.orgao)?fd.orgao:'')}" style="display:${fd.orgao&&!['SSP','DETRAN','PC','IFP','SJS','SDS','IIP','CGP','MJ','PF',''].includes(fd.orgao)?'':'none'};margin-top:8px" oninput="this.value=this.value.toUpperCase()"/>
-      </div>` : ''}
-    </div>` : ''}
-    ${fieldOn('orgaoExpedidor') ? `<div class="g2">
-      <div class="field" id="f-uf"><label class="fl">UF do RG <span class="req">*</span></label>
-        <select id="uf"><option value="">Selecione</option>${ufs.map(u => '<option '+(fd.uf === u ? 'selected' : '')+'>'+u+'</option>').join('')}</select></div>
-      ${fieldOn('dataNasc') ? `<div class="field" id="f-nasc"><label class="fl">Nascimento <span class="req">*</span></label>
-        <input id="nasc" type="tel" class="mono" placeholder="DD/MM/AAAA" maxlength="10" value="${h(fd.nasc)}" oninput="mDate(this)"/></div>` : ''}
-    </div>` : `${fieldOn('dataNasc') ? `<div class="g2"><div class="field" id="f-nasc"><label class="fl">Nascimento <span class="req">*</span></label>
-        <input id="nasc" type="tel" class="mono" placeholder="DD/MM/AAAA" maxlength="10" value="${h(fd.nasc)}" oninput="mDate(this)"/></div></div>` : ''}`}
-    <div class="g2">
-      ${fieldOn('sexo') ? `<div class="field" id="f-sexo"><label class="fl">Sexo <span class="req">*</span></label>
-        <select id="sexo"><option value="">Selecione</option>
-          <option ${fd.sexo === 'Masculino' ? 'selected' : ''}>Masculino</option>
-          <option ${fd.sexo === 'Feminino' ? 'selected' : ''}>Feminino</option>
-          <option ${fd.sexo === 'Outro' ? 'selected' : ''}>Outro</option></select></div>` : ''}
-      <div class="field" id="f-cel"><label class="fl">Celular <span class="req">*</span></label>
-        <input id="cel" type="tel" class="mono" placeholder="(00) 00000-0000" maxlength="16" value="${h(fd.cel)}" oninput="mPhone(this)"/></div>
-    </div>
+      <input id="cpf" type="tel" class="mono" placeholder="000.000.000-00" maxlength="14" value="${h(fd.cpf)}" oninput="mCPF(this)"/></div>
+    ${fMatricula}
+    ${rgOrgaoRow}
+    ${ufNascRow}
+    ${sexoCelRow}
     <div class="field" id="f-email"><label class="fl">E-mail <span class="req">*</span></label>
       <input id="email" type="email" placeholder="seu@email.com" value="${h(fd.email)}"/></div>
   </div>
@@ -276,6 +296,7 @@ function mabb(m) { return ['', 'Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 
 
 // ── STEP 5: DOCS ──────────────────────────────────────────────
 function rDocs() {
+  if (!fieldOn('docUpload')) { step++; render(); return; }
   set('main', `<div class="s-card fade"><div class="s-title"><span class="s-num">5</span> Comprovante de Inscrição</div>
     <div class="field" id="f-file">
       <div class="upload-zone ${selFile ? 'has-file' : ''}" onclick="document.getElementById('fi').click()">
@@ -607,11 +628,19 @@ function save(s) {
   if (s === 0) {
     const orgaoSel = g('orgao');
     const orgaoVal = orgaoSel === 'outros' ? g('orgao-outros') : orgaoSel;
-    Object.assign(fd, { nome: g('nome'), cpf: g('cpf'), matricula: '', rg: g('rg'), orgao: orgaoVal, uf: g('uf'), nasc: g('nasc'), sexo: g('sexo'), cel: g('cel'), email: g('email') });
+    Object.assign(fd, {
+      nome: g('nome'), cpf: g('cpf'),
+      matricula: fieldOn('matricula') ? g('matricula') : '',
+      rg: fieldOn('rg') ? g('rg') : '',
+      orgao: fieldOn('orgaoExpedidor') ? orgaoVal : '',
+      uf: fieldOn('ufRg') ? g('uf') : '',
+      nasc: fieldOn('dataNasc') ? g('nasc') : '',
+      sexo: fieldOn('sexo') ? g('sexo') : '',
+      cel: g('cel'), email: g('email')
+    });
   }
   if (s === 1) Object.assign(fd, { trat: g('trat'), psico: g('psico'), med: g('med'), coleta: g('coleta') });
   if (s === 2) Object.assign(fd, {});
-  // docs step removed
 }
 function val(s) {
   clrAllE();
@@ -621,14 +650,16 @@ function val(s) {
     if (!nome || nome.split(' ').filter(Boolean).length < 2) { showE('f-nome', 'Informe nome e sobrenome'); ok = false; }
     const cpf = document.getElementById('cpf')?.value || '';
     if (!vCPF(cpf)) { showE('f-cpf', 'CPF inválido'); ok = false; }
-    // matricula removed
-    if (!document.getElementById('rg')?.value.trim()) { showE('f-rg', 'Campo obrigatório'); ok = false; }
-    const orgaoEl = document.getElementById('orgao');
-    if (!orgaoEl?.value) { showE('f-orgao', 'Selecione o órgão'); ok = false; }
-    else if (orgaoEl.value === 'outros' && !document.getElementById('orgao-outros')?.value.trim()) { showE('f-orgao', 'Digite o órgão'); ok = false; }
-    if (!document.getElementById('uf')?.value) { showE('f-uf', 'Selecione a UF'); ok = false; }
-    if ((document.getElementById('nasc')?.value || '').length < 10) { showE('f-nasc', 'Data inválida'); ok = false; }
-    if (!document.getElementById('sexo')?.value) { showE('f-sexo', 'Selecione'); ok = false; }
+    if (fieldOn('matricula') && !document.getElementById('matricula')?.value.trim()) { showE('f-matricula', 'Campo obrigatório'); ok = false; }
+    if (fieldOn('rg') && !document.getElementById('rg')?.value.trim()) { showE('f-rg', 'Campo obrigatório'); ok = false; }
+    if (fieldOn('orgaoExpedidor')) {
+      const orgaoEl = document.getElementById('orgao');
+      if (!orgaoEl?.value) { showE('f-orgao', 'Selecione o órgão'); ok = false; }
+      else if (orgaoEl.value === 'outros' && !document.getElementById('orgao-outros')?.value.trim()) { showE('f-orgao', 'Digite o órgão'); ok = false; }
+    }
+    if (fieldOn('ufRg') && !document.getElementById('uf')?.value) { showE('f-uf', 'Selecione a UF'); ok = false; }
+    if (fieldOn('dataNasc') && (document.getElementById('nasc')?.value || '').length < 10) { showE('f-nasc', 'Data inválida'); ok = false; }
+    if (fieldOn('sexo') && !document.getElementById('sexo')?.value) { showE('f-sexo', 'Selecione'); ok = false; }
     if ((document.getElementById('cel')?.value || '').replace(/\D/g, '').length < 11) { showE('f-cel', 'Celular inválido'); ok = false; }
     const em = document.getElementById('email')?.value.trim() || '';
     if (!em || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(em)) { showE('f-email', 'E-mail inválido'); ok = false; }
