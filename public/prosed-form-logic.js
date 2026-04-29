@@ -48,19 +48,37 @@ function render() {
   if (!contest) { info('🔍', 'Concurso não encontrado', 'O link pode ser inválido ou foi removido.'); return; }
   if (contest.status === 'closed') { info('⏸', 'Período encerrado', 'O agendamento foi encerrado.'); return; }
   if (contest.status === 'draft') { info('🔒', 'Em breve', 'Este concurso ainda não está disponível.'); return; }
-  [rDados, rToxico, rPacote, rAgenda, rCheckout][step]?.();
+  buildSteps()[step]?.();
 }
 function info(icon, title, sub) {
   document.getElementById('steps-nav').style.display = 'none';
   document.getElementById('main').innerHTML = `<div class="not-found fade"><div class="not-found-icon">${icon}</div><h2 style="font-size:1.2rem;font-weight:800;margin-bottom:8px">${title}</h2><p style="color:var(--white-dim);font-size:.85rem">${sub}</p></div>`;
 }
+function buildSteps() {
+  const steps = [rDados];
+  if (fieldOn('toxicologico')) steps.push(rToxico);
+  steps.push(rPacote, rAgenda);
+  if (fieldOn('docUpload')) steps.push(rDocs);
+  steps.push(rCheckout);
+  return steps;
+}
+
 function updateNav() {
-  document.getElementById('steps-nav').style.display = step >= 6 ? 'none' : '';
-  document.querySelectorAll('.step-btn').forEach((b, i) => {
-    b.classList.remove('active', 'done');
-    if (i === step) b.classList.add('active');
-    else if (i < step) b.classList.add('done');
-  });
+  const steps = buildSteps();
+  const labels = ['Dados'];
+  if (fieldOn('toxicologico')) labels.push('Toxicológico');
+  labels.push('Pacote', 'Agenda');
+  if (fieldOn('docUpload')) labels.push('Docs');
+  labels.push('Checkout');
+
+  const nav = document.getElementById('steps-nav');
+  nav.style.display = step >= steps.length ? 'none' : '';
+
+  // Rebuild nav buttons dynamically
+  nav.innerHTML = labels.map((lbl, i) => {
+    const cls = i === step ? 'step-btn active' : i < step ? 'step-btn done' : 'step-btn';
+    return `<button class="${cls}"><span class="step-num">${i + 1}</span>${lbl}</button>`;
+  }).join('');
 }
 function banner() {
   return `<div class="contest-banner fade">
@@ -136,7 +154,6 @@ function rDados() {
 
 // ── STEP 2: TÓXICO ────────────────────────────────────────────
 function rToxico() {
-  if (!fieldOn('toxicologico')) { step++; render(); return; }
   set('main', `<div class="s-card fade"><div class="s-title"><span class="s-num">2</span> Questionário Toxicológico</div>
     <div class="field" id="f-trat"><label class="fl">Tratamento Químico Capilar <span class="req">*</span></label>
       <div class="radio-group">
@@ -296,7 +313,6 @@ function mabb(m) { return ['', 'Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 
 
 // ── STEP 5: DOCS ──────────────────────────────────────────────
 function rDocs() {
-  if (!fieldOn('docUpload')) { step++; render(); return; }
   set('main', `<div class="s-card fade"><div class="s-title"><span class="s-num">5</span> Comprovante de Inscrição</div>
     <div class="field" id="f-file">
       <div class="upload-zone ${selFile ? 'has-file' : ''}" onclick="document.getElementById('fi').click()">
@@ -621,11 +637,12 @@ function prtComp() {
 }
 
 // ── NAVIGATION ────────────────────────────────────────────────
-function next() { if (!val(step)) return; save(step); step = Math.min(step + 1, 4); render(); window.scrollTo({ top: 0, behavior: 'smooth' }); }
+function next() { if (!val(step)) return; save(step); step = Math.min(step + 1, buildSteps().length - 1); render(); window.scrollTo({ top: 0, behavior: 'smooth' }); }
 function prev() { save(step); step = Math.max(step - 1, 0); render(); window.scrollTo({ top: 0, behavior: 'smooth' }); }
 function save(s) {
   const g = id => { const el = document.getElementById(id); return el ? el.value : ''; };
-  if (s === 0) {
+  const currentFn = buildSteps()[s];
+  if (currentFn === rDados) {
     const orgaoSel = g('orgao');
     const orgaoVal = orgaoSel === 'outros' ? g('orgao-outros') : orgaoSel;
     Object.assign(fd, {
@@ -639,12 +656,14 @@ function save(s) {
       cel: g('cel'), email: g('email')
     });
   }
-  if (s === 1) Object.assign(fd, { trat: g('trat'), psico: g('psico'), med: g('med'), coleta: g('coleta') });
-  if (s === 2) Object.assign(fd, {});
+  if (currentFn === rToxico) Object.assign(fd, { trat: g('trat'), psico: g('psico'), med: g('med'), coleta: g('coleta') });
 }
 function val(s) {
   clrAllE();
-  if (s === 0) {
+  const currentFn = buildSteps()[s];
+
+  // DADOS
+  if (currentFn === rDados) {
     let ok = true;
     const nome = document.getElementById('nome')?.value.trim() || '';
     if (!nome || nome.split(' ').filter(Boolean).length < 2) { showE('f-nome', 'Informe nome e sobrenome'); ok = false; }
@@ -666,7 +685,9 @@ function val(s) {
     if (!ok) document.querySelector('.field.err')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
     return ok;
   }
-  if (s === 1) {
+
+  // TOXICOLÓGICO
+  if (currentFn === rToxico) {
     let ok = true;
     if (!document.getElementById('trat')?.value) { showE('f-trat', 'Campo obrigatório'); ok = false; }
     if (!document.getElementById('psico')?.value) { showE('f-psico', 'Campo obrigatório'); ok = false; }
@@ -674,12 +695,20 @@ function val(s) {
     if (!document.getElementById('coleta')?.value) { showE('f-coleta', 'Selecione'); ok = false; }
     return ok;
   }
-  if (s === 2) {
+
+  // PACOTE
+  if (currentFn === rPacote) {
     if (!fd.pacoteId) { showE('f-pacote', 'Selecione um pacote'); return false; }
     if (fd.pacoteId === 'avulsos' && selExames.length === 0) { showToast('Selecione pelo menos 1 exame avulso.', 'err'); return false; }
     return true;
   }
-  if (s === 3) { if (!selSlotId) { showE('f-slot', 'Selecione unidade → data → horário'); return false; } return true; }
+
+  // AGENDA
+  if (currentFn === rAgenda) {
+    if (!selSlotId) { showE('f-slot', 'Selecione unidade → data → horário'); return false; }
+    return true;
+  }
+
   return true;
 }
 
