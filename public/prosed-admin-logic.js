@@ -3,6 +3,44 @@ import { db, collection, doc, getDoc, getDocs, setDoc, addDoc,
          updateDoc, deleteDoc, query, orderBy, onSnapshot, serverTimestamp }
   from './firebase-config.js';
 
+// ── FIELDS CONFIG ─────────────────────────────────────────────
+const FORM_FIELDS = [
+  { key: 'matricula',       label: '🔢 Nº Matrícula / Inscrição' },
+  { key: 'rg',              label: '🪪 RG' },
+  { key: 'orgaoExpedidor',  label: '🏛️ Órgão Expedidor do RG' },
+  { key: 'ufRg',            label: '📍 UF do RG' },
+  { key: 'dataNasc',        label: '🎂 Data de Nascimento' },
+  { key: 'sexo',            label: '⚧ Sexo' },
+  { key: 'toxicologico',    label: '🧪 Questionário Toxicológico (passo inteiro)' },
+  { key: 'docUpload',       label: '📎 Upload de Documento (comprovante)' },
+];
+
+function renderFieldsGrid(current = {}) {
+  const grid = document.getElementById('fields-config-grid');
+  if (!grid) return;
+  grid.innerHTML = FORM_FIELDS.map(f => {
+    const on = current[f.key] !== false; // default: on
+    return `<label style="display:flex;align-items:center;gap:8px;background:var(--white-faint);border:1px solid var(--border);border-radius:9px;padding:10px 12px;cursor:pointer;transition:border .15s;${on?'border-color:rgba(0,201,167,.4)':''}">
+      <input type="checkbox" data-field="${f.key}" ${on?'checked':''} onchange="toggleFieldStyle(this)" style="width:16px;height:16px;accent-color:var(--teal);cursor:pointer"/>
+      <span style="font-size:.8rem;font-weight:500;${!on?'opacity:.45':''}" id="flbl-${f.key}">${f.label}</span>
+    </label>`;
+  }).join('');
+}
+
+function toggleFieldStyle(cb) {
+  const lbl = document.getElementById('flbl-' + cb.dataset.field);
+  if (lbl) lbl.style.opacity = cb.checked ? '' : '.45';
+  cb.closest('label').style.borderColor = cb.checked ? 'rgba(0,201,167,.4)' : '';
+}
+
+function getFieldsConfig() {
+  const cfg = {};
+  document.querySelectorAll('#fields-config-grid input[type=checkbox]').forEach(cb => {
+    cfg[cb.dataset.field] = cb.checked;
+  });
+  return cfg;
+}
+
 // ── STATE ─────────────────────────────────────────────────────
 let adminPwd = 'pces2025';
 let contests = [], registrations = [], coupons = [];
@@ -212,6 +250,7 @@ async function saveContest(status) {
       maxParcelas: parseInt(document.getElementById('nc-parcelas').value) || 1,
       resumo: document.getElementById('nc-resumo').value,
       imageUrl: imageUrl || '',
+      fieldsConfig: getFieldsConfig(),
       pacotes: [...newPacotes],
       exames: [...newExames],
       slots: [...newSlots],
@@ -252,6 +291,7 @@ function clearForm() {
 function initForm() {
   const sel = document.getElementById('clone-source');
   sel.innerHTML = '<option value="">Selecione...</option>' + contests.map(c => `<option value="${c.id}">${c.nome}</option>`).join('');
+  renderFieldsGrid({}); // default: todos marcados
   if (!newPacotes.length && !document.getElementById('editing-id').value) {
     newPacotes = [
       { id: uid(), nome: 'Pacote Completo PCES', desc: 'Todos os exames admissionais obrigatórios', preco: '350' },
@@ -546,6 +586,7 @@ document.getElementById('contest-list').addEventListener('click', async e => {
     const img = document.getElementById('nc-imageUrl-img');
     if (c.imageUrl) { img.src = c.imageUrl; prev.style.display = 'block'; } else { prev.style.display = 'none'; }
     document.getElementById('editing-id').value = c.id;
+    renderFieldsGrid(c.fieldsConfig || {});
     newSlots = JSON.parse(JSON.stringify(c.slots || []));
     newPacotes = JSON.parse(JSON.stringify(c.pacotes || []));
     newExames = JSON.parse(JSON.stringify(c.exames || []));
@@ -572,3 +613,6 @@ document.getElementById('cupons-list').addEventListener('click', async e => {
     showToast('Cupom removido.', 'ok');
   }
 });
+
+// Expose inline handler
+window.toggleFieldStyle = toggleFieldStyle;
