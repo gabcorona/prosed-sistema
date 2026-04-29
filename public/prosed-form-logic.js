@@ -107,7 +107,7 @@ function banner() {
   <div class="contest-banner fade">
     <div class="contest-banner-name">📋 ${contest.nome}</div>
     <div class="contest-banner-meta">${contest.orgao}${contest.prazo ? ' · Prazo: ' + contest.prazo : ''}</div>
-    ${contest.resumo ? `<div class="contest-resumo" style="color:var(--red);font-weight:600">${contest.resumo}</div>` : ''}
+    ${contest.resumo ? `<div class="contest-resumo" style="color:var(--red);font-weight:600;text-align:justify">${contest.resumo}</div>` : ''}
   </div>`;
 }
 
