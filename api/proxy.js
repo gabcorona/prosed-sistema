@@ -220,7 +220,16 @@ app.post('/asaas/pay/status', async (req, res) => {
 
 // ── Exporta para o Vercel ──────────────────────────────────────
 module.exports = (req, res) => {
-  // Vercel passa /asaas/xxx, Express espera /asaas/xxx
-  if (!req.url.startsWith('/')) req.url = '/' + req.url;
+  // Garante que a URL começa com /
+  if (!req.url || !req.url.startsWith('/')) req.url = '/' + (req.url || '');
+
+  // Com "routes" no vercel.json, a URL chega como /asaas/customer etc.
+  // Com "rewrites", pode chegar só como /customer. Normaliza os dois casos:
+  const knownSuffixes = ['/customer', '/pay/'];
+  const hasAsaasPrefix = req.url.startsWith('/asaas');
+  if (!hasAsaasPrefix && knownSuffixes.some(p => req.url.startsWith(p))) {
+    req.url = '/asaas' + req.url;
+  }
+
   return app(req, res);
 };
