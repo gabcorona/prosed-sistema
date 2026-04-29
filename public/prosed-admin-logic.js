@@ -15,12 +15,15 @@ const FORM_FIELDS = [
   { key: 'docUpload',       label: '📎 Upload de Documento (comprovante)' },
 ];
 
-function renderFieldsGrid(current = {}) {
+function renderFieldsGrid(current) {
   const grid = document.getElementById('fields-config-grid');
   if (!grid) return;
+  // Se nunca foi configurado (undefined/null), todos ligados por padrão
+  // Se foi configurado, respeitar exatamente o que está salvo
+  const neverConfigured = (current === undefined || current === null);
   grid.innerHTML = FORM_FIELDS.map(f => {
-    const on = current[f.key] !== false; // default: on
-    return `<label style="display:flex;align-items:center;gap:8px;background:var(--white-faint);border:1px solid var(--border);border-radius:9px;padding:10px 12px;cursor:pointer;transition:border .15s;${on?'border-color:rgba(0,201,167,.4)':''}">
+    const on = neverConfigured ? true : (current[f.key] !== false);
+    return `<label style="display:flex;align-items:center;gap:8px;background:var(--white-faint);border:1.5px solid ${on?'rgba(0,201,167,.4)':'var(--border)'};border-radius:9px;padding:10px 12px;cursor:pointer;transition:border .15s">
       <input type="checkbox" data-field="${f.key}" ${on?'checked':''} onchange="toggleFieldStyle(this)" style="width:16px;height:16px;accent-color:var(--teal);cursor:pointer"/>
       <span style="font-size:.8rem;font-weight:500;${!on?'opacity:.45':''}" id="flbl-${f.key}">${f.label}</span>
     </label>`;
@@ -291,7 +294,7 @@ function clearForm() {
 function initForm() {
   const sel = document.getElementById('clone-source');
   sel.innerHTML = '<option value="">Selecione...</option>' + contests.map(c => `<option value="${c.id}">${c.nome}</option>`).join('');
-  renderFieldsGrid({}); // default: todos marcados
+  renderFieldsGrid(undefined); // novo concurso: todos marcados por padrão
   if (!newPacotes.length && !document.getElementById('editing-id').value) {
     newPacotes = [
       { id: uid(), nome: 'Pacote Completo PCES', desc: 'Todos os exames admissionais obrigatórios', preco: '350' },
@@ -586,7 +589,7 @@ document.getElementById('contest-list').addEventListener('click', async e => {
     const img = document.getElementById('nc-imageUrl-img');
     if (c.imageUrl) { img.src = c.imageUrl; prev.style.display = 'block'; } else { prev.style.display = 'none'; }
     document.getElementById('editing-id').value = c.id;
-    renderFieldsGrid(c.fieldsConfig || {});
+    renderFieldsGrid(c.fieldsConfig ?? undefined);
     newSlots = JSON.parse(JSON.stringify(c.slots || []));
     newPacotes = JSON.parse(JSON.stringify(c.pacotes || []));
     newExames = JSON.parse(JSON.stringify(c.exames || []));
