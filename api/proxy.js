@@ -105,11 +105,14 @@ module.exports = async (req, res) => {
     // POST /asaas/pay/credit
     if (method === 'POST' && action === '/pay/credit') {
       const { customerId, value, description, installmentCount, card, holderInfo } = await readBody(req);
+      const count = installmentCount || 1;
+      const installmentValue = count > 1 ? Math.round((value / count) * 100) / 100 : undefined;
       const { status, data } = await asaas('POST', '/payments', {
         customer: customerId,
         billingType: 'CREDIT_CARD',
         value, dueDate: todayISO(), description,
-        installmentCount: installmentCount || 1,
+        installmentCount: count,
+        ...(count > 1 ? { installmentValue } : {}),
         creditCard: {
           holderName: card.holderName,
           number: card.number.replace(/\s/g, ''),
