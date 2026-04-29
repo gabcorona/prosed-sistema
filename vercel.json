@@ -1,13 +1,17 @@
 {
   "outputDirectory": "public",
-  "rewrites": [
+  "routes": [
     {
-      "source": "/asaas/:path*",
-      "destination": "/api/proxy"
+      "src": "/asaas/(.*)",
+      "dest": "/api/proxy.js"
     },
     {
-      "source": "/",
-      "destination": "/prosed-index.html"
+      "src": "/health",
+      "dest": "/api/proxy.js"
+    },
+    {
+      "src": "/",
+      "dest": "/prosed-index.html"
     }
   ]
 }
