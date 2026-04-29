@@ -232,20 +232,38 @@ function uAvSub() {
 }
 
 // ── STEP 4: AGENDA ────────────────────────────────────────────
+// Endereços curtos (sem cidade/UF no final) para exibição
+const UNIT_ADDRESS_SHORT = {
+  'Vila Velha':                  'Av. Profa. Francelina Carneiro Setúbal, 168 - Divino Espírito Santo',
+  'Vitória':                     'R. Neves Armond, 535 - Bento Ferreira',
+  'Cariacica':                   'R. José Barros da Silva, 17 - Campo Grande',
+  'Serra':                       'R. Humberto de Campos, 25 - Parque Res. Laranjeiras',
+  'Prosed - Unidade Vila Velha': 'Av. Profa. Francelina Carneiro Setúbal, 168 - Divino Espírito Santo',
+  'Prosed - Unidade Vitória':    'R. Neves Armond, 535 - Bento Ferreira',
+  'Prosed - Unidade Cariacica':  'R. José Barros da Silva, 17 - Campo Grande',
+  'Prosed - Unidade Serra':      'R. Humberto de Campos, 25 - Parque Res. Laranjeiras',
+};
+
+function getCityShort(city) {
+  return city.replace('Prosed - Unidade ', '');
+}
+
 function rAddressPanel() {
   const cities = [...new Set((contest.slots || []).map(s => s.city))];
   if (!cities.length) return '';
   return `<div style="background:rgba(0,201,167,.06);border:1.5px solid rgba(0,201,167,.25);border-radius:12px;padding:14px 16px;margin-bottom:16px">
     <div style="font-size:.68rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--teal-light);margin-bottom:10px">📍 Endereços das Unidades</div>
     ${cities.map(city => {
-      const addr = getAddress(city);
+      const short = getCityShort(city);
+      const addrShort = UNIT_ADDRESS_SHORT[city] || '';
+      const addrFull = getAddress(city);
+      const label = `Prosed ${short} - ${addrShort}`;
       return `<div style="margin-bottom:8px;padding-bottom:8px;border-bottom:1px solid var(--border)">
-        <div style="font-size:.84rem;font-weight:700;margin-bottom:2px">${city}</div>
-        <div style="font-size:.78rem;color:var(--white-dim);margin-bottom:4px">${addr}</div>
+        <div style="font-size:.84rem;font-weight:600;color:var(--white);margin-bottom:4px">${label}</div>
         <div style="display:flex;gap:8px">
-          <a href="https://maps.google.com/?q=${encodeURIComponent(addr)}" target="_blank"
+          <a href="https://maps.google.com/?q=${encodeURIComponent(addrFull)}" target="_blank"
              style="font-size:.7rem;color:var(--blue-light);text-decoration:none;display:inline-flex;align-items:center;gap:3px">📍 Google Maps</a>
-          <a href="https://maps.apple.com/?q=${encodeURIComponent(addr)}" target="_blank"
+          <a href="https://maps.apple.com/?q=${encodeURIComponent(addrFull)}" target="_blank"
              style="font-size:.7rem;color:var(--white-dim);text-decoration:none;display:inline-flex;align-items:center;gap:3px">🍎 Apple Maps</a>
         </div>
       </div>`;
