@@ -220,7 +220,14 @@ tr:hover td{background:var(--white-faint)}tr:last-child td{border-bottom:none}
         <div style="font-size:.72rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--blue-light);margin-bottom:14px;">Adicionar horário</div>
         <div class="g4">
           <div class="field" style="margin-bottom:0"><label class="fl">Unidade</label>
-            <select id="cfg-city"><option value="">Selecione</option><option>Vila Velha</option><option>Vitória</option><option>Serra</option><option>Cariacica</option><option>Cachoeiro</option></select></div>
+            <select id="cfg-city">
+              <option value="">Selecione</option>
+              <option value="Prosed - Unidade Vila Velha">Prosed - Unidade Vila Velha</option>
+              <option value="Prosed - Unidade Vitória">Prosed - Unidade Vitória</option>
+              <option value="Prosed - Unidade Serra">Prosed - Unidade Serra</option>
+              <option value="Prosed - Unidade Cariacica">Prosed - Unidade Cariacica</option>
+              <option value="Prosed - Unidade Cachoeiro">Prosed - Unidade Cachoeiro</option>
+            </select></div>
           <div class="field" style="margin-bottom:0"><label class="fl">Data</label><input type="tel" id="cfg-date" class="mono" placeholder="DD/MM/AAAA" maxlength="10"/></div>
           <div class="field" style="margin-bottom:0"><label class="fl">Horário</label><input type="tel" id="cfg-time" class="mono" placeholder="HH:MM" maxlength="5"/></div>
           <div class="field" style="margin-bottom:0"><label class="fl">Vagas</label><input type="number" id="cfg-max" placeholder="30" min="1"/></div>
