@@ -1,6 +1,7 @@
 /**
  * PROSED · Asaas Proxy — Vercel Serverless
- * Salve como: api/proxy.js
+ * Arquivo: api/proxy.js
+ * Acessado via: /api/proxy?action=/asaas/customer
  */
 
 const ASAAS_BASE = process.env.ASAAS_ENV === 'production'
@@ -52,6 +53,16 @@ function json(res, status, data) {
   res.end(JSON.stringify(data));
 }
 
+function getAction(req) {
+  // Extrai ?action= da query string
+  const url = req.url || '';
+  const qs = url.includes('?') ? url.split('?')[1] : '';
+  const params = new URLSearchParams(qs);
+  const action = params.get('action') || '';
+  // Normaliza removendo prefixo /asaas se vier
+  return action.replace(/^\/asaas/, '');
+}
+
 module.exports = async (req, res) => {
   if (req.method === 'OPTIONS') {
     res.setHeader('Access-Control-Allow-Origin', '*');
@@ -62,25 +73,19 @@ module.exports = async (req, res) => {
     return;
   }
 
-  // Normaliza o path — com rewrites o Vercel remove o prefixo /asaas
-  // /asaas/customer  → pode chegar como /customer  ou /asaas/customer
-  // /asaas/pay/credit → pode chegar como /pay/credit ou /asaas/pay/credit
-  let rawPath = (req.url || '').split('?')[0];
-  // Remove prefixo /asaas se vier completo
-  const normPath = rawPath.replace(/^\/asaas/, '') || '/';
+  const action = getAction(req);
   const method = req.method;
 
-  // Log para debug (aparece nos logs do Vercel)
-  console.log(`[proxy] ${method} rawPath=${rawPath} normPath=${normPath}`);
+  console.log(`[proxy] ${method} action="${action}" url="${req.url}"`);
 
   try {
-    // GET /health
-    if (method === 'GET' && (normPath === '/health' || rawPath === '/health')) {
-      return json(res, 200, { ok: true, env: process.env.ASAAS_ENV || 'sandbox', path: rawPath });
+    // Health check
+    if (action === '/health' || action === '' && method === 'GET') {
+      return json(res, 200, { ok: true, env: process.env.ASAAS_ENV || 'sandbox' });
     }
 
-    // POST /customer
-    if (method === 'POST' && normPath === '/customer') {
+    // POST /asaas/customer
+    if (method === 'POST' && action === '/customer') {
       const { name, cpfCnpj, email, mobilePhone } = await readBody(req);
       const cpf = cpfCnpj.replace(/\D/g, '');
       const search = await asaas('GET', `/customers?cpfCnpj=${cpf}`);
@@ -97,8 +102,8 @@ module.exports = async (req, res) => {
       return json(res, 200, { customerId: create.data.id });
     }
 
-    // POST /pay/credit
-    if (method === 'POST' && normPath === '/pay/credit') {
+    // POST /asaas/pay/credit
+    if (method === 'POST' && action === '/pay/credit') {
       const { customerId, value, description, installmentCount, card, holderInfo } = await readBody(req);
       const { status, data } = await asaas('POST', '/payments', {
         customer: customerId,
@@ -126,8 +131,8 @@ module.exports = async (req, res) => {
       return json(res, 200, { paymentId: data.id, status: data.status, value: data.value });
     }
 
-    // POST /pay/debit
-    if (method === 'POST' && normPath === '/pay/debit') {
+    // POST /asaas/pay/debit
+    if (method === 'POST' && action === '/pay/debit') {
       const { customerId, value, description, card, holderInfo } = await readBody(req);
       const { status, data } = await asaas('POST', '/payments', {
         customer: customerId,
@@ -154,8 +159,8 @@ module.exports = async (req, res) => {
       return json(res, 200, { paymentId: data.id, status: data.status, value: data.value });
     }
 
-    // POST /pay/pix
-    if (method === 'POST' && normPath === '/pay/pix') {
+    // POST /asaas/pay/pix
+    if (method === 'POST' && action === '/pay/pix') {
       const { customerId, value, description } = await readBody(req);
       const { status, data } = await asaas('POST', '/payments', {
         customer: customerId, billingType: 'PIX',
@@ -173,24 +178,17 @@ module.exports = async (req, res) => {
       });
     }
 
-    // POST /pay/status  (polling)
-    if (method === 'POST' && normPath === '/pay/status') {
+    // POST /asaas/pay/status (polling)
+    if (method === 'POST' && action === '/pay/status') {
       const { paymentId } = await readBody(req);
       const { data } = await asaas('GET', `/payments/${paymentId}`);
       res.setHeader('Cache-Control', 'no-store');
       return json(res, 200, { status: data.status, value: data.value, paymentId: data.id });
     }
 
-    // GET /pay/:id/status
-    if (method === 'GET' && normPath.startsWith('/pay/') && normPath.endsWith('/status')) {
-      const paymentId = normPath.split('/pay/')[1].replace('/status', '');
-      const { data } = await asaas('GET', `/payments/${paymentId}`);
-      return json(res, 200, { status: data.status, value: data.value, paymentId: data.id });
-    }
-
-    // GET /pay/:id/qrcode
-    if (method === 'GET' && normPath.startsWith('/pay/') && normPath.endsWith('/qrcode')) {
-      const paymentId = normPath.split('/pay/')[1].replace('/qrcode', '');
+    // GET /asaas/pay/:id/qrcode
+    if (method === 'GET' && action.startsWith('/pay/') && action.endsWith('/qrcode')) {
+      const paymentId = action.split('/pay/')[1].replace('/qrcode', '');
       const qr = await asaas('GET', `/payments/${paymentId}/pixQrCode`);
       return json(res, 200, {
         encodedImage: qr.data?.encodedImage || '',
@@ -199,10 +197,16 @@ module.exports = async (req, res) => {
       });
     }
 
-    // Rota não encontrada — retorna info para debug
-    return json(res, 404, { error: 'Rota nao encontrada', rawPath, normPath, method });
+    // GET /asaas/pay/:id/status
+    if (method === 'GET' && action.startsWith('/pay/') && action.endsWith('/status')) {
+      const paymentId = action.split('/pay/')[1].replace('/status', '');
+      const { data } = await asaas('GET', `/payments/${paymentId}`);
+      return json(res, 200, { status: data.status, value: data.value, paymentId: data.id });
+    }
+
+    return json(res, 404, { error: 'Acao nao encontrada', action, method });
 
   } catch (e) {
-    return json(res, 500, { error: e.message, stack: e.stack });
+    return json(res, 500, { error: e.message });
   }
 };
