@@ -1,12 +1,7 @@
 /**
- * PROSED · Asaas Proxy — Vercel Edition
- * Salve este arquivo como: api/proxy.js no repositório GitHub
+ * PROSED · Asaas Proxy — Vercel Serverless (sem Express)
+ * Salve como: api/proxy.js
  */
-
-const express = require('express');
-const cors    = require('cors');
-
-const app = express();
 
 const ASAAS_BASE = process.env.ASAAS_ENV === 'production'
   ? 'https://api.asaas.com/v3'
@@ -14,222 +9,183 @@ const ASAAS_BASE = process.env.ASAAS_ENV === 'production'
 
 const API_KEY = process.env.ASAAS_API_KEY || '';
 
-// ── Middleware ─────────────────────────────────────────────────
-app.use(cors({ origin: '*' }));
-app.use(express.json({ limit: '2mb' }));
-
-// ── Helper Asaas ───────────────────────────────────────────────
 async function asaas(method, path, body) {
   const { default: fetch } = await import('node-fetch');
   const opts = {
     method,
     headers: {
       'access_token': API_KEY,
-      'Content-Type':  'application/json',
-      'accept':        'application/json',
+      'Content-Type': 'application/json',
+      'accept': 'application/json',
     },
   };
   if (body) opts.body = JSON.stringify(body);
-  const res  = await fetch(ASAAS_BASE + path, opts);
+  const res = await fetch(ASAAS_BASE + path, opts);
   const data = await res.json();
   return { status: res.status, data };
 }
 
-// ── Health check ───────────────────────────────────────────────
-app.get('/health', (_, res) => {
-  res.json({ ok: true, env: process.env.ASAAS_ENV || 'sandbox' });
-});
-
-// ── 1. Criar / buscar cliente ──────────────────────────────────
-app.post('/asaas/customer', async (req, res) => {
-  try {
-    const { name, cpfCnpj, email, mobilePhone } = req.body;
-    const cpf = cpfCnpj.replace(/\D/g, '');
-
-    const search = await asaas('GET', `/customers?cpfCnpj=${cpf}`);
-    if (search.data?.data?.length > 0) {
-      return res.json({ customerId: search.data.data[0].id });
-    }
-
-    const create = await asaas('POST', '/customers', {
-      name,
-      cpfCnpj: cpf,
-      email,
-      mobilePhone: mobilePhone?.replace(/\D/g, ''),
+function readBody(req) {
+  return new Promise((resolve) => {
+    if (req.body && typeof req.body === 'object') { resolve(req.body); return; }
+    let raw = '';
+    req.on('data', chunk => raw += chunk);
+    req.on('end', () => {
+      try { resolve(raw ? JSON.parse(raw) : {}); } catch (e) { resolve({}); }
     });
+    req.on('error', () => resolve({}));
+  });
+}
 
-    if (create.status !== 200 || create.data.errors) {
-      return res.status(400).json({ error: create.data.errors || 'Erro ao criar cliente' });
-    }
-
-    res.json({ customerId: create.data.id });
-  } catch (e) {
-    res.status(500).json({ error: e.message });
-  }
-});
-
-// ── 2. Pagamento com cartão de crédito ─────────────────────────
-app.post('/asaas/pay/credit', async (req, res) => {
-  try {
-    const { customerId, value, description, installmentCount, card, holderInfo } = req.body;
-
-    const { status, data } = await asaas('POST', '/payments', {
-      customer:         customerId,
-      billingType:      'CREDIT_CARD',
-      value,
-      dueDate:          todayISO(),
-      description,
-      installmentCount: installmentCount || 1,
-      creditCard: {
-        holderName:  card.holderName,
-        number:      card.number.replace(/\s/g, ''),
-        expiryMonth: card.expiryMonth,
-        expiryYear:  card.expiryYear,
-        ccv:         card.ccv,
-      },
-      creditCardHolderInfo: {
-        name:          holderInfo.name,
-        email:         holderInfo.email,
-        cpfCnpj:       holderInfo.cpfCnpj.replace(/\D/g, ''),
-        postalCode:    holderInfo.postalCode.replace(/\D/g, ''),
-        addressNumber: holderInfo.addressNumber,
-        phone:         holderInfo.phone?.replace(/\D/g, ''),
-      },
-    });
-
-    if (status !== 200 || data.errors) {
-      return res.status(400).json({ error: data.errors || 'Erro no pagamento' });
-    }
-    res.json({ paymentId: data.id, status: data.status, value: data.value });
-  } catch (e) {
-    res.status(500).json({ error: e.message });
-  }
-});
-
-// ── 3. Pagamento com cartão de débito ──────────────────────────
-app.post('/asaas/pay/debit', async (req, res) => {
-  try {
-    const { customerId, value, description, card, holderInfo } = req.body;
-
-    const { status, data } = await asaas('POST', '/payments', {
-      customer:    customerId,
-      billingType: 'DEBIT_CARD',
-      value,
-      dueDate:     todayISO(),
-      description,
-      creditCard: {
-        holderName:  card.holderName,
-        number:      card.number.replace(/\s/g, ''),
-        expiryMonth: card.expiryMonth,
-        expiryYear:  card.expiryYear,
-        ccv:         card.ccv,
-      },
-      creditCardHolderInfo: {
-        name:          holderInfo.name,
-        email:         holderInfo.email,
-        cpfCnpj:       holderInfo.cpfCnpj.replace(/\D/g, ''),
-        postalCode:    holderInfo.postalCode.replace(/\D/g, ''),
-        addressNumber: holderInfo.addressNumber,
-        phone:         holderInfo.phone?.replace(/\D/g, ''),
-      },
-    });
-
-    if (status !== 200 || data.errors) {
-      return res.status(400).json({ error: data.errors || 'Erro no pagamento de débito' });
-    }
-    res.json({ paymentId: data.id, status: data.status, value: data.value });
-  } catch (e) {
-    res.status(500).json({ error: e.message });
-  }
-});
-
-// ── 4. Gerar cobrança PIX ──────────────────────────────────────
-app.post('/asaas/pay/pix', async (req, res) => {
-  try {
-    const { customerId, value, description } = req.body;
-
-    const { status, data } = await asaas('POST', '/payments', {
-      customer:    customerId,
-      billingType: 'PIX',
-      value,
-      dueDate:     todayISO(1),
-      description,
-    });
-
-    if (status !== 200 || data.errors) {
-      return res.status(400).json({ error: data.errors || 'Erro ao gerar PIX' });
-    }
-
-    const qr = await asaas('GET', `/payments/${data.id}/pixQrCode`);
-
-    res.json({
-      paymentId:     data.id,
-      pixCopiaECola: qr.data?.payload        || '',
-      encodedImage:  qr.data?.encodedImage   || '',
-      expiresAt:     qr.data?.expirationDate || '',
-    });
-  } catch (e) {
-    res.status(500).json({ error: e.message });
-  }
-});
-
-// ── 5. Verificar status de pagamento ──────────────────────────
-app.get('/asaas/pay/:paymentId/status', async (req, res) => {
-  try {
-    const { data } = await asaas('GET', `/payments/${req.params.paymentId}`);
-    res.json({ status: data.status, value: data.value, paymentId: data.id });
-  } catch (e) {
-    res.status(500).json({ error: e.message });
-  }
-});
-
-// ── Helper data ────────────────────────────────────────────────
 function todayISO(daysAhead = 0) {
   const d = new Date();
   d.setDate(d.getDate() + daysAhead);
   return d.toISOString().split('T')[0];
 }
 
+function json(res, status, data) {
+  res.setHeader('Content-Type', 'application/json');
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader('Access-Control-Allow-Methods', 'GET,POST,OPTIONS');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+  res.statusCode = status;
+  res.end(JSON.stringify(data));
+}
 
-// ── 6. Buscar QR Code PIX por paymentId ──────────────────────
-app.get('/asaas/pay/:paymentId/qrcode', async (req, res) => {
+module.exports = async (req, res) => {
+  if (req.method === 'OPTIONS') {
+    res.setHeader('Access-Control-Allow-Origin', '*');
+    res.setHeader('Access-Control-Allow-Methods', 'GET,POST,OPTIONS');
+    res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+    res.statusCode = 204;
+    res.end();
+    return;
+  }
+
+  const path = (req.url || '').split('?')[0];
+  const method = req.method;
+
   try {
-    const qr = await asaas('GET', `/payments/${req.params.paymentId}/pixQrCode`);
-    res.json({
-      encodedImage:  qr.data?.encodedImage   || '',
-      pixCopiaECola: qr.data?.payload        || '',
-      expiresAt:     qr.data?.expirationDate || '',
-    });
+    if (method === 'GET' && path.endsWith('/health')) {
+      return json(res, 200, { ok: true, env: process.env.ASAAS_ENV || 'sandbox' });
+    }
+
+    if (method === 'POST' && path.endsWith('/asaas/customer')) {
+      const { name, cpfCnpj, email, mobilePhone } = await readBody(req);
+      const cpf = cpfCnpj.replace(/\D/g, '');
+      const search = await asaas('GET', `/customers?cpfCnpj=${cpf}`);
+      if (search.data?.data?.length > 0) {
+        return json(res, 200, { customerId: search.data.data[0].id });
+      }
+      const create = await asaas('POST', '/customers', {
+        name, cpfCnpj: cpf, email,
+        mobilePhone: mobilePhone?.replace(/\D/g, ''),
+      });
+      if (create.status !== 200 || create.data.errors) {
+        return json(res, 400, { error: create.data.errors || 'Erro ao criar cliente' });
+      }
+      return json(res, 200, { customerId: create.data.id });
+    }
+
+    if (method === 'POST' && path.endsWith('/asaas/pay/credit')) {
+      const { customerId, value, description, installmentCount, card, holderInfo } = await readBody(req);
+      const { status, data } = await asaas('POST', '/payments', {
+        customer: customerId,
+        billingType: 'CREDIT_CARD',
+        value, dueDate: todayISO(), description,
+        installmentCount: installmentCount || 1,
+        creditCard: {
+          holderName: card.holderName,
+          number: card.number.replace(/\s/g, ''),
+          expiryMonth: card.expiryMonth,
+          expiryYear: card.expiryYear,
+          ccv: card.ccv,
+        },
+        creditCardHolderInfo: {
+          name: holderInfo.name, email: holderInfo.email,
+          cpfCnpj: holderInfo.cpfCnpj.replace(/\D/g, ''),
+          postalCode: holderInfo.postalCode.replace(/\D/g, ''),
+          addressNumber: holderInfo.addressNumber,
+          phone: holderInfo.phone?.replace(/\D/g, ''),
+        },
+      });
+      if (status !== 200 || data.errors) {
+        return json(res, 400, { error: data.errors || 'Erro no pagamento' });
+      }
+      return json(res, 200, { paymentId: data.id, status: data.status, value: data.value });
+    }
+
+    if (method === 'POST' && path.endsWith('/asaas/pay/debit')) {
+      const { customerId, value, description, card, holderInfo } = await readBody(req);
+      const { status, data } = await asaas('POST', '/payments', {
+        customer: customerId,
+        billingType: 'DEBIT_CARD',
+        value, dueDate: todayISO(), description,
+        creditCard: {
+          holderName: card.holderName,
+          number: card.number.replace(/\s/g, ''),
+          expiryMonth: card.expiryMonth,
+          expiryYear: card.expiryYear,
+          ccv: card.ccv,
+        },
+        creditCardHolderInfo: {
+          name: holderInfo.name, email: holderInfo.email,
+          cpfCnpj: holderInfo.cpfCnpj.replace(/\D/g, ''),
+          postalCode: holderInfo.postalCode.replace(/\D/g, ''),
+          addressNumber: holderInfo.addressNumber,
+          phone: holderInfo.phone?.replace(/\D/g, ''),
+        },
+      });
+      if (status !== 200 || data.errors) {
+        return json(res, 400, { error: data.errors || 'Erro no pagamento de débito' });
+      }
+      return json(res, 200, { paymentId: data.id, status: data.status, value: data.value });
+    }
+
+    if (method === 'POST' && path.endsWith('/asaas/pay/pix')) {
+      const { customerId, value, description } = await readBody(req);
+      const { status, data } = await asaas('POST', '/payments', {
+        customer: customerId, billingType: 'PIX',
+        value, dueDate: todayISO(1), description,
+      });
+      if (status !== 200 || data.errors) {
+        return json(res, 400, { error: data.errors || 'Erro ao gerar PIX' });
+      }
+      const qr = await asaas('GET', `/payments/${data.id}/pixQrCode`);
+      return json(res, 200, {
+        paymentId: data.id,
+        pixCopiaECola: qr.data?.payload || '',
+        encodedImage: qr.data?.encodedImage || '',
+        expiresAt: qr.data?.expirationDate || '',
+      });
+    }
+
+    if (method === 'POST' && path.endsWith('/asaas/pay/status')) {
+      const { paymentId } = await readBody(req);
+      const { data } = await asaas('GET', `/payments/${paymentId}`);
+      res.setHeader('Cache-Control', 'no-store');
+      return json(res, 200, { status: data.status, value: data.value, paymentId: data.id });
+    }
+
+    if (method === 'GET' && path.includes('/asaas/pay/') && path.endsWith('/status')) {
+      const paymentId = path.split('/asaas/pay/')[1].replace('/status', '');
+      const { data } = await asaas('GET', `/payments/${paymentId}`);
+      return json(res, 200, { status: data.status, value: data.value, paymentId: data.id });
+    }
+
+    if (method === 'GET' && path.includes('/asaas/pay/') && path.endsWith('/qrcode')) {
+      const paymentId = path.split('/asaas/pay/')[1].replace('/qrcode', '');
+      const qr = await asaas('GET', `/payments/${paymentId}/pixQrCode`);
+      return json(res, 200, {
+        encodedImage: qr.data?.encodedImage || '',
+        pixCopiaECola: qr.data?.payload || '',
+        expiresAt: qr.data?.expirationDate || '',
+      });
+    }
+
+    return json(res, 404, { error: 'Rota nao encontrada: ' + path });
+
   } catch (e) {
-    res.status(500).json({ error: e.message });
+    return json(res, 500, { error: e.message });
   }
-});
-
-
-// ── 7. Verificar status via POST (polling) ─────────────────────
-app.post('/asaas/pay/status', async (req, res) => {
-  try {
-    const { paymentId } = req.body;
-    const { data } = await asaas('GET', `/payments/${paymentId}`);
-    res.set('Cache-Control', 'no-store');
-    res.json({ status: data.status, value: data.value, paymentId: data.id });
-  } catch (e) {
-    res.status(500).json({ error: e.message });
-  }
-});
-
-// ── Exporta para o Vercel ──────────────────────────────────────
-module.exports = (req, res) => {
-  // Garante que a URL começa com /
-  if (!req.url || !req.url.startsWith('/')) req.url = '/' + (req.url || '');
-
-  // Com "routes" no vercel.json, a URL chega como /asaas/customer etc.
-  // Com "rewrites", pode chegar só como /customer. Normaliza os dois casos:
-  const knownSuffixes = ['/customer', '/pay/'];
-  const hasAsaasPrefix = req.url.startsWith('/asaas');
-  if (!hasAsaasPrefix && knownSuffixes.some(p => req.url.startsWith(p))) {
-    req.url = '/asaas' + req.url;
-  }
-
-  return app(req, res);
 };
