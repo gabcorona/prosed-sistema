@@ -5,14 +5,7 @@ import { db, collection, doc, getDoc, getDocs, setDoc, addDoc,
 
 // ── FIELDS CONFIG ─────────────────────────────────────────────
 const FORM_FIELDS = [
-  { key: 'matricula',       label: '🔢 Nº Matrícula / Inscrição' },
-  { key: 'rg',              label: '🪪 RG' },
-  { key: 'orgaoExpedidor',  label: '🏛️ Órgão Expedidor do RG' },
-  { key: 'ufRg',            label: '📍 UF do RG' },
-  { key: 'dataNasc',        label: '🎂 Data de Nascimento' },
-  { key: 'sexo',            label: '⚧ Sexo' },
-  { key: 'toxicologico',    label: '🧪 Questionário Toxicológico (passo inteiro)' },
-  { key: 'docUpload',       label: '📎 Upload de Documento (comprovante)' },
+  { key: 'rg', label: '🪪 Solicitar RG (+ Órgão Expedidor e UF)' },
 ];
 
 function renderFieldsGrid(current) {
@@ -41,6 +34,13 @@ function getFieldsConfig() {
   document.querySelectorAll('#fields-config-grid input[type=checkbox]').forEach(cb => {
     cfg[cb.dataset.field] = cb.checked;
   });
+  // orgaoExpedidor e ufRg seguem automaticamente o RG
+  cfg.orgaoExpedidor = cfg.rg;
+  cfg.ufRg = cfg.rg;
+  // matricula, toxicologico e docUpload sempre desligados (removidos da UI)
+  cfg.matricula = false;
+  cfg.toxicologico = false;
+  cfg.docUpload = false;
   return cfg;
 }
 
