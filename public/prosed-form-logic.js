@@ -2,6 +2,18 @@
 import { db, collection, doc, getDoc, getDocs, addDoc, updateDoc, setDoc, query, where, orderBy }
   from './firebase-config.js';
 
+// ── ENDEREÇOS FIXOS POR UNIDADE ───────────────────────────────
+const UNIT_ADDRESSES = {
+  'Prosed - Unidade Vila Velha': 'Av. Profa. Francelina Carneiro Setúbal, 168 - Divino Espírito Santo, Vila Velha - ES',
+  'Prosed - Unidade Vitória':    'R. Neves Armond, 535 - Bento Ferreira, Vitória - ES',
+  'Prosed - Unidade Cariacica':  'R. José Barros da Silva, 17 - Campo Grande, Cariacica - ES',
+  'Prosed - Unidade Serra':      'R. Humberto de Campos, 25 - Parque Res. Laranjeiras, Serra - ES',
+};
+
+function getAddress(city) {
+  return UNIT_ADDRESSES[city] || city || '';
+}
+
 // ── LOAD CONTEST ──────────────────────────────────────────────
 const CID = new URLSearchParams(window.location.search).get('c');
 let contest = null, coupons = [], cfg = {};
@@ -220,30 +232,24 @@ function uAvSub() {
 }
 
 // ── STEP 4: AGENDA ────────────────────────────────────────────
-function getAddressMap() {
-  // Monta um mapa cidade → endereço a partir dos slots
-  const map = {};
-  (contest.slots || []).forEach(s => {
-    if (s.city && s.address) map[s.city] = s.address;
-  });
-  return map;
-}
 function rAddressPanel() {
-  const addrMap = getAddressMap();
-  const cities = Object.keys(addrMap);
+  const cities = [...new Set((contest.slots || []).map(s => s.city))];
   if (!cities.length) return '';
   return `<div style="background:rgba(0,201,167,.06);border:1.5px solid rgba(0,201,167,.25);border-radius:12px;padding:14px 16px;margin-bottom:16px">
     <div style="font-size:.68rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--teal-light);margin-bottom:10px">📍 Endereços das Unidades</div>
-    ${cities.map(city => `<div style="margin-bottom:8px;padding-bottom:8px;border-bottom:1px solid var(--border);last-child:border:0">
-      <div style="font-size:.84rem;font-weight:700;margin-bottom:2px">${city}</div>
-      <div style="font-size:.78rem;color:var(--white-dim);margin-bottom:4px">${addrMap[city]}</div>
-      <div style="display:flex;gap:8px">
-        <a href="https://maps.google.com/?q=${encodeURIComponent(addrMap[city])}" target="_blank"
-           style="font-size:.7rem;color:var(--blue-light);text-decoration:none;display:inline-flex;align-items:center;gap:3px">📍 Google Maps</a>
-        <a href="https://maps.apple.com/?q=${encodeURIComponent(addrMap[city])}" target="_blank"
-           style="font-size:.7rem;color:var(--white-dim);text-decoration:none;display:inline-flex;align-items:center;gap:3px">🍎 Apple Maps</a>
-      </div>
-    </div>`).join('')}
+    ${cities.map(city => {
+      const addr = getAddress(city);
+      return `<div style="margin-bottom:8px;padding-bottom:8px;border-bottom:1px solid var(--border)">
+        <div style="font-size:.84rem;font-weight:700;margin-bottom:2px">${city}</div>
+        <div style="font-size:.78rem;color:var(--white-dim);margin-bottom:4px">${addr}</div>
+        <div style="display:flex;gap:8px">
+          <a href="https://maps.google.com/?q=${encodeURIComponent(addr)}" target="_blank"
+             style="font-size:.7rem;color:var(--blue-light);text-decoration:none;display:inline-flex;align-items:center;gap:3px">📍 Google Maps</a>
+          <a href="https://maps.apple.com/?q=${encodeURIComponent(addr)}" target="_blank"
+             style="font-size:.7rem;color:var(--white-dim);text-decoration:none;display:inline-flex;align-items:center;gap:3px">🍎 Apple Maps</a>
+        </div>
+      </div>`;
+    }).join('')}
   </div>`;
 }
 function rAgenda() {
@@ -536,7 +542,7 @@ async function finalize(asaasId, payStatus) {
     pacoteLabel: fd.pacoteLabel, pacoteId: fd.pacoteId,
     examesSel: exNoms, orientacoes: exOrientacoesArr.join(' | '), slotId: selSlotId,
     slotCity: slot?.city || '', slotDate: slot?.date || '', slotTime: slot?.time || '',
-    slotAddress: slot?.address || '',
+    slotAddress: getAddress(slot?.city || ''),
     obs: fd.obs || '', fileName: selFile?.name || '',
     total, discount: disc, cupom: appliedCoupon?.code || '',
     payMethod, installments, asaasPaymentId: asaasId, payStatus, status: 'ativo',
