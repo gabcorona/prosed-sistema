@@ -94,10 +94,6 @@ function rDados() {
   const orgaos = ['SSP','DETRAN','PC','IFP','SJS','SDS','IIP','CGP','MJ','PF'];
   const isOtherOrgao = fd.orgao && !orgaos.includes(fd.orgao);
 
-  const fMatricula = fieldOn('matricula') ? `
-    <div class="field" id="f-matricula"><label class="fl">Nº de Matrícula / Inscrição <span class="req">*</span></label>
-      <input id="matricula" type="text" class="mono" placeholder="Número de matrícula" value="${h(fd.matricula)}"/></div>` : '';
-
   const fRg = fieldOn('rg') ? `
     <div class="field" id="f-rg"><label class="fl">RG <span class="req">*</span></label>
       <input id="rg" type="tel" class="mono" placeholder="0000000" value="${h(fd.rg)}" oninput="this.value=this.value.replace(/\\D/g,'')"/></div>` : '';
@@ -130,11 +126,10 @@ function rDados() {
 
   // Monta grupos de 2 colunas só com os campos habilitados
   const rgOrgaoRow = (fRg || fOrgao) ? `<div class="g2">${fRg}${fOrgao}</div>` : '';
-  const ufNascRow  = (fUf || fNasc)  ? `<div class="g2">${fUf}${fNasc}</div>` : '';
-  const sexoCelRow = `<div class="g2">${fSexo}
-    <div class="field" id="f-cel"><label class="fl">Celular <span class="req">*</span></label>
-      <input id="cel" type="tel" class="mono" placeholder="(00) 00000-0000" maxlength="16" value="${h(fd.cel)}" oninput="mPhone(this)"/></div>
-  </div>`;
+  const ufRow      = fUf ? `<div class="g2">${fUf}</div>` : '';
+
+  // Sexo e Nascimento: lado a lado (apenas os que estiverem ativos)
+  const sexoNascRow = (fSexo || fNasc) ? `<div class="g2">${fSexo}${fNasc}</div>` : '';
 
   set('main', banner() + `
   <div class="s-card fade"><div class="s-title"><span class="s-num">1</span> Dados Pessoais</div>
@@ -142,10 +137,11 @@ function rDados() {
       <input id="nome" type="text" placeholder="Nome e sobrenome" value="${h(fd.nome)}" oninput="this.value=this.value.toUpperCase()"/></div>
     <div class="field" id="f-cpf"><label class="fl">CPF <span class="req">*</span></label>
       <input id="cpf" type="tel" class="mono" placeholder="000.000.000-00" maxlength="14" value="${h(fd.cpf)}" oninput="mCPF(this)"/></div>
-    ${fMatricula}
+    ${sexoNascRow}
     ${rgOrgaoRow}
-    ${ufNascRow}
-    ${sexoCelRow}
+    ${ufRow}
+    <div class="field" id="f-cel"><label class="fl">Celular <span class="req">*</span></label>
+      <input id="cel" type="tel" class="mono" placeholder="(00) 00000-0000" maxlength="16" value="${h(fd.cel)}" oninput="mPhone(this)"/></div>
     <div class="field" id="f-email"><label class="fl">E-mail <span class="req">*</span></label>
       <input id="email" type="email" placeholder="seu@email.com" value="${h(fd.email)}"/></div>
   </div>
