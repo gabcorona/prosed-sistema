@@ -181,6 +181,15 @@ tr:hover td{background:var(--white-faint)}tr:last-child td{border-bottom:none}
         </div>
         <div style="font-size:.72rem;color:var(--white-dim);margin-top:4px">Cole a URL pública de uma imagem (JPG, PNG, WebP). Será exibida no card do concurso na página pública.</div>
       </div>
+
+      <!-- CAMPOS DO FORMULÁRIO -->
+      <div style="margin-top:20px;padding-top:18px;border-top:1px solid var(--border)">
+        <label class="fl" style="display:block;margin-bottom:10px">🗂️ Campos exibidos no formulário do candidato</label>
+        <div style="font-size:.74rem;color:var(--white-dim);margin-bottom:12px">Desmarque os campos que NÃO devem aparecer para o candidato. Campos desmarcados serão ocultados e não serão obrigatórios.</div>
+        <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:8px" id="fields-config-grid">
+          <!-- renderizado via JS -->
+        </div>
+      </div>
     </div>
     <div class="s-card fade">
       <div class="s-title"><span class="s-num">2</span> Tabela de Preços e Exames</div>
