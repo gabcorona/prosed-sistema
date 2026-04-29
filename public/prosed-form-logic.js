@@ -519,24 +519,11 @@ async function finZero() { await finalize('', 'paid'); }
 async function finalize(asaasId, payStatus) {
   if (pixPollTimer) clearInterval(pixPollTimer);
 
-  // Update slot booked count in Firestore
-  const slots = [...(contest.slots || [])];
-  const slot = slots.find(s => s.id === selSlotId);
-  if (slot) {
-    slot.booked++;
-    await updateDoc(doc(db, 'contests', CID), { slots });
-    contest.slots = slots;
-  }
-
-  // Update coupon uses
-  if (appliedCoupon) {
-    await updateDoc(doc(db, 'coupons', appliedCoupon.id), { uses: (appliedCoupon.uses || 0) + 1 });
-  }
-
   const { total, disc } = calcT();
   const exNoms = selExames.map(id => (contest.exames || []).find(x => x.id === id)?.nome || id);
   const exOrientacoesArr = selExames.map(id => (contest.exames || []).find(x => x.id === id)?.orientacoes || '').filter(Boolean);
-  const exOrientacoes = selExames.map(id => (contest.exames || []).find(x => x.id === id)?.orientacoes || '').filter(Boolean);
+  const slots = [...(contest.slots || [])];
+  const slot = slots.find(s => s.id === selSlotId);
   const recId = 'PRSD-' + Date.now().toString(36).toUpperCase() + '-' + Math.random().toString(36).slice(2, 6).toUpperCase();
 
   const rec = {
@@ -545,7 +532,7 @@ async function finalize(asaasId, payStatus) {
     nome: fd.nome, cpf: fd.cpf, matricula: fd.matricula,
     rg: fd.rg, orgao: fd.orgao, uf: fd.uf, nasc: fd.nasc,
     sexo: fd.sexo, cel: fd.cel, email: fd.email,
-    trat: fd.trat, psico: fd.psico, med: fd.med || '', coleta: fd.coleta,
+    trat: fd.trat || '', psico: fd.psico || '', med: fd.med || '', coleta: fd.coleta || '',
     pacoteLabel: fd.pacoteLabel, pacoteId: fd.pacoteId,
     examesSel: exNoms, orientacoes: exOrientacoesArr.join(' | '), slotId: selSlotId,
     slotCity: slot?.city || '', slotDate: slot?.date || '', slotTime: slot?.time || '',
@@ -555,8 +542,21 @@ async function finalize(asaasId, payStatus) {
     payMethod, installments, asaasPaymentId: asaasId, payStatus, status: 'ativo',
   };
 
-  // Save to Firestore
-  await setDoc(doc(db, 'registrations', recId), rec);
+  // Salva no Firebase — erros não bloqueiam a tela de sucesso
+  try {
+    if (slot) {
+      slot.booked++;
+      await updateDoc(doc(db, 'contests', CID), { slots });
+      contest.slots = slots;
+    }
+    if (appliedCoupon) {
+      await updateDoc(doc(db, 'coupons', appliedCoupon.id), { uses: (appliedCoupon.uses || 0) + 1 });
+    }
+    await setDoc(doc(db, 'registrations', recId), rec);
+  } catch(e) {
+    console.warn('Firebase save error (pagamento já confirmado):', e.message);
+  }
+
   lastReg = rec;
   rSuccess(rec);
 }
