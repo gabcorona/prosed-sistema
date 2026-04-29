@@ -244,7 +244,7 @@ function rAddressPanel() {
       <div style="display:flex;gap:8px">
         <a href="https://maps.google.com/?q=${encodeURIComponent(addrMap[city])}" target="_blank"
            style="font-size:.7rem;color:var(--blue-light);text-decoration:none;display:inline-flex;align-items:center;gap:3px">📍 Google Maps</a>
-        <a href="maps://?q=${encodeURIComponent(addrMap[city])}" target="_blank"
+        <a href="https://maps.apple.com/?q=${encodeURIComponent(addrMap[city])}" target="_blank"
            style="font-size:.7rem;color:var(--white-dim);text-decoration:none;display:inline-flex;align-items:center;gap:3px">🍎 Apple Maps</a>
       </div>
     </div>`).join('')}
@@ -580,7 +580,7 @@ function rSuccess(rec) {
       ${rec.slotAddress ? `<div class="ds-row"><span class="ds-key">Endereço</span><span class="ds-val" style="font-size:.78rem">${rec.slotAddress}</span></div>
       <div class="ds-row"><span class="ds-key">Localização</span><span class="ds-val">
         <a href="https://maps.google.com/?q=${encodeURIComponent(rec.slotAddress)}" target="_blank" style="color:var(--blue-light);margin-right:8px">📍 Google Maps</a>
-        <a href="maps://?q=${encodeURIComponent(rec.slotAddress)}" target="_blank" style="color:var(--blue-light)">🍎 Apple Maps</a>
+        <a href="https://maps.apple.com/?q=${encodeURIComponent(rec.slotAddress)}" target="_blank" style="color:var(--blue-light)">🍎 Apple Maps</a>
       </span></div>` : ''}
       <div class="ds-row"><span class="ds-key">Data</span><span class="ds-val">${rec.slotDate}</span></div>
       <div class="ds-row"><span class="ds-key">Horário</span><span class="ds-val">${rec.slotTime}</span></div>
@@ -614,7 +614,7 @@ function bldPrint(r) {
     ${r.slotAddress ? `<div class="pr"><span class="pk">Endereço:</span><span>${r.slotAddress}</span></div>
     <div class="pr"><span class="pk">Localização:</span><span>
       <a href="https://maps.google.com/?q=${encodeURIComponent(r.slotAddress || r.slotCity)}" target="_blank" style="color:#1E6FFF;font-weight:700;text-decoration:none;margin-right:10px">📍 Google Maps</a>
-      <a href="maps://?q=${encodeURIComponent(r.slotAddress || r.slotCity)}" target="_blank" style="color:#1E6FFF;font-weight:700;text-decoration:none">🍎 Apple Maps</a>
+      <a href="https://maps.apple.com/?q=${encodeURIComponent(r.slotAddress || r.slotCity)}" target="_blank" style="color:#1E6FFF;font-weight:700;text-decoration:none">🍎 Apple Maps</a>
     </span></div>` : ''}
     <div class="pr"><span class="pk">Data:</span><span>${r.slotDate}</span></div>
     <div class="pr"><span class="pk">Horário:</span><span>${r.slotTime}</span></div>
