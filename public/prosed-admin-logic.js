@@ -811,7 +811,7 @@ function renderProfissionais() {
             <span class="tag ${p.ativo?'tag-teal':'tag-red'}" style="margin-left:6px">${p.ativo?'Ativo':'Inativo'}</span>
           </div>
           <div style="font-size:.75rem;color:var(--white-dim);line-height:1.7">
-            👤 <span class="mono">${p.id}</span> · ${p.especialidade||'–'} · ${p.crm?'CRM '+p.crm+' · ':''}${(p.exames||[]).length} exame${(p.exames||[]).length!==1?'s':''} atribuídos
+            👤 <span class="mono">${p.id}</span> · ${p.especialidade||'–'} · ${p.crm?'CRM '+p.crm+' · ':''}${p.rqe?'RQE '+p.rqe+' · ':''}${(p.exames||[]).length} exame${(p.exames||[]).length!==1?'s':''} atribuídos
           </div>
         </div>
         <div style="display:flex;gap:6px;flex-wrap:wrap;flex-shrink:0">
@@ -850,6 +850,7 @@ async function saveProf() {
   const user   = document.getElementById('prof-user').value.trim().toLowerCase();
   const senha  = document.getElementById('prof-senha').value;
   const crm    = document.getElementById('prof-crm').value.trim();
+  const rqe    = document.getElementById('prof-rqe').value.trim(); 
   const esp    = document.getElementById('prof-esp').value.trim();
 
   if (!nome || !user) { showToast('Informe nome e usuário.', 'err'); return; }
@@ -860,7 +861,7 @@ async function saveProf() {
   // Coleta exames marcados
   const examesMarcados = [...document.querySelectorAll('#prof-exames-grid input[type=checkbox]:checked')].map(cb => cb.dataset.exameId);
 
-  const data = { nome, crm, especialidade: esp, exames: examesMarcados, ativo: true };
+  const data = { nome, crm, rqe, especialidade: esp, exames: examesMarcados, ativo: true };
   if (senha) data.senha = senha;
 
   const btn = document.getElementById('btn-save-prof');
@@ -881,7 +882,7 @@ async function saveProf() {
 }
 
 function clearProfForm() {
-  ['prof-nome','prof-user','prof-senha','prof-crm','prof-esp','prof-editing-id'].forEach(id => { const el = document.getElementById(id); if (el) el.value=''; });
+  ['prof-nome','prof-user','prof-senha','prof-crm', 'prof-rqe','prof-esp','prof-editing-id'].forEach(id => { const el = document.getElementById(id); if (el) el.value=''; });
   document.getElementById('prof-exames-grid').innerHTML = '<div style="font-size:.78rem;color:var(--white-dim)">Selecione um concurso para ver os exames disponíveis.</div>';
   document.getElementById('prof-concurso-fil').value = '';
   document.getElementById('prof-user').disabled = false;
@@ -926,6 +927,7 @@ document.addEventListener('click', async e => {
     document.getElementById('prof-user').disabled = true;
     document.getElementById('prof-senha').value = '';
     document.getElementById('prof-crm').value = p.crm || '';
+    document.getElementById('prof-rqe').value = p.rqe || '';
     document.getElementById('prof-esp').value = p.especialidade || '';
     document.getElementById('prof-editing-id').value = p.id;
     // Tenta carregar exames do primeiro concurso que tiver
