@@ -1,0 +1,567 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>PROSED · Profissionais</title>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet"/>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{--navy:#0A1628;--navy-mid:#112040;--navy-light:#1A305C;--blue:#1E6FFF;--blue-light:#4D93FF;--blue-glow:rgba(30,111,255,0.18);--teal:#00C9A7;--teal-light:#00E8C3;--amber:#FFB800;--red:#FF4757;--green:#2ED573;--white:#F0F4FF;--white-dim:rgba(240,244,255,0.65);--white-faint:rgba(240,244,255,0.08);--border:rgba(240,244,255,0.10);--card:rgba(17,32,64,0.90);--radius:14px;}
+html{scroll-behavior:smooth}
+body{font-family:'Sora',sans-serif;background:var(--navy);color:var(--white);min-height:100vh;background-image:radial-gradient(ellipse 80% 60% at 20% -10%,rgba(30,111,255,0.12) 0%,transparent 60%),radial-gradient(ellipse 60% 50% at 80% 100%,rgba(0,201,167,0.08) 0%,transparent 55%);}
+::-webkit-scrollbar{width:4px}::-webkit-scrollbar-track{background:var(--navy)}::-webkit-scrollbar-thumb{background:var(--navy-light);border-radius:2px}
+
+/* LOGIN */
+.login-overlay{position:fixed;inset:0;z-index:900;background:rgba(5,12,25,.97);backdrop-filter:blur(20px);display:flex;align-items:center;justify-content:center;padding:20px;}
+.login-box{background:var(--navy-mid);border:1.5px solid var(--border);border-radius:20px;padding:36px 30px;width:100%;max-width:380px;text-align:center;}
+.login-icon{width:64px;height:64px;background:linear-gradient(135deg,var(--teal),#00A887);border-radius:18px;display:flex;align-items:center;justify-content:center;font-size:1.6rem;margin:0 auto 20px;}
+
+/* NAV */
+nav{display:flex;align-items:center;justify-content:space-between;padding:14px 24px;background:var(--navy-mid);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:100;backdrop-filter:blur(10px);}
+.nav-left{display:flex;align-items:center;gap:10px;}
+.nav-icon{width:34px;height:34px;background:linear-gradient(135deg,var(--teal),#00A887);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:1rem;}
+.nav-brand{font-size:.92rem;font-weight:800;letter-spacing:-.02em;}
+.nav-sub{font-size:.68rem;color:var(--white-dim);}
+.nav-user{font-size:.78rem;color:var(--teal-light);font-weight:600;}
+
+/* LAYOUT */
+.container{max-width:900px;margin:0 auto;padding:28px 20px;}
+
+/* CARDS */
+.s-card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:22px 24px;margin-bottom:16px;backdrop-filter:blur(10px);}
+.s-title{font-size:.68rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--teal-light);display:flex;align-items:center;gap:8px;margin-bottom:16px;padding-bottom:10px;border-bottom:1px solid var(--border);}
+
+/* FORM */
+label.fl{font-size:.72rem;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--white-dim);display:block;margin-bottom:5px;}
+input,select{font-family:'Sora',sans-serif;font-size:.88rem;width:100%;padding:11px 13px;background:rgba(255,255,255,.04);border:1.5px solid var(--border);border-radius:10px;color:var(--white);outline:none;transition:border-color .2s;-webkit-appearance:none;appearance:none;}
+input:focus,select:focus{border-color:var(--teal);box-shadow:0 0 0 3px rgba(0,201,167,.15);}
+select option{background:var(--navy-mid)}
+.mono{font-family:'JetBrains Mono',monospace!important}
+.field{display:flex;flex-direction:column;gap:5px;margin-bottom:14px;}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+@media(max-width:600px){.g2{grid-template-columns:1fr;}}
+
+/* BUTTONS */
+.btn-primary{background:linear-gradient(135deg,var(--teal),#00A887);color:var(--navy);border:none;border-radius:10px;padding:12px 22px;font-family:'Sora',sans-serif;font-size:.88rem;font-weight:700;cursor:pointer;transition:all .15s;display:inline-flex;align-items:center;gap:8px;}
+.btn-ghost{background:transparent;color:var(--white-dim);border:1.5px solid var(--border);border-radius:10px;padding:9px 16px;font-family:'Sora',sans-serif;font-size:.82rem;font-weight:500;cursor:pointer;transition:all .2s;display:inline-flex;align-items:center;gap:6px;}
+.btn-ghost:hover{border-color:var(--teal);color:var(--white)}
+.btn-blue{background:linear-gradient(135deg,var(--blue),#0051D4);color:#fff;border:none;border-radius:10px;padding:10px 18px;font-family:'Sora',sans-serif;font-size:.82rem;font-weight:600;cursor:pointer;display:inline-flex;align-items:center;gap:6px;}
+.btn-sm{padding:6px 12px!important;font-size:.76rem!important;border-radius:7px!important;}
+.btn-red{background:rgba(255,71,87,.12);color:var(--red);border:1px solid rgba(255,71,87,.25);border-radius:8px;padding:6px 12px;font-family:'Sora',sans-serif;font-size:.76rem;cursor:pointer;}
+
+/* CANDIDATO CARDS */
+.cand-card{background:var(--white-faint);border:1.5px solid var(--border);border-radius:12px;padding:14px 16px;margin-bottom:10px;cursor:pointer;transition:all .2s;}
+.cand-card:hover{border-color:var(--teal);background:rgba(0,201,167,.06);}
+.cand-card.sel{border-color:var(--teal);background:rgba(0,201,167,.08);}
+.cand-name{font-weight:700;font-size:.92rem;margin-bottom:4px;}
+.cand-meta{font-size:.75rem;color:var(--white-dim);display:flex;gap:12px;flex-wrap:wrap;}
+.cand-badge{display:inline-flex;align-items:center;gap:4px;font-size:.7rem;font-weight:700;padding:3px 8px;border-radius:6px;}
+.badge-pend{background:rgba(255,184,0,.15);color:var(--amber);}
+.badge-part{background:rgba(30,111,255,.15);color:var(--blue-light);}
+.badge-apto{background:rgba(0,201,167,.15);color:var(--teal);}
+.badge-inapto{background:rgba(255,71,87,.15);color:var(--red);}
+
+/* EXAME TABLE */
+.exame-row{display:grid;grid-template-columns:1fr 140px 140px 130px;gap:8px;align-items:center;padding:10px 0;border-bottom:1px solid var(--border);}
+.exame-row:last-child{border-bottom:none;}
+.exame-header{font-size:.68rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--white-dim);padding:6px 0 10px;border-bottom:2px solid var(--border);}
+@media(max-width:640px){
+  .exame-row,.exame-header{grid-template-columns:1fr 1fr;}
+  .exame-row .exame-ref,.exame-header .h-ref{display:none;}
+}
+.exame-nome{font-size:.84rem;font-weight:500;}
+.exame-inp{background:var(--white-faint)!important;border:1px solid var(--border)!important;border-radius:6px!important;padding:7px 9px!important;font-size:.82rem!important;width:100%!important;}
+.exame-inp:focus{border-color:var(--teal)!important;}
+.exame-sel{background:var(--navy-mid)!important;border-radius:6px!important;padding:7px 9px!important;font-size:.82rem!important;font-weight:700!important;width:100%!important;}
+
+/* STATUS */
+.tag{display:inline-block;padding:3px 9px;border-radius:6px;font-size:.7rem;font-weight:700;}
+.tag-teal{background:rgba(0,201,167,.15);color:var(--teal-light);}
+.tag-red{background:rgba(255,71,87,.15);color:var(--red);}
+.tag-amber{background:rgba(255,184,0,.15);color:var(--amber);}
+.tag-blue{background:rgba(30,111,255,.15);color:var(--blue-light);}
+
+/* MODAL */
+.modal-overlay{position:fixed;inset:0;z-index:500;background:rgba(5,12,25,.85);backdrop-filter:blur(8px);display:flex;align-items:center;justify-content:center;padding:16px;}
+.modal-box{background:var(--navy-mid);border:1px solid var(--border);border-radius:16px;width:100%;max-width:700px;max-height:90vh;overflow-y:auto;padding:24px;}
+.modal-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px;padding-bottom:14px;border-bottom:1px solid var(--border);}
+.modal-close{background:none;border:none;color:var(--white-dim);font-size:1.4rem;cursor:pointer;padding:2px 8px;border-radius:6px;}
+.modal-close:hover{color:var(--white);background:var(--white-faint);}
+
+/* TOAST */
+.toast{position:fixed;bottom:24px;right:24px;z-index:999;display:flex;align-items:center;gap:10px;padding:12px 18px;border-radius:12px;font-size:.84rem;font-weight:600;box-shadow:0 8px 32px rgba(0,0,0,.4);min-width:220px;}
+.toast-ok{background:linear-gradient(135deg,rgba(0,201,167,.2),rgba(0,232,195,.1));border:1px solid rgba(0,201,167,.4);color:var(--teal-light);}
+.toast-err{background:linear-gradient(135deg,rgba(255,71,87,.2),rgba(255,71,87,.1));border:1px solid rgba(255,71,87,.4);color:#FF6B7A;}
+.toast-x{background:none;border:none;color:inherit;cursor:pointer;margin-left:auto;font-size:1rem;opacity:.7;}
+
+/* SPIN */
+.spin{width:14px;height:14px;border:2px solid currentColor;border-top-color:transparent;border-radius:50%;animation:sp .7s linear infinite;display:inline-block;}
+@keyframes sp{to{transform:rotate(360deg)}}
+
+/* EMPTY */
+.empty{text-align:center;padding:40px 20px;color:var(--white-dim);}
+.empty-icon{font-size:2.5rem;margin-bottom:10px;}
+
+/* LOGIN ERR */
+#login-err{color:var(--red);font-size:.8rem;margin-top:8px;min-height:18px;}
+
+.info-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px 16px;font-size:.82rem;background:var(--white-faint);border-radius:10px;padding:12px 14px;margin-bottom:14px;}
+.info-row{display:flex;gap:6px;padding:3px 0;}
+.info-key{color:var(--white-dim);min-width:80px;font-size:.74rem;}
+</style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div class="login-overlay" id="login-overlay">
+  <div class="login-box">
+    <div class="login-icon">🩺</div>
+    <div style="font-size:1.1rem;font-weight:800;margin-bottom:4px">PROSED · Profissionais</div>
+    <div style="font-size:.78rem;color:var(--white-dim);margin-bottom:24px">Lançamento de Resultados</div>
+    <div class="field" style="text-align:left">
+      <label class="fl">Usuário</label>
+      <input type="text" id="login-user" placeholder="seu.usuario" autocomplete="username"/>
+    </div>
+    <div class="field" style="text-align:left">
+      <label class="fl">Senha</label>
+      <input type="password" id="login-pwd" placeholder="••••••••" autocomplete="current-password"/>
+    </div>
+    <div id="login-err"></div>
+    <button class="btn-primary" id="btn-login" style="width:100%;margin-top:14px;justify-content:center">Entrar</button>
+  </div>
+</div>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-left">
+    <div class="nav-icon">🩺</div>
+    <div>
+      <div class="nav-brand">PROSED · Profissionais</div>
+      <div class="nav-sub">Lançamento de Resultados</div>
+    </div>
+  </div>
+  <div style="display:flex;align-items:center;gap:12px">
+    <div>
+      <div class="nav-user" id="nav-profissional-nome">–</div>
+      <div style="font-size:.65rem;color:var(--white-dim)" id="nav-profissional-esp">–</div>
+    </div>
+    <button class="btn-ghost btn-sm" id="btn-logout">Sair</button>
+  </div>
+</nav>
+
+<!-- CONTEÚDO -->
+<div class="container">
+
+  <!-- FILTROS -->
+  <div class="s-card">
+    <div class="s-title">🔍 Buscar Candidato</div>
+    <div class="g2" style="margin-bottom:12px">
+      <div class="field" style="margin-bottom:0">
+        <label class="fl">Concurso</label>
+        <select id="fil-concurso"><option value="">Todos os concursos</option></select>
+      </div>
+      <div class="field" style="margin-bottom:0">
+        <label class="fl">Data do Agendamento</label>
+        <input type="date" id="fil-data"/>
+      </div>
+    </div>
+    <div class="field" style="margin-bottom:0">
+      <label class="fl">Nome ou CPF</label>
+      <input type="text" id="fil-busca" placeholder="Digite para buscar..."/>
+    </div>
+  </div>
+
+  <!-- LISTA DE CANDIDATOS -->
+  <div class="s-card">
+    <div class="s-title">👤 Candidatos
+      <span id="cand-count" style="font-weight:400;color:var(--white-dim);font-size:.72rem;text-transform:none;letter-spacing:0"></span>
+    </div>
+    <div id="cand-list">
+      <div class="empty"><div class="empty-icon">🔍</div><div>Faça login para ver os candidatos</div></div>
+    </div>
+  </div>
+
+</div>
+
+<!-- MODAL PRONTUÁRIO -->
+<div class="modal-overlay" id="modal-pront" style="display:none">
+  <div class="modal-box">
+    <div class="modal-head">
+      <div>
+        <div style="font-weight:800;font-size:1rem">📋 Lançar Resultados</div>
+        <div style="font-size:.74rem;color:var(--white-dim)" id="modal-pront-subtitle">–</div>
+      </div>
+      <button class="modal-close" id="btn-close-pront">×</button>
+    </div>
+    <div id="modal-pront-cand-info"></div>
+    <div id="modal-pront-body"></div>
+    <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:18px;flex-wrap:wrap">
+      <button class="btn-ghost btn-sm" id="btn-close-pront2">Fechar</button>
+      <button class="btn-blue btn-sm" id="btn-print-pront">🖨️ Imprimir</button>
+      <button class="btn-primary btn-sm" id="btn-save-pront">💾 Salvar Resultados</button>
+    </div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast toast-ok" id="toast" style="display:none">
+  <span id="toast-icon">✓</span><span id="toast-msg"></span>
+  <button class="toast-x" id="btn-close-toast">×</button>
+</div>
+
+<script type="module">
+import { db, collection, doc, getDoc, getDocs, setDoc, updateDoc, query, orderBy, onSnapshot }
+  from './firebase-config.js';
+
+// ── STATE ─────────────────────────────────────────────────────
+let profissional = null; // objeto do profissional logado
+let contests = [], registrations = [], prontuarios = {};
+let currentRegId = null;
+
+// ── LOGIN ─────────────────────────────────────────────────────
+async function doLogin() {
+  const user = document.getElementById('login-user').value.trim().toLowerCase();
+  const pwd  = document.getElementById('login-pwd').value;
+  const err  = document.getElementById('login-err');
+  if (!user || !pwd) { err.textContent = '⚠ Preencha usuário e senha.'; return; }
+  err.textContent = '';
+  const btn = document.getElementById('btn-login');
+  btn.innerHTML = '<span class="spin"></span> Verificando…'; btn.disabled = true;
+  try {
+    const snap = await getDoc(doc(db, 'profissionais', user));
+    if (!snap.exists()) { err.textContent = '⚠ Usuário não encontrado.'; btn.innerHTML = 'Entrar'; btn.disabled = false; return; }
+    const p = snap.data();
+    if (p.senha !== pwd) { err.textContent = '⚠ Senha incorreta.'; btn.innerHTML = 'Entrar'; btn.disabled = false; return; }
+    if (!p.ativo) { err.textContent = '⚠ Acesso desativado. Contate o administrador.'; btn.innerHTML = 'Entrar'; btn.disabled = false; return; }
+    profissional = { id: user, ...p };
+    document.getElementById('login-overlay').style.display = 'none';
+    document.getElementById('nav-profissional-nome').textContent = p.nome;
+    document.getElementById('nav-profissional-esp').textContent = p.especialidade || '';
+    init();
+  } catch(e) {
+    err.textContent = '⚠ Erro ao verificar: ' + e.message;
+    btn.innerHTML = 'Entrar'; btn.disabled = false;
+  }
+}
+
+// ── INIT ──────────────────────────────────────────────────────
+function init() {
+  // Define data padrão = hoje
+  const hoje = new Date().toISOString().slice(0,10);
+  document.getElementById('fil-data').value = hoje;
+
+  // Carrega contests
+  onSnapshot(query(collection(db, 'contests'), orderBy('createdAt','desc')), snap => {
+    contests = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+    const sel = document.getElementById('fil-concurso');
+    sel.innerHTML = '<option value="">Todos os concursos</option>' + contests.map(c => `<option value="${c.id}">${c.nome}</option>`).join('');
+  });
+
+  // Carrega registrations
+  onSnapshot(query(collection(db, 'registrations'), orderBy('submittedAt','desc')), snap => {
+    registrations = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+    renderCandidatos();
+  });
+
+  // Carrega prontuários
+  onSnapshot(collection(db, 'prontuarios'), snap => {
+    prontuarios = {};
+    snap.docs.forEach(d => { prontuarios[d.id] = d.data(); });
+    renderCandidatos();
+  });
+
+  // Filtros
+  document.getElementById('fil-concurso').addEventListener('change', renderCandidatos);
+  document.getElementById('fil-data').addEventListener('change', renderCandidatos);
+  document.getElementById('fil-busca').addEventListener('input', renderCandidatos);
+}
+
+// ── RENDER CANDIDATOS ─────────────────────────────────────────
+function renderCandidatos() {
+  const cid   = document.getElementById('fil-concurso').value;
+  const data  = document.getElementById('fil-data').value; // YYYY-MM-DD
+  const busca = document.getElementById('fil-busca').value.toLowerCase();
+
+  // Exames que este profissional pode lançar
+  const meusExames = profissional?.exames || [];
+
+  const lista = registrations.filter(r => {
+    if (r.status === 'cancelado') return false;
+    if (cid && r.contestId !== cid) return false;
+    if (busca && !r.nome?.toLowerCase().includes(busca) && !r.cpf?.replace(/\D/g,'').includes(busca.replace(/\D/g,''))) return false;
+    if (data) {
+      // slotDate está no formato DD/MM/AAAA
+      const parts = (r.slotDate || '').split('/');
+      if (parts.length === 3) {
+        const iso = `${parts[2]}-${parts[1]}-${parts[0]}`;
+        if (iso !== data) return false;
+      } else return false;
+    }
+    return true;
+  });
+
+  document.getElementById('cand-count').textContent = `— ${lista.length} candidato${lista.length !== 1 ? 's' : ''}`;
+
+  if (!lista.length) {
+    document.getElementById('cand-list').innerHTML = '<div class="empty"><div class="empty-icon">📭</div><div>Nenhum candidato encontrado</div></div>';
+    return;
+  }
+
+  document.getElementById('cand-list').innerHTML = lista.map(r => {
+    const pront = prontuarios[r.id] || {};
+    const contest = contests.find(c => c.id === r.contestId);
+    // Só mostra exames que são deste profissional
+    const examesDoProfissional = getExamesDoProfissional(r, meusExames);
+    const total = examesDoProfissional.length;
+    const done  = examesDoProfissional.filter(e => pront[e.id]?.avaliacao).length;
+
+    let badge = '';
+    if (total === 0) badge = '<span class="cand-badge badge-pend">Sem exames atribuídos</span>';
+    else if (done === 0) badge = '<span class="cand-badge badge-pend">⏳ Pendente</span>';
+    else if (done < total) badge = `<span class="cand-badge badge-part">🔄 ${done}/${total} lançados</span>`;
+    else {
+      const hasInapto = examesDoProfissional.some(e => pront[e.id]?.avaliacao === 'inapto');
+      badge = hasInapto
+        ? '<span class="cand-badge badge-inapto">✗ Inapto</span>'
+        : '<span class="cand-badge badge-apto">✓ Apto</span>';
+    }
+
+    return `<div class="cand-card" onclick="window._openPront('${r.id}')">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:10px;flex-wrap:wrap">
+        <div>
+          <div class="cand-name">${r.nome}</div>
+          <div class="cand-meta">
+            <span>CPF: ${r.cpf}</span>
+            <span>📅 ${r.slotDate} ${r.slotTime}</span>
+            <span>📍 ${r.slotCity}</span>
+            <span>${contest?.nome || '–'}</span>
+          </div>
+        </div>
+        <div style="display:flex;align-items:center;gap:8px;flex-shrink:0">
+          ${badge}
+          <span style="font-size:1.2rem;color:var(--white-dim)">›</span>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// ── OPEN PRONTUÁRIO ───────────────────────────────────────────
+function openPront(regId) {
+  const r = registrations.find(x => x.id === regId); if (!r) return;
+  const contest = contests.find(c => c.id === r.contestId); if (!contest) return;
+  currentRegId = regId;
+
+  const meusExames = profissional?.exames || [];
+  const exames = getExamesDoProfissional(r, meusExames);
+  const pront = prontuarios[regId] || {};
+
+  document.getElementById('modal-pront-subtitle').textContent =
+    `${profissional.especialidade || profissional.nome} · ${exames.length} exame${exames.length !== 1 ? 's' : ''}`;
+
+  document.getElementById('modal-pront-cand-info').innerHTML = `
+    <div class="info-grid" style="margin-bottom:16px">
+      <div class="info-row"><span class="info-key">Candidato:</span><strong>${r.nome}</strong></div>
+      <div class="info-row"><span class="info-key">CPF:</span>${r.cpf}</div>
+      <div class="info-row"><span class="info-key">Concurso:</span>${contest.nome}</div>
+      <div class="info-row"><span class="info-key">Data/Hora:</span>${r.slotDate} às ${r.slotTime}</div>
+      <div class="info-row"><span class="info-key">Protocolo:</span><span class="mono" style="color:var(--blue-light);font-size:.72rem">${r.id}</span></div>
+      <div class="info-row"><span class="info-key">Pacote:</span>${r.pacoteLabel || '–'}</div>
+    </div>`;
+
+  if (!exames.length) {
+    document.getElementById('modal-pront-body').innerHTML =
+      '<div class="empty"><div class="empty-icon">🔒</div><div>Você não tem exames atribuídos para este candidato.</div></div>';
+  } else {
+    document.getElementById('modal-pront-body').innerHTML = `
+      <div style="font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--white-dim);margin-bottom:10px">Exames sob sua responsabilidade</div>
+      <div class="exame-row exame-header">
+        <div>Exame</div>
+        <div>Valor Encontrado</div>
+        <div class="h-ref">Ref. Normal</div>
+        <div>Avaliação</div>
+      </div>
+      ${exames.map(e => {
+        const res = pront[e.id] || {};
+        const av = res.avaliacao || '';
+        const avColor = av === 'apto' ? 'var(--teal)' : av === 'inapto' ? 'var(--red)' : 'var(--amber)';
+        return `<div class="exame-row">
+          <div class="exame-nome">${e.nome}
+            ${e.orientacoes ? `<div style="font-size:.7rem;color:var(--amber);margin-top:2px">⚠ ${e.orientacoes}</div>` : ''}
+          </div>
+          <div><input type="text" class="exame-inp pront-valor" data-exame="${e.id}" placeholder="ex: 12,5 g/dL" value="${escH(res.valor||'')}"/></div>
+          <div class="exame-ref"><input type="text" class="exame-inp pront-ref" data-exame="${e.id}" placeholder="ex: 12–16" value="${escH(res.ref||'')}"/></div>
+          <div>
+            <select class="exame-sel pront-av" data-exame="${e.id}" style="border-color:${avColor};color:${avColor}"
+              onchange="this.style.borderColor=this.value==='apto'?'var(--teal)':this.value==='inapto'?'var(--red)':'var(--amber)';this.style.color=this.style.borderColor">
+              <option value="">Pendente</option>
+              <option value="apto" ${av==='apto'?'selected':''}>✓ Apto</option>
+              <option value="inapto" ${av==='inapto'?'selected':''}>✗ Inapto</option>
+              <option value="pendente" ${av==='pendente'?'selected':''}>⏳ Pendente</option>
+            </select>
+          </div>
+        </div>`;
+      }).join('')}
+      <div class="field" style="margin-top:16px">
+        <label class="fl">Observações (${profissional.especialidade || profissional.nome})</label>
+        <textarea id="pront-obs" rows="2" placeholder="Observações clínicas..."
+          style="background:var(--white-faint);border:1px solid var(--border);border-radius:8px;padding:9px 11px;color:var(--white);font-family:'Sora',sans-serif;font-size:.84rem;width:100%;resize:vertical">${escH(pront[`_obs_${profissional.id}`]||'')}</textarea>
+      </div>`;
+  }
+
+  document.getElementById('modal-pront').style.display = 'flex';
+}
+
+// ── SAVE PRONTUÁRIO ───────────────────────────────────────────
+async function savePront(andPrint = false) {
+  const r = registrations.find(x => x.id === currentRegId); if (!r) return;
+  const contest = contests.find(c => c.id === r.contestId); if (!contest) return;
+  const meusExames = profissional?.exames || [];
+  const exames = getExamesDoProfissional(r, meusExames);
+
+  const btn = document.getElementById('btn-save-pront');
+  btn.innerHTML = '<span class="spin"></span>'; btn.disabled = true;
+
+  try {
+    // Monta objeto de atualização — só os exames deste profissional
+    const update = {};
+    exames.forEach(e => {
+      const valor = document.querySelector(`.pront-valor[data-exame="${e.id}"]`)?.value || '';
+      const ref   = document.querySelector(`.pront-ref[data-exame="${e.id}"]`)?.value || '';
+      const av    = document.querySelector(`.pront-av[data-exame="${e.id}"]`)?.value || '';
+      update[e.id] = { valor, ref, avaliacao: av, lancadoPor: profissional.id, lancadoEm: new Date().toLocaleString('pt-BR') };
+    });
+    update[`_obs_${profissional.id}`] = document.getElementById('pront-obs')?.value || '';
+    update[`_prof_${profissional.id}`] = { nome: profissional.nome, crm: profissional.crm || '', esp: profissional.especialidade || '' };
+
+    // Salva no Firebase — merge para não sobrescrever outros profissionais
+    await setDoc(doc(db, 'prontuarios', currentRegId), update, { merge: true });
+    prontuarios[currentRegId] = { ...(prontuarios[currentRegId] || {}), ...update };
+
+    showToast('Resultados salvos!', 'ok');
+    renderCandidatos();
+    if (andPrint) printPront(currentRegId, exames, update);
+    else document.getElementById('modal-pront').style.display = 'none';
+  } catch(e) {
+    showToast('Erro: ' + e.message, 'err');
+  }
+  btn.innerHTML = '💾 Salvar Resultados'; btn.disabled = false;
+}
+
+// ── PRINT ─────────────────────────────────────────────────────
+function printPront(regId, exames, overrideData) {
+  const r = registrations.find(x => x.id === regId); if (!r) return;
+  const contest = contests.find(c => c.id === r.contestId);
+  const pront = overrideData || prontuarios[regId] || {};
+
+  const rows = exames.map(e => {
+    const res = pront[e.id] || {};
+    const av = res.avaliacao || '';
+    const avLabel = av === 'apto' ? '✓ APTO' : av === 'inapto' ? '✗ INAPTO' : '⏳ PENDENTE';
+    const avColor = av === 'apto' ? '#00C9A7' : av === 'inapto' ? '#FF4757' : '#888';
+    return `<tr>
+      <td style="padding:8px 10px;border-bottom:1px solid #e0e0e0;font-size:12px">${e.nome}${e.orientacoes?`<br><span style="font-size:10px;color:#B8860B">⚠ ${e.orientacoes}</span>`:''}</td>
+      <td style="padding:8px 10px;border-bottom:1px solid #e0e0e0;font-size:12px;text-align:center">${res.valor||'–'}</td>
+      <td style="padding:8px 10px;border-bottom:1px solid #e0e0e0;font-size:12px;text-align:center">${res.ref||'–'}</td>
+      <td style="padding:8px 10px;border-bottom:1px solid #e0e0e0;font-size:12px;text-align:center;font-weight:700;color:${avColor}">${avLabel}</td>
+    </tr>`;
+  }).join('');
+
+  const obsKey = `_obs_${profissional.id}`;
+  const obs = pront[obsKey] || '';
+
+  const html = `<!DOCTYPE html><html lang="pt-BR"><head><meta charset="UTF-8">
+  <title>Prontuário – ${r.nome}</title>
+  <style>
+    @page{margin:18mm 15mm;}
+    body{font-family:Arial,sans-serif;font-size:13px;color:#1a1a1a;}
+    .header{display:flex;align-items:center;justify-content:space-between;border-bottom:3px solid #1a56db;padding-bottom:10px;margin-bottom:14px;}
+    .logo{background:#f0f4ff;border-radius:8px;padding:6px 12px;font-size:20px;font-weight:900;color:#1a56db;}
+    .section-title{background:#1a56db;color:#fff;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;padding:4px 10px;border-radius:4px;margin:12px 0 8px;}
+    .info-grid{display:grid;grid-template-columns:1fr 1fr;gap:4px 16px;font-size:12px;}
+    .info-row{display:flex;gap:6px;padding:3px 0;border-bottom:1px dotted #ddd;}
+    .info-key{color:#666;min-width:80px;font-size:11px;}
+    table{width:100%;border-collapse:collapse;}
+    th{background:#f0f4ff;color:#1a56db;font-size:10px;text-transform:uppercase;letter-spacing:.08em;padding:7px 10px;text-align:left;border-bottom:2px solid #1a56db;}
+    .assin-line{border-bottom:1px solid #333;height:28px;margin-bottom:6px;}
+    .footer{text-align:center;font-size:9px;color:#999;border-top:1px solid #ddd;padding-top:8px;margin-top:16px;}
+    @media print{button{display:none;}}
+  </style></head><body>
+  <div class="header">
+    <div style="display:flex;align-items:center;gap:12px">
+      <div class="logo">PROSED</div>
+      <div><div style="font-weight:700;font-size:14px;color:#1a56db">PRONTUÁRIO – ${profissional.especialidade?.toUpperCase() || profissional.nome.toUpperCase()}</div>
+        <div style="font-size:11px;color:#666">${contest?.nome || ''} · Medicina do Trabalho</div></div>
+    </div>
+    <div style="text-align:right;font-size:11px;color:#666">Protocolo<br><strong style="color:#1a56db">${r.id}</strong><br>${new Date().toLocaleDateString('pt-BR')}</div>
+  </div>
+  <div class="section-title">Dados do Candidato</div>
+  <div class="info-grid">
+    <div class="info-row"><span class="info-key">Nome:</span><strong>${r.nome}</strong></div>
+    <div class="info-row"><span class="info-key">CPF:</span>${r.cpf}</div>
+    <div class="info-row"><span class="info-key">Data/Hora:</span>${r.slotDate} às ${r.slotTime}</div>
+    <div class="info-row"><span class="info-key">Unidade:</span>${r.slotCity}</div>
+  </div>
+  <div class="section-title">Resultados – ${profissional.especialidade || profissional.nome}</div>
+  <table>
+    <thead><tr><th>Exame</th><th>Valor Encontrado</th><th>Ref. Normal</th><th>Avaliação</th></tr></thead>
+    <tbody>${rows}</tbody>
+  </table>
+  ${obs?`<div class="section-title">Observações</div><div style="font-size:12px;line-height:1.7;padding:8px;background:#f9f9f9;border-radius:4px">${obs}</div>`:''}
+  <div style="display:flex;justify-content:flex-end;margin-top:20px;padding-top:14px;border-top:1px solid #ddd">
+    <div style="text-align:center;min-width:220px">
+      <div class="assin-line"></div>
+      <div style="font-size:12px;font-weight:600">${profissional.nome}</div>
+      <div style="font-size:10px;color:#666">${profissional.crm?'CRM '+profissional.crm+' · ':''}${profissional.especialidade||''}</div>
+    </div>
+  </div>
+  <div class="footer">PROSED – Medicina do Trabalho · ${new Date().toLocaleString('pt-BR')} · Protocolo ${r.id}</div>
+  <script>window.onload=()=>window.print();<\/script>
+  </body></html>`;
+
+  const win = window.open('', '_blank');
+  win.document.write(html);
+  win.document.close();
+}
+
+// ── HELPERS ───────────────────────────────────────────────────
+function getExamesDoProfissional(reg, meusExames) {
+  if (!meusExames.length) return [];
+  const contest = contests.find(c => c.id === reg.contestId);
+  if (!contest) return [];
+  const todosExames = contest.exames || [];
+  // Se for avulsos, filtra pelos exames que o candidato selecionou
+  if (reg.pacoteId === 'avulsos') {
+    return todosExames.filter(e =>
+      (reg.examesSel || []).includes(e.nome) && meusExames.includes(e.id)
+    );
+  }
+  return todosExames.filter(e => meusExames.includes(e.id));
+}
+
+function escH(s) { return (s||'').toString().replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;'); }
+function showToast(msg, type='ok') {
+  const t = document.getElementById('toast'); t.className = 'toast toast-'+type;
+  document.getElementById('toast-icon').textContent = type==='ok'?'✓':'✕';
+  document.getElementById('toast-msg').textContent = msg;
+  t.style.display='flex'; setTimeout(()=>t.style.display='none',4200);
+}
+
+// ── EVENTS ────────────────────────────────────────────────────
+document.getElementById('btn-login').addEventListener('click', doLogin);
+document.getElementById('login-pwd').addEventListener('keydown', e => { if (e.key==='Enter') doLogin(); });
+document.getElementById('login-user').addEventListener('keydown', e => { if (e.key==='Enter') document.getElementById('login-pwd').focus(); });
+document.getElementById('btn-logout').addEventListener('click', () => location.reload());
+document.getElementById('btn-close-pront').addEventListener('click', () => document.getElementById('modal-pront').style.display='none');
+document.getElementById('btn-close-pront2').addEventListener('click', () => document.getElementById('modal-pront').style.display='none');
+document.getElementById('btn-save-pront').addEventListener('click', () => savePront(false));
+document.getElementById('btn-print-pront').addEventListener('click', () => savePront(true));
+document.getElementById('btn-close-toast').addEventListener('click', () => document.getElementById('toast').style.display='none');
+document.getElementById('modal-pront').addEventListener('click', e => { if (e.target===document.getElementById('modal-pront')) document.getElementById('modal-pront').style.display='none'; });
+
+// Expõe para onclick inline
+window._openPront = openPront;
+</script>
+</body>
+</html>
