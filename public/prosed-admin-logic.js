@@ -354,7 +354,7 @@ function renderContests() {
 }
 
 function populateContestSels() {
-  ['f-concurso', 'cp-contest'].forEach(selId => {
+  ['f-concurso', 'cp-contest', 'pront-concurso'].forEach(selId => {
     const sel = document.getElementById(selId); if (!sel) return;
     const prefix = selId === 'cp-contest' ? '<option value="">Todos os concursos</option>' : '<option value="">Todos</option>';
     sel.innerHTML = prefix + contests.map(c => `<option value="${c.id}">${c.nome}</option>`).join('');
