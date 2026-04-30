@@ -128,6 +128,7 @@ tr:hover td{background:var(--white-faint)}tr:last-child td{border-bottom:none}
     <button class="tab active" id="tab-btn-concursos">📋 Concursos</button>
     <button class="tab" id="tab-btn-novo">➕ Novo Concurso</button>
     <button class="tab" id="tab-btn-cadastros">👤 Cadastros</button>
+    <button class="tab" id="tab-btn-prontuarios">📋 Prontuários</button>
     <button class="tab" id="tab-btn-cupons">🎟️ Cupons</button>
     <button class="tab" id="tab-btn-config">⚙️ Configurações</button>
   </div>
@@ -260,6 +261,30 @@ tr:hover td{background:var(--white-faint)}tr:last-child td{border-bottom:none}
       <div class="empty" id="cad-empty" style="display:none"><div class="empty-icon">🔍</div><div>Nenhum cadastro</div></div>
     </div>
   </div>
+  <!-- PRONTUÁRIOS -->
+  <div class="tab-content" id="tab-prontuarios">
+    <div class="s-card fade">
+      <div class="s-title">Filtros</div>
+      <div class="g2" style="margin-bottom:0">
+        <div class="field" style="margin-bottom:0"><label class="fl">Concurso</label><select id="pront-concurso"><option value="">Todos</option></select></div>
+        <div class="field" style="margin-bottom:0"><label class="fl">Nome / CPF</label><input type="text" id="pront-busca" placeholder="Buscar candidato..."/></div>
+      </div>
+    </div>
+    <div class="s-card fade">
+      <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;margin-bottom:14px">
+        <div id="pront-count" style="font-size:.82rem;color:var(--white-dim)"></div>
+      </div>
+      <div class="tbl-wrap">
+        <table>
+          <thead><tr>
+            <th>Nome</th><th>CPF</th><th>Concurso</th><th>Data · Hora</th><th>Status</th><th>Ações</th>
+          </tr></thead>
+          <tbody id="pront-body"></tbody>
+        </table>
+      </div>
+      <div class="empty" id="pront-empty" style="display:none"><div class="empty-icon">🔍</div><div>Nenhum candidato</div></div>
+    </div>
+  </div>
   <!-- CUPONS -->
   <div class="tab-content" id="tab-cupons">
     <div class="s-card fade">
@@ -314,6 +339,21 @@ tr:hover td{background:var(--white-faint)}tr:last-child td{border-bottom:none}
     <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:18px;flex-wrap:wrap">
       <button class="btn-red btn-sm" id="btn-cancel-cad">✕ Cancelar Cadastro</button>
       <button class="btn-ghost btn-sm" id="btn-close-modal2">Fechar</button>
+    </div>
+  </div>
+</div>
+<!-- MODAL PRONTUÁRIO -->
+<div class="modal-overlay" id="modal-pront" style="display:none">
+  <div class="modal-box" style="max-width:780px;width:95%">
+    <div class="modal-head">
+      <h3 style="font-size:1rem;font-weight:700">📋 Prontuário de Exame Admissional</h3>
+      <button class="modal-close" id="btn-close-pront">×</button>
+    </div>
+    <div id="modal-pront-body" style="max-height:65vh;overflow-y:auto;padding-right:4px"></div>
+    <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:18px;flex-wrap:wrap">
+      <button class="btn-ghost btn-sm" id="btn-close-pront2">Fechar</button>
+      <button class="btn-teal btn-sm" id="btn-print-pront">🖨️ Salvar e Imprimir</button>
+      <button class="btn-primary btn-sm" id="btn-save-pront">💾 Salvar Prontuário</button>
     </div>
   </div>
 </div>
