@@ -129,6 +129,7 @@ tr:hover td{background:var(--white-faint)}tr:last-child td{border-bottom:none}
     <button class="tab" id="tab-btn-novo">➕ Novo Concurso</button>
     <button class="tab" id="tab-btn-cadastros">👤 Cadastros</button>
     <button class="tab" id="tab-btn-prontuarios">📋 Prontuários</button>
+    <button class="tab" id="tab-btn-profissionais">🩺 Profissionais</button>
     <button class="tab" id="tab-btn-cupons">🎟️ Cupons</button>
     <button class="tab" id="tab-btn-config">⚙️ Configurações</button>
   </div>
@@ -283,6 +284,38 @@ tr:hover td{background:var(--white-faint)}tr:last-child td{border-bottom:none}
         </table>
       </div>
       <div class="empty" id="pront-empty" style="display:none"><div class="empty-icon">🔍</div><div>Nenhum candidato</div></div>
+    </div>
+  </div>
+  <!-- PROFISSIONAIS -->
+  <div class="tab-content" id="tab-profissionais">
+    <div class="s-card fade">
+      <div class="s-title">Cadastrar Profissional</div>
+      <div class="g2">
+        <div class="field"><label class="fl">Nome Completo <span class="req">*</span></label><input type="text" id="prof-nome" placeholder="Dr. Nome Sobrenome"/></div>
+        <div class="field"><label class="fl">Usuário (login) <span class="req">*</span></label><input type="text" id="prof-user" placeholder="dr.nome" class="mono" oninput="this.value=this.value.toLowerCase().replace(/\s/g,'')"/></div>
+        <div class="field"><label class="fl">Senha <span class="req">*</span></label><input type="password" id="prof-senha" placeholder="Mínimo 6 caracteres"/></div>
+        <div class="field"><label class="fl">CRM</label><input type="text" id="prof-crm" placeholder="CRM/ES 00000"/></div>
+        <div class="field"><label class="fl">Especialidade</label><input type="text" id="prof-esp" placeholder="ex: Medicina do Trabalho"/></div>
+      </div>
+      <div class="field">
+        <label class="fl">Exames que pode lançar resultado <span class="req">*</span></label>
+        <div id="prof-exames-grid" style="margin-top:6px">
+          <div style="font-size:.78rem;color:var(--white-dim)">Selecione um concurso para ver os exames disponíveis.</div>
+        </div>
+        <div style="margin-top:8px">
+          <label class="fl">Filtrar por concurso</label>
+          <select id="prof-concurso-fil" onchange="window.loadProfExames()"><option value="">Selecione...</option></select>
+        </div>
+      </div>
+      <div class="btn-row" style="margin-top:0;padding-top:14px">
+        <div></div>
+        <button class="btn-primary btn-sm" id="btn-save-prof">💾 Salvar Profissional</button>
+      </div>
+      <input type="hidden" id="prof-editing-id"/>
+    </div>
+    <div class="s-card fade">
+      <div class="s-title">Profissionais Cadastrados</div>
+      <div id="prof-list"><div class="empty"><div class="empty-icon">🩺</div><div>Nenhum profissional</div></div></div>
     </div>
   </div>
   <!-- CUPONS -->
