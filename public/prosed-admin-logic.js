@@ -49,6 +49,7 @@ let adminPwd = 'pces2025';
 let contests = [], registrations = [], coupons = [];
 let newSlots = [], newExames = [], newPacotes = [];
 let editalB64 = null, currentCadId = null, currentTab = 'concursos';
+let profissionais = [];
 let cfg = { asaasEnv: 'sandbox', proxyUrl: 'https://prosed-sistema.vercel.app', apiKey: '' };
 
 // ── CONFIG LOCAL ──────────────────────────────────────────────
@@ -100,12 +101,17 @@ function init() {
     coupons = snap.docs.map(d => ({ id: d.id, ...d.data() }));
     if (currentTab === 'cupons') renderCoupons();
   });
+
+  onSnapshot(collection(db, 'profissionais'), snap => {
+    profissionais = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+    if (currentTab === 'profissionais') renderProfissionais();
+  });
 }
 
 // ── TABS ──────────────────────────────────────────────────────
 function switchTab(t) {
   currentTab = t;
-  ['concursos','novo','cadastros','prontuarios','cupons','config'].forEach(id => {
+  ['concursos','novo','cadastros','prontuarios','profissionais','cupons','config'].forEach(id => {
     const btn = document.getElementById('tab-btn-' + id);
     const tab = document.getElementById('tab-' + id);
     if (btn) btn.classList.toggle('active', id === t);
@@ -114,6 +120,7 @@ function switchTab(t) {
   if (t === 'novo') initForm();
   if (t === 'cadastros') renderCadastros();
   if (t === 'prontuarios') renderProntuarios();
+  if (t === 'profissionais') renderProfissionais();
   if (t === 'cupons') renderCoupons();
   if (t === 'config') loadConfigUI();
 }
@@ -784,6 +791,102 @@ function printProntuario(regId, examesParam) {
   win.document.close();
 }
 
+// ── PROFISSIONAIS ─────────────────────────────────────────────
+function renderProfissionais() {
+  // Popula select de concurso no filtro de exames
+  const sel = document.getElementById('prof-concurso-fil');
+  if (sel) {
+    sel.innerHTML = '<option value="">Selecione...</option>' + contests.map(c => `<option value="${c.id}">${c.nome}</option>`).join('');
+  }
+  const div = document.getElementById('prof-list');
+  if (!profissionais.length) {
+    div.innerHTML = '<div class="empty"><div class="empty-icon">🩺</div><div>Nenhum profissional cadastrado</div></div>';
+    return;
+  }
+  div.innerHTML = profissionais.map(p => `
+    <div class="contest-card" style="margin-bottom:10px">
+      <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px;flex-wrap:wrap">
+        <div>
+          <div style="font-weight:700;font-size:.92rem;margin-bottom:3px">${p.nome}
+            <span class="tag ${p.ativo?'tag-teal':'tag-red'}" style="margin-left:6px">${p.ativo?'Ativo':'Inativo'}</span>
+          </div>
+          <div style="font-size:.75rem;color:var(--white-dim);line-height:1.7">
+            👤 <span class="mono">${p.id}</span> · ${p.especialidade||'–'} · ${p.crm?'CRM '+p.crm+' · ':''}${(p.exames||[]).length} exame${(p.exames||[]).length!==1?'s':''} atribuídos
+          </div>
+        </div>
+        <div style="display:flex;gap:6px;flex-wrap:wrap;flex-shrink:0">
+          <button class="btn-ghost btn-sm edit-prof" data-id="${p.id}">✏️ Editar</button>
+          <button class="btn-ghost btn-sm toggle-prof" data-id="${p.id}" style="color:${p.ativo?'var(--amber)':'var(--teal)'}">${p.ativo?'⏸ Desativar':'▶ Ativar'}</button>
+          <button class="btn-red btn-sm del-prof" data-id="${p.id}">✕</button>
+        </div>
+      </div>
+    </div>`).join('');
+}
+
+function loadProfExames() {
+  const cid = document.getElementById('prof-concurso-fil').value;
+  const grid = document.getElementById('prof-exames-grid');
+  if (!cid) { grid.innerHTML = '<div style="font-size:.78rem;color:var(--white-dim)">Selecione um concurso para ver os exames.</div>'; return; }
+  const contest = contests.find(c => c.id === cid);
+  const exames = contest?.exames || [];
+  if (!exames.length) { grid.innerHTML = '<div style="font-size:.78rem;color:var(--white-dim)">Este concurso não tem exames cadastrados.</div>'; return; }
+  // Pega exames já marcados (se estiver editando)
+  const editId = document.getElementById('prof-editing-id').value;
+  const editProf = editId ? profissionais.find(p => p.id === editId) : null;
+  const marcados = editProf?.exames || [];
+  grid.innerHTML = exames.map(e => {
+    const on = marcados.includes(e.id);
+    return `<label style="display:flex;align-items:center;gap:8px;background:var(--white-faint);border:1.5px solid ${on?'rgba(0,201,167,.4)':'var(--border)'};border-radius:9px;padding:9px 12px;cursor:pointer;margin-bottom:6px">
+      <input type="checkbox" data-exame-id="${e.id}" ${on?'checked':''} style="width:15px;height:15px;accent-color:var(--teal);cursor:pointer"/>
+      <span style="font-size:.8rem;font-weight:500">${e.nome}</span>
+      ${e.orientacoes?`<span style="font-size:.7rem;color:var(--amber);margin-left:auto">⚠ ${e.orientacoes}</span>`:''}
+    </label>`;
+  }).join('');
+}
+
+async function saveProf() {
+  const editId = document.getElementById('prof-editing-id').value;
+  const nome   = document.getElementById('prof-nome').value.trim();
+  const user   = document.getElementById('prof-user').value.trim().toLowerCase();
+  const senha  = document.getElementById('prof-senha').value;
+  const crm    = document.getElementById('prof-crm').value.trim();
+  const esp    = document.getElementById('prof-esp').value.trim();
+
+  if (!nome || !user) { showToast('Informe nome e usuário.', 'err'); return; }
+  if (!editId && !senha) { showToast('Informe a senha.', 'err'); return; }
+  if (senha && senha.length < 6) { showToast('Senha mínimo 6 caracteres.', 'err'); return; }
+  if (!editId && profissionais.find(p => p.id === user)) { showToast('Usuário já existe.', 'err'); return; }
+
+  // Coleta exames marcados
+  const examesMarcados = [...document.querySelectorAll('#prof-exames-grid input[type=checkbox]:checked')].map(cb => cb.dataset.exameId);
+
+  const data = { nome, crm, especialidade: esp, exames: examesMarcados, ativo: true };
+  if (senha) data.senha = senha;
+
+  const btn = document.getElementById('btn-save-prof');
+  btn.disabled = true; btn.innerHTML = '<span class="spin"></span>';
+
+  try {
+    if (editId) {
+      await updateDoc(doc(db, 'profissionais', editId), data);
+      showToast('Profissional atualizado!', 'ok');
+    } else {
+      data.criadoEm = new Date().toLocaleString('pt-BR');
+      await setDoc(doc(db, 'profissionais', user), data);
+      showToast('Profissional cadastrado!', 'ok');
+    }
+    clearProfForm();
+  } catch(e) { showToast('Erro: ' + e.message, 'err'); }
+  btn.disabled = false; btn.innerHTML = '💾 Salvar Profissional';
+}
+
+function clearProfForm() {
+  ['prof-nome','prof-user','prof-senha','prof-crm','prof-esp','prof-editing-id'].forEach(id => { const el = document.getElementById(id); if (el) el.value=''; });
+  document.getElementById('prof-exames-grid').innerHTML = '<div style="font-size:.78rem;color:var(--white-dim)">Selecione um concurso para ver os exames disponíveis.</div>';
+  document.getElementById('prof-concurso-fil').value = '';
+  document.getElementById('prof-user').disabled = false;
+}
+
 // ── HELPERS ───────────────────────────────────────────────────
 function uid() { return Math.random().toString(36).slice(2, 10).toUpperCase(); }
 function escH(s) { return (s || '').toString().replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;'); }
@@ -805,8 +908,47 @@ document.getElementById('tab-btn-novo').addEventListener('click', () => switchTa
 document.getElementById('tab-btn-cadastros').addEventListener('click', () => switchTab('cadastros'));
 const pronTabBtn = document.getElementById('tab-btn-prontuarios');
 if (pronTabBtn) pronTabBtn.addEventListener('click', () => switchTab('prontuarios'));
+const profissionaisTabBtn = document.getElementById('tab-btn-profissionais');
+if (profissionaisTabBtn) profissionaisTabBtn.addEventListener('click', () => switchTab('profissionais'));
 document.getElementById('tab-btn-cupons').addEventListener('click', () => switchTab('cupons'));
 document.getElementById('tab-btn-config').addEventListener('click', () => switchTab('config'));
+
+const btnSaveProf = document.getElementById('btn-save-prof');
+if (btnSaveProf) btnSaveProf.addEventListener('click', saveProf);
+
+// Delegated for profissionais list
+document.addEventListener('click', async e => {
+  const id = e.target.dataset.id;
+  if (e.target.classList.contains('edit-prof')) {
+    const p = profissionais.find(x => x.id === id); if (!p) return;
+    document.getElementById('prof-nome').value = p.nome || '';
+    document.getElementById('prof-user').value = p.id;
+    document.getElementById('prof-user').disabled = true;
+    document.getElementById('prof-senha').value = '';
+    document.getElementById('prof-crm').value = p.crm || '';
+    document.getElementById('prof-esp').value = p.especialidade || '';
+    document.getElementById('prof-editing-id').value = p.id;
+    // Tenta carregar exames do primeiro concurso que tiver
+    if (contests.length) {
+      document.getElementById('prof-concurso-fil').value = contests[0].id;
+      loadProfExames();
+    }
+    document.getElementById('tab-btn-profissionais').click();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+  if (e.target.classList.contains('toggle-prof')) {
+    const p = profissionais.find(x => x.id === id); if (!p) return;
+    await updateDoc(doc(db, 'profissionais', id), { ativo: !p.ativo });
+    showToast('Status atualizado.', 'ok');
+  }
+  if (e.target.classList.contains('del-prof')) {
+    if (!confirm('Excluir este profissional?')) return;
+    await deleteDoc(doc(db, 'profissionais', id));
+    showToast('Profissional removido.', 'ok');
+  }
+});
+
+window.loadProfExames = loadProfExames;
 
 document.getElementById('btn-novo-contest').addEventListener('click', () => switchTab('novo'));
 document.getElementById('btn-analisar').addEventListener('click', analisarEdital);
