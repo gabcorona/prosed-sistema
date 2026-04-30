@@ -105,12 +105,15 @@ function init() {
 // ── TABS ──────────────────────────────────────────────────────
 function switchTab(t) {
   currentTab = t;
-  ['concursos','novo','cadastros','cupons','config'].forEach(id => {
-    document.getElementById('tab-btn-' + id).classList.toggle('active', id === t);
-    document.getElementById('tab-' + id).classList.toggle('active', id === t);
+  ['concursos','novo','cadastros','prontuarios','cupons','config'].forEach(id => {
+    const btn = document.getElementById('tab-btn-' + id);
+    const tab = document.getElementById('tab-' + id);
+    if (btn) btn.classList.toggle('active', id === t);
+    if (tab) tab.classList.toggle('active', id === t);
   });
   if (t === 'novo') initForm();
   if (t === 'cadastros') renderCadastros();
+  if (t === 'prontuarios') renderProntuarios();
   if (t === 'cupons') renderCoupons();
   if (t === 'config') loadConfigUI();
 }
@@ -494,6 +497,293 @@ function changePassword() {
   setTimeout(() => msg.textContent = '', 3000);
 }
 
+// ── PRONTUÁRIOS ───────────────────────────────────────────────
+let prontuarioResults = {}; // { registrationId: { exameId: { valor, ref, avaliacao }, ... } }
+
+function renderProntuarios() {
+  const cid = document.getElementById('pront-concurso')?.value || '';
+  const busca = document.getElementById('pront-busca')?.value.toLowerCase() || '';
+  const data = registrations.filter(r =>
+    r.status !== 'cancelado' &&
+    (!cid || r.contestId === cid) &&
+    (!busca || r.nome?.toLowerCase().includes(busca) || r.cpf?.replace(/\D/g,'').includes(busca.replace(/\D/g,'')))
+  );
+  document.getElementById('pront-count').textContent = data.length + ' candidato' + (data.length !== 1 ? 's' : '');
+  const tbody = document.getElementById('pront-body');
+  const empty = document.getElementById('pront-empty');
+  if (!data.length) { tbody.innerHTML = ''; empty.style.display = ''; return; }
+  empty.style.display = 'none';
+  tbody.innerHTML = data.map(r => {
+    const pRes = prontuarioResults[r.id] || {};
+    const exames = getExamesForReg(r);
+    const total = exames.length;
+    const done = exames.filter(e => pRes[e.id]?.avaliacao).length;
+    const allApto = total > 0 && done === total && exames.every(e => pRes[e.id]?.avaliacao === 'apto');
+    const hasInapto = exames.some(e => pRes[e.id]?.avaliacao === 'inapto');
+    const statusBadge = done === 0 ? '<span class="tag tag-amber">Pendente</span>'
+      : done < total ? `<span class="tag tag-amber">${done}/${total} exames</span>`
+      : hasInapto ? '<span class="tag tag-red">Inapto</span>'
+      : '<span class="tag tag-teal">Apto</span>';
+    return `<tr>
+      <td style="font-weight:600">${r.nome}</td>
+      <td class="mono" style="font-size:.78rem;color:var(--white-dim)">${r.cpf}</td>
+      <td style="font-size:.78rem">${contests.find(c => c.id === r.contestId)?.nome || '–'}</td>
+      <td style="font-size:.78rem">${r.slotDate || '–'} ${r.slotTime || ''}</td>
+      <td>${statusBadge}</td>
+      <td style="display:flex;gap:6px;flex-wrap:wrap">
+        <button class="btn-ghost btn-sm open-pront" data-id="${r.id}">📋 Prontuário</button>
+        <button class="btn-ghost btn-sm print-pront" data-id="${r.id}" style="color:var(--teal-light)">🖨️ Imprimir</button>
+      </td>
+    </tr>`;
+  }).join('');
+}
+
+function getExamesForReg(r) {
+  const contest = contests.find(c => c.id === r.contestId);
+  if (!contest) return [];
+  if (r.pacoteId === 'avulsos') {
+    return (contest.exames || []).filter(e => (r.examesSel || []).includes(e.nome));
+  }
+  // Para pacotes, retorna todos os exames do concurso
+  return contest.exames || [];
+}
+
+function openProntuario(regId) {
+  const r = registrations.find(x => x.id === regId); if (!r) return;
+  const contest = contests.find(c => c.id === r.contestId); if (!contest) return;
+  const exames = getExamesForReg(r);
+  const pRes = prontuarioResults[regId] || {};
+
+  const examesHTML = exames.length === 0
+    ? '<p style="color:var(--white-dim);font-size:.84rem">Nenhum exame cadastrado para este concurso.</p>'
+    : `<table style="width:100%;border-collapse:collapse;margin-top:8px">
+        <thead><tr style="background:var(--white-faint)">
+          <th style="padding:8px 10px;text-align:left;font-size:.72rem;text-transform:uppercase;letter-spacing:.08em">Exame</th>
+          <th style="padding:8px 10px;text-align:left;font-size:.72rem;text-transform:uppercase;letter-spacing:.08em">Valor Encontrado</th>
+          <th style="padding:8px 10px;text-align:left;font-size:.72rem;text-transform:uppercase;letter-spacing:.08em">Ref. Normal</th>
+          <th style="padding:8px 10px;text-align:left;font-size:.72rem;text-transform:uppercase;letter-spacing:.08em">Avaliação</th>
+        </tr></thead>
+        <tbody>
+          ${exames.map(e => {
+            const res = pRes[e.id] || {};
+            const av = res.avaliacao || '';
+            const avColor = av === 'apto' ? 'var(--teal)' : av === 'inapto' ? 'var(--red)' : 'var(--amber)';
+            return `<tr style="border-bottom:1px solid var(--border)">
+              <td style="padding:10px;font-size:.84rem;font-weight:500">${e.nome}
+                ${e.orientacoes ? `<div style="font-size:.7rem;color:var(--amber);margin-top:2px">⚠ ${e.orientacoes}</div>` : ''}
+              </td>
+              <td style="padding:10px"><input type="text" class="pront-inp" placeholder="ex: 12,5 g/dL"
+                data-reg="${regId}" data-exame="${e.id}" data-field="valor"
+                value="${escH(res.valor||'')}"
+                style="background:var(--white-faint);border:1px solid var(--border);border-radius:6px;padding:6px 8px;color:var(--white);font-size:.82rem;width:100%;max-width:140px"/></td>
+              <td style="padding:10px"><input type="text" class="pront-inp" placeholder="ex: 12-16 g/dL"
+                data-reg="${regId}" data-exame="${e.id}" data-field="ref"
+                value="${escH(res.ref||'')}"
+                style="background:var(--white-faint);border:1px solid var(--border);border-radius:6px;padding:6px 8px;color:var(--white);font-size:.82rem;width:100%;max-width:140px"/></td>
+              <td style="padding:10px">
+                <select class="pront-sel" data-reg="${regId}" data-exame="${e.id}" data-field="avaliacao"
+                  style="background:var(--navy-mid);border:1px solid ${avColor};border-radius:6px;padding:6px 8px;color:${avColor};font-size:.82rem;font-weight:700">
+                  <option value="">Pendente</option>
+                  <option value="apto" ${av==='apto'?'selected':''}>✓ Apto</option>
+                  <option value="inapto" ${av==='inapto'?'selected':''}>✗ Inapto</option>
+                  <option value="pendente" ${av==='pendente'?'selected':''}>⏳ Pendente</option>
+                </select>
+              </td>
+            </tr>`;
+          }).join('')}
+        </tbody>
+      </table>`;
+
+  const obsVal = pRes._obs || '';
+  const medicoVal = pRes._medico || '';
+  const crmVal = pRes._crm || '';
+
+  document.getElementById('modal-pront-body').innerHTML = `
+    <div style="margin-bottom:16px">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;font-size:.82rem;background:var(--white-faint);border-radius:10px;padding:12px 14px;margin-bottom:16px">
+        <div><span style="color:var(--white-dim)">Candidato:</span> <strong>${r.nome}</strong></div>
+        <div><span style="color:var(--white-dim)">CPF:</span> ${r.cpf}</div>
+        <div><span style="color:var(--white-dim)">Concurso:</span> ${contest.nome}</div>
+        <div><span style="color:var(--white-dim)">Data:</span> ${r.slotDate} ${r.slotTime}</div>
+        <div><span style="color:var(--white-dim)">Pacote:</span> ${r.pacoteLabel || '–'}</div>
+        <div><span style="color:var(--white-dim)">Protocolo:</span> <span class="mono" style="color:var(--blue-light)">${r.id}</span></div>
+      </div>
+      ${examesHTML}
+      <div style="margin-top:16px;display:grid;grid-template-columns:1fr 1fr;gap:10px">
+        <div class="field"><label class="fl">Médico Responsável</label>
+          <input type="text" id="pront-medico" placeholder="Nome do médico" value="${escH(medicoVal)}"
+            style="background:var(--white-faint);border:1px solid var(--border);border-radius:6px;padding:8px 10px;color:var(--white);font-size:.84rem;width:100%"/></div>
+        <div class="field"><label class="fl">CRM</label>
+          <input type="text" id="pront-crm" placeholder="CRM/ES 00000" value="${escH(crmVal)}"
+            style="background:var(--white-faint);border:1px solid var(--border);border-radius:6px;padding:8px 10px;color:var(--white);font-size:.84rem;width:100%"/></div>
+      </div>
+      <div class="field" style="margin-top:10px"><label class="fl">Observações Clínicas</label>
+        <textarea id="pront-obs" placeholder="Observações do médico..." rows="3"
+          style="background:var(--white-faint);border:1px solid var(--border);border-radius:6px;padding:8px 10px;color:var(--white);font-size:.84rem;width:100%;resize:vertical">${escH(obsVal)}</textarea></div>
+    </div>`;
+
+  document.getElementById('btn-save-pront').onclick = () => saveProntuario(regId, exames);
+  document.getElementById('btn-print-pront').onclick = () => { saveProntuario(regId, exames, true); };
+  document.getElementById('modal-pront').style.display = 'flex';
+}
+
+function saveProntuario(regId, exames, andPrint = false) {
+  if (!prontuarioResults[regId]) prontuarioResults[regId] = {};
+  // Coleta inputs da tabela
+  document.querySelectorAll('.pront-inp, .pront-sel').forEach(el => {
+    const { reg, exame, field } = el.dataset;
+    if (reg === regId) {
+      if (!prontuarioResults[reg][exame]) prontuarioResults[reg][exame] = {};
+      prontuarioResults[reg][exame][field] = el.value;
+      // Atualiza cor do select ao salvar
+      if (field === 'avaliacao' && el.tagName === 'SELECT') {
+        const col = el.value === 'apto' ? 'var(--teal)' : el.value === 'inapto' ? 'var(--red)' : 'var(--amber)';
+        el.style.borderColor = col; el.style.color = col;
+      }
+    }
+  });
+  prontuarioResults[regId]._obs = document.getElementById('pront-obs')?.value || '';
+  prontuarioResults[regId]._medico = document.getElementById('pront-medico')?.value || '';
+  prontuarioResults[regId]._crm = document.getElementById('pront-crm')?.value || '';
+  showToast('Prontuário salvo!', 'ok');
+  renderProntuarios();
+  if (andPrint) printProntuario(regId, exames);
+  else document.getElementById('modal-pront').style.display = 'none';
+}
+
+function printProntuario(regId, examesParam) {
+  const r = registrations.find(x => x.id === regId); if (!r) return;
+  const contest = contests.find(c => c.id === r.contestId); if (!contest) return;
+  const exames = examesParam || getExamesForReg(r);
+  const pRes = prontuarioResults[regId] || {};
+  const medico = pRes._medico || '___________________________';
+  const crm = pRes._crm || '___________';
+  const obs = pRes._obs || '';
+
+  // Verifica resultado geral
+  const total = exames.length;
+  const done = exames.filter(e => pRes[e.id]?.avaliacao).length;
+  const hasInapto = exames.some(e => pRes[e.id]?.avaliacao === 'inapto');
+  const resultadoGeral = done === 0 ? 'PENDENTE'
+    : hasInapto ? 'INAPTO'
+    : done === total ? 'APTO'
+    : 'EM ANÁLISE';
+  const resColor = resultadoGeral === 'APTO' ? '#00C9A7' : resultadoGeral === 'INAPTO' ? '#FF4757' : '#FFB800';
+
+  const examesRows = exames.map(e => {
+    const res = pRes[e.id] || {};
+    const av = res.avaliacao || '';
+    const avLabel = av === 'apto' ? '✓ APTO' : av === 'inapto' ? '✗ INAPTO' : '⏳ PENDENTE';
+    const avColor = av === 'apto' ? '#00C9A7' : av === 'inapto' ? '#FF4757' : '#888';
+    return `<tr>
+      <td style="padding:8px 10px;border-bottom:1px solid #e0e0e0;font-size:12px">${e.nome}${e.orientacoes ? `<br><span style="font-size:10px;color:#B8860B">⚠ ${e.orientacoes}</span>` : ''}</td>
+      <td style="padding:8px 10px;border-bottom:1px solid #e0e0e0;font-size:12px;text-align:center">${res.valor || '___________'}</td>
+      <td style="padding:8px 10px;border-bottom:1px solid #e0e0e0;font-size:12px;text-align:center">${res.ref || '___________'}</td>
+      <td style="padding:8px 10px;border-bottom:1px solid #e0e0e0;font-size:12px;text-align:center;font-weight:700;color:${avColor}">${avLabel}</td>
+    </tr>`;
+  }).join('');
+
+  const html = `<!DOCTYPE html><html lang="pt-BR"><head><meta charset="UTF-8">
+  <title>Prontuário – ${r.nome}</title>
+  <style>
+    @page { margin: 18mm 15mm; }
+    body { font-family: Arial, sans-serif; font-size: 13px; color: #1a1a1a; }
+    .header { display:flex; align-items:center; justify-content:space-between; border-bottom:3px solid #1a56db; padding-bottom:10px; margin-bottom:16px; }
+    .header-left { display:flex; align-items:center; gap:12px; }
+    .logo-box { background:#f0f4ff; border-radius:8px; padding:8px 12px; font-size:22px; font-weight:900; color:#1a56db; letter-spacing:-1px; }
+    .org { font-size:11px; color:#666; }
+    .proto { font-size:11px; text-align:right; color:#666; }
+    .proto strong { color:#1a56db; font-size:13px; }
+    .section { margin-bottom:14px; }
+    .section-title { background:#1a56db; color:#fff; font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:.1em; padding:4px 10px; border-radius:4px; margin-bottom:8px; }
+    .info-grid { display:grid; grid-template-columns:1fr 1fr; gap:4px 16px; font-size:12px; }
+    .info-row { display:flex; gap:6px; padding:3px 0; border-bottom:1px dotted #ddd; }
+    .info-key { color:#666; min-width:90px; font-size:11px; }
+    table { width:100%; border-collapse:collapse; }
+    th { background:#f0f4ff; color:#1a56db; font-size:10px; text-transform:uppercase; letter-spacing:.08em; padding:7px 10px; text-align:left; border-bottom:2px solid #1a56db; }
+    .resultado-box { border:3px solid ${resColor}; border-radius:8px; padding:12px 16px; text-align:center; margin:14px 0; }
+    .resultado-label { font-size:10px; text-transform:uppercase; letter-spacing:.1em; color:#666; }
+    .resultado-val { font-size:22px; font-weight:900; color:${resColor}; margin-top:2px; }
+    .assinatura { display:flex; justify-content:space-between; margin-top:20px; padding-top:14px; border-top:1px solid #ddd; }
+    .assin-box { text-align:center; min-width:200px; }
+    .assin-line { border-bottom:1px solid #333; margin-bottom:6px; height:30px; }
+    .assin-label { font-size:10px; color:#666; }
+    .footer { text-align:center; font-size:9px; color:#999; border-top:1px solid #ddd; padding-top:8px; margin-top:16px; }
+    @media print { button { display:none; } }
+  </style></head><body>
+  <div class="header">
+    <div class="header-left">
+      <div class="logo-box">PROSED</div>
+      <div><div style="font-weight:700;font-size:15px;color:#1a56db">PRONTUÁRIO DE EXAME ADMISSIONAL</div>
+        <div class="org">Medicina do Trabalho · ${contest.nome}</div></div>
+    </div>
+    <div class="proto">Protocolo<br><strong>${r.id}</strong><br>${new Date().toLocaleDateString('pt-BR')}</div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">Dados do Candidato</div>
+    <div class="info-grid">
+      <div class="info-row"><span class="info-key">Nome:</span><strong>${r.nome}</strong></div>
+      <div class="info-row"><span class="info-key">CPF:</span>${r.cpf}</div>
+      <div class="info-row"><span class="info-key">RG:</span>${r.rg || '–'} ${r.orgao ? r.orgao + '/' + (r.uf||'') : ''}</div>
+      <div class="info-row"><span class="info-key">Nascimento:</span>${r.nasc || '–'}</div>
+      <div class="info-row"><span class="info-key">Celular:</span>${r.cel || '–'}</div>
+      <div class="info-row"><span class="info-key">E-mail:</span>${r.email || '–'}</div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">Agendamento</div>
+    <div class="info-grid">
+      <div class="info-row"><span class="info-key">Unidade:</span>${r.slotCity}</div>
+      <div class="info-row"><span class="info-key">Data / Hora:</span>${r.slotDate} às ${r.slotTime}</div>
+      <div class="info-row"><span class="info-key">Pacote:</span>${r.pacoteLabel || '–'}</div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">Resultados dos Exames</div>
+    <table>
+      <thead><tr>
+        <th>Exame</th><th style="text-align:center">Valor Encontrado</th><th style="text-align:center">Ref. Normal</th><th style="text-align:center">Avaliação</th>
+      </tr></thead>
+      <tbody>${examesRows}</tbody>
+    </table>
+  </div>
+
+  ${obs ? `<div class="section">
+    <div class="section-title">Observações Clínicas</div>
+    <div style="font-size:12px;line-height:1.7;padding:8px;background:#f9f9f9;border-radius:4px">${obs}</div>
+  </div>` : ''}
+
+  <div class="resultado-box">
+    <div class="resultado-label">Resultado da Avaliação Admissional</div>
+    <div class="resultado-val">${resultadoGeral}</div>
+  </div>
+
+  <div class="assinatura">
+    <div class="assin-box">
+      <div class="assin-line"></div>
+      <div style="font-size:12px;font-weight:600">${medico}</div>
+      <div class="assin-label">${crm}</div>
+      <div class="assin-label">Médico do Trabalho</div>
+    </div>
+    <div class="assin-box">
+      <div class="assin-line"></div>
+      <div style="font-size:12px;font-weight:600">${r.nome}</div>
+      <div class="assin-label">Candidato</div>
+    </div>
+  </div>
+
+  <div class="footer">PROSED – Medicina do Trabalho · Documento gerado em ${new Date().toLocaleString('pt-BR')} · Protocolo ${r.id}</div>
+  <script>window.onload = () => window.print();<\/script>
+  </body></html>`;
+
+  const win = window.open('', '_blank');
+  win.document.write(html);
+  win.document.close();
+}
+
 // ── HELPERS ───────────────────────────────────────────────────
 function uid() { return Math.random().toString(36).slice(2, 10).toUpperCase(); }
 function escH(s) { return (s || '').toString().replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;'); }
@@ -513,6 +803,8 @@ document.getElementById('btn-logout').addEventListener('click', () => location.r
 document.getElementById('tab-btn-concursos').addEventListener('click', () => switchTab('concursos'));
 document.getElementById('tab-btn-novo').addEventListener('click', () => switchTab('novo'));
 document.getElementById('tab-btn-cadastros').addEventListener('click', () => switchTab('cadastros'));
+const pronTabBtn = document.getElementById('tab-btn-prontuarios');
+if (pronTabBtn) pronTabBtn.addEventListener('click', () => switchTab('prontuarios'));
 document.getElementById('tab-btn-cupons').addEventListener('click', () => switchTab('cupons'));
 document.getElementById('tab-btn-config').addEventListener('click', () => switchTab('config'));
 
@@ -625,6 +917,26 @@ document.getElementById('cupons-list').addEventListener('click', async e => {
     showToast('Cupom removido.', 'ok');
   }
 });
+
+// Prontuários delegated events
+document.addEventListener('click', e => {
+  if (e.target.classList.contains('open-pront')) openProntuario(e.target.dataset.id);
+  if (e.target.classList.contains('print-pront')) {
+    const r = registrations.find(x => x.id === e.target.dataset.id);
+    if (r) printProntuario(e.target.dataset.id, getExamesForReg(r));
+  }
+});
+const prontConc = document.getElementById('pront-concurso');
+if (prontConc) prontConc.addEventListener('change', renderProntuarios);
+const prontBusca = document.getElementById('pront-busca');
+if (prontBusca) prontBusca.addEventListener('input', renderProntuarios);
+const btnSavePront = document.getElementById('btn-save-pront');
+const btnClosePront = document.getElementById('btn-close-pront');
+const btnClosePront2 = document.getElementById('btn-close-pront2');
+if (btnClosePront) btnClosePront.addEventListener('click', () => document.getElementById('modal-pront').style.display = 'none');
+if (btnClosePront2) btnClosePront2.addEventListener('click', () => document.getElementById('modal-pront').style.display = 'none');
+const modalPront = document.getElementById('modal-pront');
+if (modalPront) modalPront.addEventListener('click', e => { if (e.target === modalPront) modalPront.style.display = 'none'; });
 
 // Expose inline handler
 window.toggleFieldStyle = toggleFieldStyle;
