@@ -39,26 +39,30 @@ async function init() {
   profissionais = profSnap.docs.map(d => ({ id: d.id, ...d.data() }));
   contests = contSnap.docs.map(d => ({ id: d.id, ...d.data() }));
 
-  // Listener em tempo real nas registrations de hoje
-  const hoje = new Date().toLocaleDateString('pt-BR');
+  // Listener em tempo real nas registrations
   onSnapshot(query(collection(db, 'registrations'), orderBy('submittedAt', 'desc')), snap => {
     registrations = snap.docs.map(d => ({ id: d.id, ...d.data() }))
-      .filter(r => r.status !== 'cancelado' && r.slotDate === hoje);
+      .filter(r => r.status !== 'cancelado');
     renderLista();
   });
 
   // Filtros
   document.getElementById('fil-unidade').addEventListener('change', renderLista);
   document.getElementById('fil-busca').addEventListener('input', renderLista);
+  document.getElementById('fil-data').addEventListener('change', renderLista);
 }
 
 // ── RENDER LISTA ──────────────────────────────────────────────
 function renderLista() {
   const unidade = document.getElementById('fil-unidade').value;
   const busca   = document.getElementById('fil-busca').value.toLowerCase();
+  const dataFil = document.getElementById('fil-data').value; // formato YYYY-MM-DD
+  // Converte para DD/MM/AAAA para comparar com slotDate
+  const dataFmt = dataFil ? dataFil.split('-').reverse().join('/') : '';
 
   let data = registrations.filter(r =>
     (!unidade || r.slotCity === unidade) &&
+    (!dataFmt || r.slotDate === dataFmt) &&
     (!busca || r.nome?.toLowerCase().includes(busca) || r.cpf?.replace(/\D/g,'').includes(busca.replace(/\D/g,'')))
   );
 
@@ -74,7 +78,7 @@ function renderLista() {
 
   const div = document.getElementById('cand-list');
   if (!data.length) {
-    div.innerHTML = '<div class="empty fade"><div class="empty-icon">📋</div><div>Nenhum candidato para hoje</div></div>';
+    div.innerHTML = '<div class="empty fade"><div class="empty-icon">📋</div><div>Nenhum candidato encontrado</div></div>';
     return;
   }
 
