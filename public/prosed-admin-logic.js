@@ -1088,5 +1088,6 @@ if (btnClosePront2) btnClosePront2.addEventListener('click', () => document.getE
 const modalPront = document.getElementById('modal-pront');
 if (modalPront) modalPront.addEventListener('click', e => { if (e.target === modalPront) modalPront.style.display = 'none'; });
 
-// Expose inline handler
+// Expose inline handlers
 window.toggleFieldStyle = toggleFieldStyle;
+window.loadProfExames = loadProfExames;
