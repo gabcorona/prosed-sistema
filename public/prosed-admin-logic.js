@@ -604,6 +604,7 @@ function openProntuario(regId) {
   const obsVal = pRes._obs || '';
   const medicoVal = pRes._medico || '';
   const crmVal = pRes._crm || '';
+  const rqeVal = pRes._rqe || '';
 
   document.getElementById('modal-pront-body').innerHTML = `
     <div style="margin-bottom:16px">
@@ -616,12 +617,15 @@ function openProntuario(regId) {
         <div><span style="color:var(--white-dim)">Protocolo:</span> <span class="mono" style="color:var(--blue-light)">${r.id}</span></div>
       </div>
       ${examesHTML}
-      <div style="margin-top:16px;display:grid;grid-template-columns:1fr 1fr;gap:10px">
+      <div style="margin-top:16px;display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px">
         <div class="field"><label class="fl">Médico Responsável</label>
           <input type="text" id="pront-medico" placeholder="Nome do médico" value="${escH(medicoVal)}"
             style="background:var(--white-faint);border:1px solid var(--border);border-radius:6px;padding:8px 10px;color:var(--white);font-size:.84rem;width:100%"/></div>
         <div class="field"><label class="fl">CRM</label>
           <input type="text" id="pront-crm" placeholder="CRM/ES 00000" value="${escH(crmVal)}"
+            style="background:var(--white-faint);border:1px solid var(--border);border-radius:6px;padding:8px 10px;color:var(--white);font-size:.84rem;width:100%"/></div>
+        <div class="field"><label class="fl">RQE</label>
+          <input type="text" id="pront-rqe" placeholder="ex: 12345" value="${escH(rqeVal)}"
             style="background:var(--white-faint);border:1px solid var(--border);border-radius:6px;padding:8px 10px;color:var(--white);font-size:.84rem;width:100%"/></div>
       </div>
       <div class="field" style="margin-top:10px"><label class="fl">Observações Clínicas</label>
@@ -652,6 +656,7 @@ function saveProntuario(regId, exames, andPrint = false) {
   prontuarioResults[regId]._obs = document.getElementById('pront-obs')?.value || '';
   prontuarioResults[regId]._medico = document.getElementById('pront-medico')?.value || '';
   prontuarioResults[regId]._crm = document.getElementById('pront-crm')?.value || '';
+  prontuarioResults[regId]._rqe = document.getElementById('pront-rqe')?.value || '';
   showToast('Prontuário salvo!', 'ok');
   renderProntuarios();
   if (andPrint) printProntuario(regId, exames);
@@ -665,6 +670,7 @@ function printProntuario(regId, examesParam) {
   const pRes = prontuarioResults[regId] || {};
   const medico = pRes._medico || '___________________________';
   const crm = pRes._crm || '___________';
+  const rqe = pRes._rqe || '';
   const obs = pRes._obs || '';
 
   // Verifica resultado geral
@@ -772,7 +778,7 @@ function printProntuario(regId, examesParam) {
     <div class="assin-box">
       <div class="assin-line"></div>
       <div style="font-size:12px;font-weight:600">${medico}</div>
-      <div class="assin-label">${crm}</div>
+      <div class="assin-label">${crm}${rqe ? ' · RQE ' + rqe : ''}</div>
       <div class="assin-label">Médico do Trabalho</div>
     </div>
     <div class="assin-box">
