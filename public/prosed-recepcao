@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>PROSED · Recepção</title>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet"/>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{--navy:#0A1628;--navy-mid:#112040;--navy-light:#1A305C;--blue:#1E6FFF;--blue-light:#4D93FF;--blue-glow:rgba(30,111,255,0.18);--teal:#00C9A7;--teal-light:#00E8C3;--amber:#FFB800;--red:#FF4757;--green:#2ED573;--white:#F0F4FF;--white-dim:rgba(240,244,255,0.65);--white-faint:rgba(240,244,255,0.08);--border:rgba(240,244,255,0.10);--card:rgba(17,32,64,0.90);--radius:14px;}
+body{font-family:'Sora',sans-serif;background:var(--navy);color:var(--white);min-height:100vh;background-image:radial-gradient(ellipse 80% 60% at 20% -10%,rgba(30,111,255,0.12) 0%,transparent 60%),radial-gradient(ellipse 60% 50% at 80% 100%,rgba(0,201,167,0.08) 0%,transparent 55%);}
+::-webkit-scrollbar{width:4px}::-webkit-scrollbar-track{background:var(--navy)}::-webkit-scrollbar-thumb{background:var(--navy-light);border-radius:2px}
+.login-overlay{position:fixed;inset:0;z-index:900;background:rgba(5,12,25,.97);backdrop-filter:blur(20px);display:flex;align-items:center;justify-content:center;padding:20px;}
+.login-box{background:var(--navy-mid);border:1.5px solid var(--border);border-radius:20px;padding:36px 30px;width:100%;max-width:380px;text-align:center;}
+nav{position:sticky;top:0;z-index:100;background:rgba(10,22,40,0.95);backdrop-filter:blur(16px);border-bottom:1px solid var(--border);padding:12px 20px;display:flex;align-items:center;justify-content:space-between;}
+.wrap{max-width:1000px;margin:0 auto;padding:24px 16px 60px}
+.s-card{background:var(--card);border:1.5px solid var(--border);border-radius:var(--radius);padding:20px;backdrop-filter:blur(12px);margin-bottom:16px;}
+.s-title{font-size:.68rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--blue-light);display:flex;align-items:center;gap:8px;margin-bottom:16px;padding-bottom:12px;border-bottom:1px solid var(--border);}
+.field{display:flex;flex-direction:column;gap:5px;margin-bottom:14px}
+label.fl{font-size:.72rem;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--white-dim);}
+input,select{font-family:'Sora',sans-serif;font-size:.88rem;width:100%;padding:10px 13px;background:rgba(255,255,255,.04);border:1.5px solid var(--border);border-radius:10px;color:var(--white);outline:none;transition:border-color .2s;}
+input:focus,select:focus{border-color:var(--blue)}
+select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%234D93FF' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 14px center;padding-right:38px;-webkit-appearance:none;appearance:none;}
+select option{background:var(--navy-mid)}
+.btn-primary{background:linear-gradient(135deg,var(--blue),#0051D4);color:#fff;border:none;border-radius:10px;padding:11px 20px;font-family:'Sora',sans-serif;font-size:.86rem;font-weight:600;cursor:pointer;transition:all .15s;display:inline-flex;align-items:center;gap:7px;}
+.btn-teal{background:linear-gradient(135deg,var(--teal),#00A887);color:var(--navy);border:none;border-radius:10px;padding:10px 18px;font-family:'Sora',sans-serif;font-size:.82rem;font-weight:700;cursor:pointer;transition:all .15s;display:inline-flex;align-items:center;gap:6px;}
+.btn-ghost{background:transparent;color:var(--white-dim);border:1.5px solid var(--border);border-radius:10px;padding:9px 16px;font-family:'Sora',sans-serif;font-size:.82rem;font-weight:500;cursor:pointer;transition:all .2s;display:inline-flex;align-items:center;gap:6px;}
+.btn-ghost:hover{border-color:var(--blue-light);color:var(--white)}
+.btn-amber{background:rgba(255,184,0,.12);color:var(--amber);border:1px solid rgba(255,184,0,.3);border-radius:8px;padding:7px 13px;font-family:'Sora',sans-serif;font-size:.76rem;font-weight:600;cursor:pointer;display:inline-flex;align-items:center;gap:5px;}
+.btn-red{background:rgba(255,71,87,.12);color:var(--red);border:1px solid rgba(255,71,87,.3);border-radius:8px;padding:7px 13px;font-family:'Sora',sans-serif;font-size:.76rem;font-weight:600;cursor:pointer;}
+.btn-sm{padding:6px 12px!important;font-size:.74rem!important}
+.btn-row{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}
+.tag{display:inline-flex;align-items:center;padding:3px 9px;border-radius:20px;font-size:.68rem;font-weight:600;white-space:nowrap;}
+.tag-teal{background:rgba(0,201,167,.15);color:var(--teal-light);border:1px solid rgba(0,201,167,.25)}
+.tag-amber{background:rgba(255,184,0,.15);color:var(--amber);border:1px solid rgba(255,184,0,.25)}
+.tag-red{background:rgba(255,71,87,.15);color:var(--red);border:1px solid rgba(255,71,87,.25)}
+.tag-blue{background:rgba(30,111,255,.2);color:var(--blue-light);border:1px solid rgba(30,111,255,.3)}
+.tag-green{background:rgba(46,213,115,.15);color:var(--green);border:1px solid rgba(46,213,115,.25)}
+.mono{font-family:'JetBrains Mono',monospace!important}
+.modal-overlay{position:fixed;inset:0;z-index:500;background:rgba(5,12,25,.88);backdrop-filter:blur(6px);display:flex;align-items:center;justify-content:center;padding:16px;animation:fadeIn .2s ease;}
+.modal-box{background:var(--navy-mid);border:1.5px solid var(--border);border-radius:18px;padding:24px;width:100%;max-width:600px;max-height:92vh;overflow-y:auto;box-shadow:0 8px 40px rgba(0,0,0,.5);}
+.modal-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px}
+.modal-close{background:none;border:none;color:var(--white-dim);cursor:pointer;font-size:1.4rem}
+.cand-card{background:var(--card);border:1.5px solid var(--border);border-radius:12px;padding:16px;margin-bottom:10px;transition:.2s;cursor:pointer;}
+.cand-card:hover{border-color:var(--blue-light)}
+.cand-card.liberado{border-color:rgba(0,201,167,.4);background:rgba(0,201,167,.04)}
+.cand-card.em-atendimento{border-color:rgba(255,184,0,.4);background:rgba(255,184,0,.04)}
+.pay-opt{display:flex;align-items:center;justify-content:center;flex-direction:column;gap:4px;padding:14px 10px;border:1.5px solid var(--border);border-radius:10px;cursor:pointer;transition:all .15s;flex:1;min-width:80px;}
+.pay-opt.sel{border-color:var(--teal);background:rgba(0,201,167,.1);}
+.pay-opt:hover{border-color:var(--blue-light)}
+.info-row{display:flex;justify-content:space-between;gap:12px;border-bottom:1px solid var(--border);padding-bottom:8px;margin-bottom:8px;font-size:.82rem;}
+.info-key{color:var(--white-dim);font-size:.72rem;font-weight:600;text-transform:uppercase;min-width:100px}
+.toast{position:fixed;top:16px;right:16px;z-index:9999;padding:12px 18px;border-radius:12px;font-size:.84rem;font-weight:500;display:flex;align-items:center;gap:10px;box-shadow:0 8px 32px rgba(0,0,0,.5);}
+.toast-ok{background:rgba(0,201,167,.2);border:1px solid var(--teal);color:var(--teal-light)}
+.toast-err{background:rgba(255,71,87,.2);border:1px solid var(--red);color:var(--red)}
+.spin{width:16px;height:16px;border:2px solid rgba(255,255,255,.25);border-top-color:#fff;border-radius:50%;animation:spin .7s linear infinite;display:inline-block;}
+@keyframes spin{to{transform:rotate(360deg)}}
+@keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+.fade{animation:fadeIn .3s ease both}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+@media(max-width:560px){.g2{grid-template-columns:1fr}}
+.saldo-badge{background:rgba(255,184,0,.15);border:1px solid rgba(255,184,0,.3);border-radius:8px;padding:10px 14px;display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;}
+.empty{text-align:center;padding:40px 20px;color:var(--white-dim)}.empty-icon{font-size:2rem;margin-bottom:10px}
+</style>
+</head>
+<body>
+<!-- LOGIN -->
+<div id="login-overlay" class="login-overlay">
+  <div class="login-box fade">
+    <div style="width:56px;height:56px;background:linear-gradient(135deg,var(--blue),var(--teal));border-radius:16px;display:flex;align-items:center;justify-content:center;font-size:1.5rem;margin:0 auto 18px">🏥</div>
+    <h2 style="font-size:1.2rem;font-weight:800;margin-bottom:6px">Portal da Recepção</h2>
+    <p style="font-size:.8rem;color:var(--white-dim);margin-bottom:22px">PROSED · Medicina do Trabalho</p>
+    <div class="field" style="text-align:left">
+      <label class="fl">Usuário</label>
+      <input type="text" id="login-user" placeholder="usuário"/>
+    </div>
+    <div class="field" style="text-align:left">
+      <label class="fl">Senha</label>
+      <input type="password" id="login-pwd" placeholder="senha"/>
+    </div>
+    <div id="login-err" style="color:var(--red);font-size:.78rem;margin-bottom:10px;min-height:16px"></div>
+    <button class="btn-primary" id="btn-login" style="width:100%;justify-content:center">Entrar</button>
+  </div>
+</div>
+
+<!-- NAV -->
+<nav>
+  <div style="display:flex;align-items:center;gap:10px">
+    <div style="width:32px;height:32px;background:linear-gradient(135deg,var(--blue),var(--teal));border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:.9rem">🏥</div>
+    <div>
+      <div style="font-weight:700;font-size:.88rem">PROSED · Recepção</div>
+      <div style="font-size:.6rem;color:var(--white-dim)" id="nav-sub">Portal da Recepcionista</div>
+    </div>
+  </div>
+  <div style="display:flex;align-items:center;gap:10px">
+    <span id="nav-user" style="font-size:.78rem;color:var(--white-dim)"></span>
+    <button class="btn-ghost btn-sm" id="btn-logout">Sair</button>
+  </div>
+</nav>
+
+<div class="wrap">
+  <!-- FILTROS -->
+  <div class="s-card fade">
+    <div class="s-title">🔍 Candidatos de Hoje</div>
+    <div class="g2">
+      <div class="field" style="margin-bottom:0">
+        <label class="fl">Unidade</label>
+        <select id="fil-unidade">
+          <option value="">Todas as unidades</option>
+          <option>Prosed - Unidade Vila Velha</option>
+          <option>Prosed - Unidade Vitória</option>
+          <option>Prosed - Unidade Cariacica</option>
+          <option>Prosed - Unidade Serra</option>
+          <option>Prosed - Unidade Belo Horizonte</option>
+        </select>
+      </div>
+      <div class="field" style="margin-bottom:0">
+        <label class="fl">Buscar candidato</label>
+        <input type="text" id="fil-busca" placeholder="Nome ou CPF..."/>
+      </div>
+    </div>
+    <div style="display:flex;gap:8px;margin-top:12px;flex-wrap:wrap">
+      <span id="count-total" class="tag tag-blue">0 candidatos</span>
+      <span id="count-pendente" class="tag tag-amber">0 pendentes</span>
+      <span id="count-liberado" class="tag tag-teal">0 liberados</span>
+    </div>
+  </div>
+
+  <!-- LISTA DE CANDIDATOS -->
+  <div id="cand-list"></div>
+</div>
+
+<!-- MODAL ATENDIMENTO -->
+<div class="modal-overlay" id="modal-atend" style="display:none">
+  <div class="modal-box">
+    <div class="modal-head">
+      <h3 style="font-size:1rem;font-weight:700">👤 Atendimento</h3>
+      <button class="modal-close" onclick="document.getElementById('modal-atend').style.display='none'">×</button>
+    </div>
+    <div id="modal-atend-body"></div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast toast-ok" id="toast" style="display:none">
+  <span id="toast-icon">✓</span><span id="toast-msg"></span>
+  <button onclick="document.getElementById('toast').style.display='none'" style="background:none;border:none;color:inherit;cursor:pointer;font-size:1rem;margin-left:8px">×</button>
+</div>
+
+<script type="module" src="./prosed-recepcao-logic.js"></script>
+</body>
+</html>
