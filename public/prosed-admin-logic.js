@@ -227,6 +227,7 @@ const UNIT_ADDRESSES = {
   'Prosed - Unidade Vitória':    'R. Neves Armond, 535 - Bento Ferreira, Vitória - ES',
   'Prosed - Unidade Cariacica':  'R. José Barros da Silva, 17 - Campo Grande, Cariacica - ES',
   'Prosed - Unidade Serra':      'R. Humberto de Campos, 25 - Parque Res. Laranjeiras, Serra - ES',
+  'Prosed - Unidade Belo Horizonte': 'R. Dom José Gaspar, 200 - Coração Eucarístico, Belo Horizonte - MG',
 };
 
 // ── SLOTS ─────────────────────────────────────────────────────
