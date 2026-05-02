@@ -395,7 +395,7 @@ function calcT() {
 }
 
 function rCheckout() {
-  const { base, disc, total } = calcT();
+  const { base, disc, total, totalFull } = calcT();
   const slot = (contest.slots || []).find(s => s.id === selSlotId);
   const exNoms = selExames.map(id => (contest.exames || []).find(x => x.id === id)?.nome || id);
   const exOrientacoes = selExames.map(id => (contest.exames || []).find(x => x.id === id)?.orientacoes || '').filter(Boolean);
