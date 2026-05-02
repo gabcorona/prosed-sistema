@@ -313,7 +313,10 @@ function clearForm() {
 function initForm() {
   const sel = document.getElementById('clone-source');
   sel.innerHTML = '<option value="">Selecione...</option>' + contests.map(c => `<option value="${c.id}">${c.nome}</option>`).join('');
-  renderFieldsGrid(undefined); // novo concurso: todos marcados por padrão
+  // Se estiver editando, usa o fieldsConfig do concurso; senão, marca todos por padrão
+  const editingId = document.getElementById('editing-id').value;
+  const editingContest = editingId ? contests.find(c => c.id === editingId) : null;
+  renderFieldsGrid(editingContest ? (editingContest.fieldsConfig ?? undefined) : undefined);
   if (!newPacotes.length && !document.getElementById('editing-id').value) {
     newPacotes = [
       { id: uid(), nome: 'Pacote Completo PCES', desc: 'Todos os exames admissionais obrigatórios', preco: '350' },
