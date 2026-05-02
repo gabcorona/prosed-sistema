@@ -1,10 +1,10 @@
 <!DOCTYPE html>
-<!-- saved from url=(0056)file:///C:/Users/tecnico10/Downloads/prosed-admin_2.html -->
-<html lang="pt-BR"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <title>PROSED · Admin</title>
-<link href="./prosed-admin_2_files/css2" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet"/>
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 :root{--navy:#0A1628;--navy-mid:#112040;--navy-light:#1A305C;--blue:#1E6FFF;--blue-light:#4D93FF;--blue-glow:rgba(30,111,255,0.18);--teal:#00C9A7;--teal-light:#00E8C3;--amber:#FFB800;--red:#FF4757;--white:#F0F4FF;--white-dim:rgba(240,244,255,0.65);--white-faint:rgba(240,244,255,0.08);--border:rgba(240,244,255,0.10);--card:rgba(17,32,64,0.90);--radius:14px;}
@@ -106,7 +106,7 @@ tr:hover td{background:var(--white-faint)}tr:last-child td{border-bottom:none}
     <div style="font-size:1.2rem;font-weight:800;margin-bottom:6px">PROSED · Admin</div>
     <div style="font-size:.82rem;color:var(--white-dim);margin-bottom:24px">Acesso restrito à equipe administrativa</div>
     <div class="field" style="text-align:left"><label class="fl">Senha</label>
-      <input type="password" id="login-pwd" placeholder="Digite sua senha"></div>
+      <input type="password" id="login-pwd" placeholder="Digite sua senha"/></div>
     <button class="btn-primary" style="width:100%;justify-content:center;margin-top:4px" id="btn-login">Entrar →</button>
     <div id="login-err" style="font-size:.78rem;color:var(--red);margin-top:10px;min-height:18px"></div>
   </div>
@@ -145,14 +145,14 @@ tr:hover td{background:var(--white-faint)}tr:last-child td{border-bottom:none}
     <div class="s-card fade">
       <div class="s-title"><span class="s-num">1</span> Informações e Edital</div>
       <div class="g2">
-        <div class="field"><label class="fl">Nome do Concurso <span class="req">*</span></label><input type="text" id="nc-nome" placeholder="Ex: PCES 2025"></div>
-        <div class="field"><label class="fl">Órgão <span class="req">*</span></label><input type="text" id="nc-orgao" placeholder="Ex: Polícia Civil do ES"></div>
+        <div class="field"><label class="fl">Nome do Concurso <span class="req">*</span></label><input type="text" id="nc-nome" placeholder="Ex: PCES 2025"/></div>
+        <div class="field"><label class="fl">Órgão <span class="req">*</span></label><input type="text" id="nc-orgao" placeholder="Ex: Polícia Civil do ES"/></div>
       </div>
       <div class="g3">
-        <div class="field"><label class="fl">Prazo limite</label><input type="tel" id="nc-prazo" class="mono" placeholder="DD/MM/AAAA" maxlength="10"></div>
+        <div class="field"><label class="fl">Prazo limite</label><input type="tel" id="nc-prazo" class="mono" placeholder="DD/MM/AAAA" maxlength="10"/></div>
         <div class="field"><label class="fl">Status</label>
           <select id="nc-status"><option value="draft">Rascunho</option><option value="active">Ativo (público)</option></select></div>
-        <div class="field"><label class="fl">Máx. parcelas</label><input type="number" id="nc-parcelas" value="1" min="1" max="12"></div>
+        <div class="field"><label class="fl">Máx. parcelas</label><input type="number" id="nc-parcelas" value="1" min="1" max="12"/></div>
       </div>
       <label class="fl" style="display:block;margin-bottom:8px">Upload do Edital PDF</label>
       <div class="upload-zone" id="edital-zone">
@@ -160,9 +160,9 @@ tr:hover td{background:var(--white-faint)}tr:last-child td{border-bottom:none}
         <div style="font-weight:700" id="edital-label">Clique para selecionar o PDF do edital</div>
         <div style="font-size:.78rem;color:var(--white-dim);margin-top:5px" id="edital-sub">PDF · Máx. 20MB</div>
       </div>
-      <input type="file" id="edital-inp" accept=".pdf" style="display:none">
+      <input type="file" id="edital-inp" accept=".pdf" style="display:none"/>
       <div style="margin-top:10px;display:flex;gap:10px;align-items:center;flex-wrap:wrap">
-        <button class="btn-teal btn-sm" id="btn-analisar" disabled="">✨ Analisar com IA</button>
+        <button class="btn-teal btn-sm" id="btn-analisar" disabled>✨ Analisar com IA</button>
         <span id="ai-status" style="font-size:.76rem;color:var(--white-dim)">Carregue um PDF para habilitar</span>
       </div>
       <div id="ai-result" style="display:none">
@@ -177,9 +177,9 @@ tr:hover td{background:var(--white-faint)}tr:last-child td{border-bottom:none}
       <div style="margin-top:14px"><label class="fl" style="display:block;margin-bottom:6px">Resumo para o candidato</label>
         <textarea id="nc-resumo" rows="4" placeholder="Resumo do edital, datas importantes..."></textarea></div>
       <div style="margin-top:14px"><label class="fl" style="display:block;margin-bottom:6px">🖼️ URL da Imagem de Capa (banner do concurso)</label>
-        <input type="url" id="nc-imageUrl" placeholder="https://exemplo.com/imagem.jpg" style="margin-bottom:6px">
+        <input type="url" id="nc-imageUrl" placeholder="https://exemplo.com/imagem.jpg" style="margin-bottom:6px"/>
         <div id="nc-imageUrl-preview" style="display:none;margin-top:8px">
-          <img id="nc-imageUrl-img" src="file:///C:/Users/tecnico10/Downloads/prosed-admin_2.html" alt="Preview" style="max-height:140px;max-width:100%;border-radius:10px;object-fit:cover;border:1.5px solid var(--border)">
+          <img id="nc-imageUrl-img" src="" alt="Preview" style="max-height:140px;max-width:100%;border-radius:10px;object-fit:cover;border:1.5px solid var(--border)"/>
         </div>
         <div style="font-size:.72rem;color:var(--white-dim);margin-top:4px">Cole a URL pública de uma imagem (JPG, PNG, WebP). Será exibida no card do concurso na página pública.</div>
       </div>
@@ -230,15 +230,15 @@ tr:hover td{background:var(--white-faint)}tr:last-child td{border-bottom:none}
               <option value="Prosed - Unidade Cariacica">Prosed - Unidade Cariacica</option>
               <option value="Prosed - Unidade Cachoeiro">Prosed - Unidade Cachoeiro</option>
             </select></div>
-          <div class="field" style="margin-bottom:0"><label class="fl">Data</label><input type="tel" id="cfg-date" class="mono" placeholder="DD/MM/AAAA" maxlength="10"></div>
-          <div class="field" style="margin-bottom:0"><label class="fl">Horário</label><input type="tel" id="cfg-time" class="mono" placeholder="HH:MM" maxlength="5"></div>
-          <div class="field" style="margin-bottom:0"><label class="fl">Vagas</label><input type="number" id="cfg-max" placeholder="30" min="1"></div>
+          <div class="field" style="margin-bottom:0"><label class="fl">Data</label><input type="tel" id="cfg-date" class="mono" placeholder="DD/MM/AAAA" maxlength="10"/></div>
+          <div class="field" style="margin-bottom:0"><label class="fl">Horário</label><input type="tel" id="cfg-time" class="mono" placeholder="HH:MM" maxlength="5"/></div>
+          <div class="field" style="margin-bottom:0"><label class="fl">Vagas</label><input type="number" id="cfg-max" placeholder="30" min="1"/></div>
         </div>
         <div style="margin-top:12px"><button class="btn-teal btn-sm" id="btn-add-slot">+ Adicionar</button></div>
       </div>
       <div id="slots-list"></div>
     </div>
-    <input type="hidden" id="editing-id">
+    <input type="hidden" id="editing-id"/>
     <div class="btn-row">
       <button class="btn-ghost" id="btn-clear-form">Limpar</button>
       <button class="btn-ghost" id="btn-save-draft">💾 Salvar Rascunho</button>
@@ -251,7 +251,7 @@ tr:hover td{background:var(--white-faint)}tr:last-child td{border-bottom:none}
       <div class="s-title">Filtros</div>
       <div class="g2" style="margin-bottom:0">
         <div class="field" style="margin-bottom:0"><label class="fl">Concurso</label><select id="f-concurso"><option value="">Todos</option></select></div>
-        <div class="field" style="margin-bottom:0"><label class="fl">Nome / CPF</label><input type="text" id="f-busca" placeholder="Buscar..."></div>
+        <div class="field" style="margin-bottom:0"><label class="fl">Nome / CPF</label><input type="text" id="f-busca" placeholder="Buscar..."/></div>
       </div>
     </div>
     <div class="s-card fade">
@@ -268,7 +268,7 @@ tr:hover td{background:var(--white-faint)}tr:last-child td{border-bottom:none}
       <div class="s-title">Filtros</div>
       <div class="g2" style="margin-bottom:0">
         <div class="field" style="margin-bottom:0"><label class="fl">Concurso</label><select id="pront-concurso"><option value="">Todos</option></select></div>
-        <div class="field" style="margin-bottom:0"><label class="fl">Nome / CPF</label><input type="text" id="pront-busca" placeholder="Buscar candidato..."></div>
+        <div class="field" style="margin-bottom:0"><label class="fl">Nome / CPF</label><input type="text" id="pront-busca" placeholder="Buscar candidato..."/></div>
       </div>
     </div>
     <div class="s-card fade">
@@ -291,12 +291,12 @@ tr:hover td{background:var(--white-faint)}tr:last-child td{border-bottom:none}
     <div class="s-card fade">
       <div class="s-title">Cadastrar Profissional</div>
       <div class="g2">
-        <div class="field"><label class="fl">Nome Completo <span class="req">*</span></label><input type="text" id="prof-nome" placeholder="Dr. Nome Sobrenome"></div>
-        <div class="field"><label class="fl">Usuário (login) <span class="req">*</span></label><input type="text" id="prof-user" placeholder="dr.nome" class="mono" oninput="this.value=this.value.toLowerCase().replace(/\s/g,&#39;&#39;)"></div>
-        <div class="field"><label class="fl">Senha <span class="req">*</span></label><input type="password" id="prof-senha" placeholder="Mínimo 6 caracteres"></div>
-        <div class="field"><label class="fl">CRM</label><input type="text" id="prof-crm" placeholder="CRM/ES 00000"></div>
-        <div class="field"><label class="fl">RQE</label><input type="text" id="prof-rqe" placeholder="ex: 12345"></div>
-        <div class="field"><label class="fl">Especialidade</label><input type="text" id="prof-esp" placeholder="ex: Medicina do Trabalho"></div>
+        <div class="field"><label class="fl">Nome Completo <span class="req">*</span></label><input type="text" id="prof-nome" placeholder="Dr. Nome Sobrenome"/></div>
+        <div class="field"><label class="fl">Usuário (login) <span class="req">*</span></label><input type="text" id="prof-user" placeholder="dr.nome" class="mono" oninput="this.value=this.value.toLowerCase().replace(/\s/g,'')"/></div>
+        <div class="field"><label class="fl">Senha <span class="req">*</span></label><input type="password" id="prof-senha" placeholder="Mínimo 6 caracteres"/></div>
+        <div class="field"><label class="fl">CRM</label><input type="text" id="prof-crm" placeholder="CRM/ES 00000"/></div>
+        <div class="field"><label class="fl">RQE</label><input type="text" id="prof-rqe" placeholder="ex: 12345"/></div>
+        <div class="field"><label class="fl">Especialidade</label><input type="text" id="prof-esp" placeholder="ex: Medicina do Trabalho"/></div>
       </div>
       <div class="field">
         <label class="fl">Exames que pode lançar resultado <span class="req">*</span></label>
@@ -312,7 +312,7 @@ tr:hover td{background:var(--white-faint)}tr:last-child td{border-bottom:none}
         <div></div>
         <button class="btn-primary btn-sm" id="btn-save-prof">💾 Salvar Profissional</button>
       </div>
-      <input type="hidden" id="prof-editing-id">
+      <input type="hidden" id="prof-editing-id"/>
     </div>
     <div class="s-card fade">
       <div class="s-title">Profissionais Cadastrados</div>
@@ -324,13 +324,13 @@ tr:hover td{background:var(--white-faint)}tr:last-child td{border-bottom:none}
     <div class="s-card fade">
       <div class="s-title">Criar Cupom</div>
       <div class="g4">
-        <div class="field"><label class="fl">Código <span class="req">*</span></label><input type="text" id="cp-code" class="mono" placeholder="EX: PCES10"></div>
+        <div class="field"><label class="fl">Código <span class="req">*</span></label><input type="text" id="cp-code" class="mono" placeholder="EX: PCES10"/></div>
         <div class="field"><label class="fl">Tipo</label><select id="cp-type"><option value="percent">Percentual (%)</option><option value="fixed">Valor fixo (R$)</option></select></div>
-        <div class="field"><label class="fl">Valor <span class="req">*</span></label><input type="number" id="cp-value" placeholder="10" min="1"></div>
-        <div class="field"><label class="fl">Usos máx. (0=∞)</label><input type="number" id="cp-max" placeholder="0" min="0"></div>
+        <div class="field"><label class="fl">Valor <span class="req">*</span></label><input type="number" id="cp-value" placeholder="10" min="1"/></div>
+        <div class="field"><label class="fl">Usos máx. (0=∞)</label><input type="number" id="cp-max" placeholder="0" min="0"/></div>
       </div>
       <div class="g2">
-        <div class="field"><label class="fl">Válido até</label><input type="tel" id="cp-val" class="mono" placeholder="DD/MM/AAAA" maxlength="10"></div>
+        <div class="field"><label class="fl">Válido até</label><input type="tel" id="cp-val" class="mono" placeholder="DD/MM/AAAA" maxlength="10"/></div>
         <div class="field"><label class="fl">Restrito ao concurso</label><select id="cp-contest"><option value="">Todos os concursos</option></select></div>
       </div>
       <button class="btn-teal" id="btn-add-coupon">+ Criar Cupom</button>
@@ -343,19 +343,19 @@ tr:hover td{background:var(--white-faint)}tr:last-child td{border-bottom:none}
       <div class="s-title">🏦 Integração Asaas</div>
       <div class="g2">
         <div class="field"><label class="fl">Ambiente</label><select id="asaas-env"><option value="sandbox">Sandbox (testes)</option><option value="production">Produção</option></select></div>
-        <div class="field"><label class="fl">URL do Servidor Proxy <span class="req">*</span></label><input type="text" id="proxy-url" placeholder="https://prosed-sistema.vercel.app"></div>
+        <div class="field"><label class="fl">URL do Servidor Proxy <span class="req">*</span></label><input type="text" id="proxy-url" placeholder="https://prosed-sistema.vercel.app"/></div>
       </div>
     </div>
     <div class="s-card fade">
       <div class="s-title">🔑 Claude API (análise de editais)</div>
-      <div class="field"><label class="fl">Anthropic API Key</label><input type="password" id="api-key-inp" placeholder="sk-ant-..."></div>
+      <div class="field"><label class="fl">Anthropic API Key</label><input type="password" id="api-key-inp" placeholder="sk-ant-..."/></div>
     </div>
     <div class="s-card fade">
       <div class="s-title">🔐 Trocar Senha</div>
       <div style="background:rgba(255,71,87,.06);border:1.5px solid rgba(255,71,87,.2);border-radius:12px;padding:18px;">
         <div class="g2" style="margin-bottom:12px">
-          <div class="field" style="margin-bottom:0"><label class="fl">Senha atual</label><input type="password" id="pwd-old"></div>
-          <div class="field" style="margin-bottom:0"><label class="fl">Nova senha</label><input type="password" id="pwd-new" placeholder="Mín. 6 caracteres"></div>
+          <div class="field" style="margin-bottom:0"><label class="fl">Senha atual</label><input type="password" id="pwd-old"/></div>
+          <div class="field" style="margin-bottom:0"><label class="fl">Nova senha</label><input type="password" id="pwd-new" placeholder="Mín. 6 caracteres"/></div>
         </div>
         <button class="btn-red" id="btn-change-pwd">Alterar senha</button>
         <div id="pwd-msg" style="font-size:.78rem;margin-top:8px;min-height:16px"></div>
@@ -395,7 +395,6 @@ tr:hover td{background:var(--white-faint)}tr:last-child td{border-bottom:none}
   <span id="toast-icon">✓</span><span id="toast-msg"></span>
   <button class="toast-x" id="btn-close-toast">×</button>
 </div>
-<script type="module" src="./prosed-admin_2_files/prosed-admin-logic.js"></script>
-
-
-</body></html>
+<script type="module" src="./prosed-admin-logic.js"></script>
+</body>
+</html>
