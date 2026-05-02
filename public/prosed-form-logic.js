@@ -8,6 +8,7 @@ const UNIT_ADDRESSES = {
   'Prosed - Unidade Vitória':    'R. Neves Armond, 535 - Bento Ferreira, Vitória - ES',
   'Prosed - Unidade Cariacica':  'R. José Barros da Silva, 17 - Campo Grande, Cariacica - ES',
   'Prosed - Unidade Serra':      'R. Humberto de Campos, 25 - Parque Res. Laranjeiras, Serra - ES',
+  'Prosed - Unidade Belo Horizonte': 'R. Dom José Gaspar, 200 - Coração Eucarístico, Belo Horizonte - MG',
 };
 
 function getAddress(city) {
@@ -50,6 +51,7 @@ let step = 0, fd = {}, selFile = null;
 let selSlotId = null, selCity = null, selDate = null;
 let selExames = [], appliedCoupon = null;
 let payMethod = 'credit', installments = 1;
+let payMode = 'full'; // 'full' = total | 'taxa' = Taxa de Confirmação R$200
 let lastReg = null, pixPollTimer = null;
 window._pixPaymentId = null;
 
@@ -253,6 +255,7 @@ const UNIT_ADDRESS_SHORT = {
   'Prosed - Unidade Vitória':    'R. Neves Armond, 535 - Bento Ferreira',
   'Prosed - Unidade Cariacica':  'R. José Barros da Silva, 17 - Campo Grande',
   'Prosed - Unidade Serra':      'R. Humberto de Campos, 25 - Parque Res. Laranjeiras',
+  'Prosed - Unidade Belo Horizonte': 'R. Dom José Gaspar, 200 - Coração Eucarístico',
 };
 
 // Endereços completos para os links de mapa
@@ -265,6 +268,7 @@ const UNIT_ADDRESS_FULL = {
   'Prosed - Unidade Vitória':    'R. Neves Armond, 535, Bento Ferreira, Vitória, ES',
   'Prosed - Unidade Cariacica':  'R. José Barros da Silva, 17, Campo Grande, Cariacica, ES',
   'Prosed - Unidade Serra':      'R. Humberto de Campos, 25, Parque Residencial Laranjeiras, Serra, ES',
+  'Prosed - Unidade Belo Horizonte': 'R. Dom José Gaspar, 200, Coração Eucarístico, Belo Horizonte, MG',
 };
 
 function getCityShort(city) {
@@ -378,12 +382,16 @@ function hFile(inp) {
 }
 
 // ── STEP 6: CHECKOUT ──────────────────────────────────────────
+const TAXA_CONFIRMACAO = 200;
 function calcT() {
   let base = fd.pacotePreco || 0;
   if (fd.pacoteId === 'avulsos') base = selExames.reduce((a, id) => { const e = (contest.exames || []).find(x => x.id === id); return a + (e ? parseFloat(e.preco) || 0 : 0); }, 0);
   let disc = 0;
   if (appliedCoupon) disc = appliedCoupon.type === 'percent' ? base * (appliedCoupon.value / 100) : Math.min(appliedCoupon.value, base);
-  return { base, disc, total: Math.max(0, base - disc) };
+  const totalFull = Math.max(0, base - disc);
+  const total = payMode === 'taxa' ? Math.min(TAXA_CONFIRMACAO, totalFull) : totalFull;
+  const saldo = payMode === 'taxa' ? Math.max(0, totalFull - total) : 0;
+  return { base, disc, total, saldo, totalFull };
 }
 
 function rCheckout() {
@@ -420,6 +428,24 @@ function rCheckout() {
         ${appliedCoupon ? `<button class="btn-ghost btn-sm" onclick="rmCup()" style="color:var(--red);border-color:rgba(255,71,87,.3)">✕</button>` : ''}
       </div>
       ${appliedCoupon ? `<div style="font-size:.76rem;color:var(--green);margin-top:6px">✓ ${appliedCoupon.code}: ${appliedCoupon.type === 'percent' ? appliedCoupon.value + '%' : 'R$ ' + brl(appliedCoupon.value)} de desconto</div>` : ''}
+    </div>
+    <div class="s-card">
+      <div class="s-title">💰 Modo de Pagamento</div>
+      <div class="pay-methods">
+        <div class="pay-method ${payMode === 'full' ? 'sel' : ''}" onclick="sMode('full',this)" style="flex:1;text-align:center;padding:14px 10px">
+          <div class="pay-icon">💵</div>
+          <div class="pay-name">Pagamento Total</div>
+          <div style="font-size:.7rem;color:var(--white-dim);margin-top:4px">R$ ${brl(totalFull)}</div>
+        </div>
+        <div class="pay-method ${payMode === 'taxa' ? 'sel' : ''}" onclick="sMode('taxa',this)" style="flex:1;text-align:center;padding:14px 10px">
+          <div class="pay-icon">🔒</div>
+          <div class="pay-name">Taxa de Confirmação</div>
+          <div style="font-size:.7rem;color:var(--amber);margin-top:4px">R$ ${brl(Math.min(TAXA_CONFIRMACAO, totalFull))} agora · R$ ${brl(Math.max(0,totalFull - Math.min(TAXA_CONFIRMACAO,totalFull)))} no dia</div>
+        </div>
+      </div>
+      ${payMode === 'taxa' ? `<div style="background:rgba(255,184,0,.08);border:1px solid rgba(255,184,0,.25);border-radius:10px;padding:12px 14px;margin-top:12px;font-size:.8rem;line-height:1.6;color:var(--amber)">
+        ⚠ <strong>Taxa de Confirmação:</strong> Você pagará R$ ${brl(Math.min(TAXA_CONFIRMACAO, totalFull))} agora para reservar seu agendamento. O valor restante de <strong>R$ ${brl(Math.max(0,totalFull - Math.min(TAXA_CONFIRMACAO,totalFull)))}</strong> deverá ser pago no dia do exame, antes do atendimento.
+      </div>` : ''}
     </div>
     ${total > 0 ? `<div class="s-card">
       <div class="s-title">Forma de Pagamento</div>
@@ -475,6 +501,11 @@ function rCheckout() {
   </div>`);
 }
 
+function sMode(m, el) {
+  payMode = m;
+  document.querySelectorAll('.pay-method').forEach(c => c.classList.remove('sel')); el.classList.add('sel');
+  rCheckout();
+}
 function sPay(m, el) {
   payMethod = m; installments = 1;
   document.querySelectorAll('.pay-method').forEach(c => c.classList.remove('sel')); el.classList.add('sel');
@@ -586,6 +617,9 @@ async function finalize(asaasId, payStatus) {
     slotAddress: getAddress(slot?.city || ''),
     obs: fd.obs || '', fileName: selFile?.name || '',
     total, discount: disc, cupom: appliedCoupon?.code || '',
+    payMode, taxaConfirmacao: payMode === 'taxa' ? calcT().total : 0,
+    saldoDevedor: payMode === 'taxa' ? calcT().saldo : 0,
+    statusRecepcao: 'aguardando', // aguardando | liberado
     payMethod, installments, asaasPaymentId: asaasId, payStatus, status: 'ativo',
   };
 
@@ -630,6 +664,8 @@ function rSuccess(rec) {
       <div class="ds-row"><span class="ds-key">Pacote</span><span class="ds-val">${rec.pacoteLabel}</span></div>
       ${(rec.examesSel||[]).length ? `<div class="ds-row"><span class="ds-key">Exames</span><span class="ds-val" style="font-size:.78rem">${rec.examesSel.join(', ')}</span></div>` : ''}
       <div class="ds-row"><span class="ds-key">Total Pago</span><span class="ds-val" style="color:var(--teal-light)">R$ ${brl(rec.total)}</span></div>
+      ${rec.saldoDevedor > 0 ? `<div class="ds-row"><span class="ds-key" style="color:var(--amber)">⚠ Saldo no Dia</span><span class="ds-val" style="color:var(--amber);font-weight:700">R$ ${brl(rec.saldoDevedor)}</span></div>
+      <div class="ds-row"><span class="ds-key"></span><span class="ds-val" style="font-size:.74rem;color:var(--white-dim)">Pagar antes do atendimento</span></div>` : ''}
       ${rec.installments > 1 ? `<div class="ds-row"><span class="ds-key">Parcelamento</span><span class="ds-val">${rec.installments}x R$ ${brl(rec.total / rec.installments)}</span></div>` : ''}
     </div>
     <div class="success-actions">
@@ -791,7 +827,7 @@ function showToast(msg, type = 'ok') { const t = document.getElementById('toast'
 window.next = next; window.prev = prev; window.sPac = sPac; window.tEx = tEx; window.uAvSub = uAvSub;
 window.pCity = pCity; window.pDate = pDate; window.pTime = pTime; window.rTimes = rTimes;
 window.hFile = hFile; window.apCup = apCup; window.rmCup = rmCup;
-window.sPay = sPay; window.sInst = sInst; window.subCard = subCard; window.gPIX = gPIX; window.cpPix = cpPix; window.finZero = finZero;
+window.sPay = sPay; window.sMode = sMode; window.sInst = sInst; window.subCard = subCard; window.gPIX = gPIX; window.cpPix = cpPix; window.finZero = finZero;
 window.prtComp = prtComp;
 window.mCPF = mCPF; window.mPhone = mPhone; window.mDate = mDate; window.mCard = mCard; window.mExp = mExp; window.mCEP = mCEP;
 window.sR = sR; window.tMed = tMed;
